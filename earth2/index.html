@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Climate Incident Command Center</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">CICC</div>
+          <div>
+            <h1>Climate Incident Command Center</h1>
+            <p id="incidentSubhead">Live operational plan</p>
+          </div>
+        </div>
+
+        <div class="control-strip" aria-label="Incident controls">
+          <label class="field">
+            <span>Replay</span>
+            <select id="scenarioSelect"></select>
+          </label>
+          <label class="field compact">
+            <span>Cadence</span>
+            <select id="speedSelect">
+              <option value="2600">Slow</option>
+              <option value="1600" selected>Live</option>
+              <option value="850">Fast</option>
+            </select>
+          </label>
+          <button class="button primary" id="runCycleBtn" type="button">Run Cycle</button>
+          <button class="button" id="toggleLiveBtn" type="button">Pause</button>
+        </div>
+
+        <div class="status-strip" id="statusStrip" aria-label="Incident status"></div>
+      </header>
+
+      <main class="workspace">
+        <section class="map-column" aria-label="Operational map">
+          <div class="map-toolbar">
+            <div>
+              <h2 id="incidentTitle">Incident</h2>
+              <p id="incidentMeta">Model state loading</p>
+            </div>
+            <div class="layer-toggles" aria-label="Map layers">
+              <label><input type="checkbox" data-layer="forecast" checked /> Forecast</label>
+              <label><input type="checkbox" data-layer="damage" checked /> Damage</label>
+              <label><input type="checkbox" data-layer="routes" checked /> Routes</label>
+              <label><input type="checkbox" data-layer="facilities" checked /> Facilities</label>
+              <label><input type="checkbox" data-layer="calls" checked /> Calls</label>
+            </div>
+          </div>
+
+          <div class="map-stage">
+            <canvas id="incidentMap" aria-label="Incident map visualization"></canvas>
+
+            <div class="map-hud top-left" id="mapMetrics"></div>
+            <div class="map-hud bottom-left" id="selectionCard"></div>
+            <div class="map-legend" id="mapLegend"></div>
+          </div>
+
+          <div class="timeline-panel">
+            <div class="timeline-copy">
+              <strong id="forecastLead">Now</strong>
+              <span id="forecastSummary">Forecast loading</span>
+            </div>
+            <input id="forecastRange" type="range" min="0" max="5" value="0" />
+            <div class="forecast-ticks" id="forecastTicks"></div>
+          </div>
+
+          <section class="ops-grid" id="opsGrid" aria-label="Operational summary"></section>
+        </section>
+
+        <aside class="command-panel" aria-label="Command panels">
+          <nav class="tabs" aria-label="Panel views">
+            <button class="tab is-active" type="button" data-view="forecast">Forecast</button>
+            <button class="tab" type="button" data-view="damage">Damage</button>
+            <button class="tab" type="button" data-view="routing">Routing</button>
+            <button class="tab" type="button" data-view="comms">Comms</button>
+            <button class="tab" type="button" data-view="calls">Calls</button>
+            <button class="tab" type="button" data-view="ingest">Ingest</button>
+            <button class="tab" type="button" data-view="nims">NIMs</button>
+          </nav>
+
+          <section class="panel-body" id="panelBody" tabindex="-1"></section>
+
+          <section class="agent-loop" aria-label="Agent loop">
+            <div class="section-heading">
+              <h2>Agent Loop</h2>
+              <span id="cycleClock">Cycle 0</span>
+            </div>
+            <ol id="loopLog" class="loop-log"></ol>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
