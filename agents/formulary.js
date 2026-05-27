@@ -35,8 +35,12 @@ function levenshteinFallback(a, b) {
 function loadFormulary(filePath) {
   const empty = { set: new Set(), byLength: {} };
   try {
+    console.log(`Loading formulary from: ${filePath}`);
     const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    if (!Array.isArray(parsed)) return empty;
+    if (!Array.isArray(parsed)) {
+      console.error("Formulary file is not an array");
+      return empty;
+    }
     const set = new Set();
     const byLength = {};
     for (const item of parsed) {
@@ -47,8 +51,10 @@ function loadFormulary(filePath) {
       if (!byLength[length]) byLength[length] = [];
       byLength[length].push(term);
     }
+    console.log(`Loaded ${set.size} formulary entries`);
     return { set, byLength };
-  } catch {
+  } catch (error) {
+    console.error(`Failed to load formulary: ${error.message}`);
     return empty;
   }
 }

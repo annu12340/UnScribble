@@ -69,7 +69,12 @@ const server = http.createServer(async (req, res) => {
         maxImageBytes: MAX_IMAGE_BYTES,
         workflow: true,
         agents: AGENT_MANIFEST,
-        mock: config.mock
+        mock: config.mock,
+        googleCalendar: {
+          enabled: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_API_KEY),
+          clientId: process.env.GOOGLE_CLIENT_ID || "",
+          apiKey: process.env.GOOGLE_API_KEY || ""
+        }
       });
       return;
     }
@@ -105,7 +110,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, "127.0.0.1", () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`Prescription OCR running at http://localhost:${PORT}`);
   console.log(`Workflow: multi-agent SSE · formulary entries: ${formularySize}`);
   if (config.mock) console.log("WORKFLOW_MOCK=1 — using fixture agent outputs");

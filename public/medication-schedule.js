@@ -207,11 +207,52 @@ export async function authenticateGoogleCalendar(clientId, apiKey) {
   });
 
   const authInstance = window.gapi.auth2.getAuthInstance();
+  
   if (!authInstance.isSignedIn.get()) {
-    await authInstance.signIn();
+    try {
+      await authInstance.signIn({
+        prompt: 'select_account'
+      });
+    } catch (error) {
+      if (error.error === 'popup_closed_by_user') {
+        throw new Error('Sign-in cancelled. Please try again.');
+      }
+      throw error;
+    }
   }
 
   return authInstance.isSignedIn.get();
+}
+
+export function isGoogleSignedIn() {
+  if (!window.gapi || !window.gapi.auth2) {
+    return false;
+  }
+  const authInstance = window.gapi.auth2.getAuthInstance();
+  return authInstance && authInstance.isSignedIn.get();
+}
+
+export async function signOutGoogle() {
+  if (window.gapi && window.gapi.auth2) {
+    const authInstance = window.gapi.auth2.getAuthInstance();
+    if (authInstance) {
+      await authInstance.signOut();
+    }
+  }
+}
+
+export function getGoogleUserInfo() {
+  if (!isGoogleSignedIn()) {
+    return null;
+  }
+  const authInstance = window.gapi.auth2.getAuthInstance();
+  const user = authInstance.currentUser.get();
+  const profile = user.getBasicProfile();
+  return {
+    name: profile.getName(),
+    email: profile.getEmail(),
+    imageUrl: profile.getImageUrl()
+  };
 }
 
 export async function addMedicationToGoogleCalendar(schedule, startDate, clientId, apiKey) {

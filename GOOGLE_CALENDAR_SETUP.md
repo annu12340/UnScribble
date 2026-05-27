@@ -1,14 +1,14 @@
 # Google Calendar Integration Setup
 
-To enable medication reminders in Google Calendar, you need to set up Google Cloud credentials.
+The app now supports **simple Google Sign-In** for adding medication reminders to your calendar. Users just click a button and sign in - no manual credential entry needed!
 
-## Steps to Get Google Calendar API Credentials
+## Quick Setup (5 minutes)
 
 ### 1. Create a Google Cloud Project
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Click "Select a project" → "New Project"
-3. Enter a project name (e.g., "Prescription OCR")
+3. Enter project name: "Prescription OCR"
 4. Click "Create"
 
 ### 2. Enable Google Calendar API
@@ -26,57 +26,95 @@ To enable medication reminders in Google Calendar, you need to set up Google Clo
    - Fill in app name: "Prescription OCR"
    - Add your email as developer contact
    - Save and continue through the scopes (no changes needed)
-   - Add test users if needed
+   - Add test users if in testing mode
 4. Back to "Create OAuth client ID":
    - Application type: "Web application"
    - Name: "Prescription OCR Web Client"
-   - Authorized JavaScript origins: Add `http://localhost:3001` (or your domain)
-   - Authorized redirect URIs: Add `http://localhost:3001/results.html`
+   - Authorized JavaScript origins: 
+     - `http://localhost:3000` (for local development)
+     - Add your production domain if deploying
+   - Authorized redirect URIs: 
+     - `http://localhost:3000/results.html`
+     - Add your production URL if deploying
 5. Click "Create"
-6. **Copy the Client ID** - you'll need this
+6. **Copy the Client ID** (looks like: `xxxxx.apps.googleusercontent.com`)
 
 ### 4. Create API Key
 
 1. Go to "APIs & Services" → "Credentials"
 2. Click "Create Credentials" → "API key"
-3. **Copy the API Key** - you'll need this
-4. (Optional) Click "Restrict Key" to limit it to Google Calendar API only
+3. **Copy the API Key**
+4. Click "Restrict Key" (recommended):
+   - Under "API restrictions", select "Restrict key"
+   - Choose "Google Calendar API"
+   - Save
 
-### 5. Configure in the App
+### 5. Configure Your App
 
-1. Process a prescription and go to the results page
-2. Click "Add to Google Calendar" on any medication
-3. Enter your **Client ID** and **API Key** in the modal
-4. These will be saved in your browser for future use
+Add these to your `.env` file:
+
+```bash
+GOOGLE_CLIENT_ID=your_client_id_here.apps.googleusercontent.com
+GOOGLE_API_KEY=your_api_key_here
+```
+
+Restart your server:
+```bash
+npm start
+```
+
+## How Users Will Experience It
+
+1. User processes a prescription
+2. On results page, clicks "Add to Google Calendar"
+3. Modal appears with "Sign in & Add to Calendar" button
+4. Clicks button → Google sign-in popup appears
+5. User signs in with their Google account
+6. Grants calendar permissions
+7. Medications are automatically added to their calendar!
+
+## Features
+
+- ✅ **One-click sign-in** - No manual credential entry
+- ✅ **Secure OAuth flow** - Industry-standard authentication
+- ✅ **Persistent sessions** - Stay signed in across page loads
+- ✅ **User info display** - Shows signed-in user's name and email
+- ✅ **Easy sign-out** - One-click to disconnect
+- ✅ **Automatic reminders** - 10-minute and 0-minute notifications
+- ✅ **Recurring events** - Based on medication duration
+- ✅ **Fallback option** - ICS export if Google Calendar not configured
 
 ## Security Notes
 
-- **Never commit your API credentials to version control**
-- The credentials are stored in browser localStorage only
-- For production use, implement proper backend authentication
-- Consider using environment variables for API keys
-- Restrict your API key to specific domains in production
+- **Credentials are server-side only** - Users never see API keys
+- **OAuth tokens are browser-only** - Not stored on server
+- **Minimal permissions** - Only requests calendar.events scope
+- **User control** - Users can revoke access anytime from Google Account settings
 
 ## Troubleshooting
 
 ### "Access blocked" error
-- Make sure you've added your email as a test user in OAuth consent screen
-- Verify the authorized origins and redirect URIs match your domain
+- Add your email as a test user in OAuth consent screen
+- Verify authorized origins match your domain exactly
 
-### "API key not valid" error
-- Check that Google Calendar API is enabled for your project
-- Verify the API key is correctly copied
+### "Redirect URI mismatch"
+- Check that redirect URIs in Google Console match your app URL
+- Include the full path: `http://localhost:3000/results.html`
 
-### Calendar events not appearing
-- Ensure you've granted calendar permissions when signing in
-- Check that the start date is set correctly
-- Verify your timezone settings
+### Calendar buttons not showing
+- Verify `.env` has both `GOOGLE_CLIENT_ID` and `GOOGLE_API_KEY`
+- Restart the server after adding credentials
+- Check browser console for errors
+
+### Sign-in popup blocked
+- Allow popups for your domain
+- Try again - browser may have blocked it
 
 ## Alternative: Export as ICS
 
-If you don't want to set up Google Calendar API, you can:
-1. Click "Export as ICS" button
+If you don't want to set up Google Calendar API:
+1. Users can click "Export as ICS" button
 2. Download the `.ics` file
-3. Import it into any calendar app (Google Calendar, Outlook, Apple Calendar, etc.)
+3. Import into any calendar app (Google Calendar, Outlook, Apple Calendar)
 
-This method doesn't require any API setup!
+No API setup required for this option!

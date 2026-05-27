@@ -2,15 +2,19 @@ import {
   renderScheduleView, 
   addMedicationToGoogleCalendar, 
   exportScheduleAsICS,
-  parseMedicationSchedule
+  parseMedicationSchedule,
+  isGoogleSignedIn,
+  signOutGoogle,
+  getGoogleUserInfo
 } from "./medication-schedule.js";
 
 const state = {
   resultPayload: null,
   currentSchedules: [],
   googleCalendarConfig: {
-    clientId: localStorage.getItem("googleClientId") || "",
-    apiKey: localStorage.getItem("googleApiKey") || ""
+    clientId: "",
+    apiKey: "",
+    enabled: false
   },
   currentMedicationIndex: null
 };
@@ -39,8 +43,7 @@ const els = {
   modalClose: document.querySelector("#modalClose"),
   modalCancel: document.querySelector("#modalCancel"),
   modalConfirm: document.querySelector("#modalConfirm"),
-  clientIdInput: document.querySelector("#clientIdInput"),
-  apiKeyInput: document.querySelector("#apiKeyInput"),
+  modalBody: document.querySelector("#calendarModal .modal-body"),
   startDateInput: document.querySelector("#startDateInput")
 };
 
@@ -52,6 +55,34 @@ function init() {
   loadResultData();
   bindEvents();
   setTodayAsDefault();
+  loadGoogleConfig();
+}
+
+async function loadGoogleConfig() {
+  try {
+    const response = await fetch("/api/config");
+    const config = await response.json();
+    
+    if (config.googleCalendar && config.googleCalendar.enabled) {
+      state.googleCalendarConfig = {
+        clientId: config.googleCalendar.clientId,
+        apiKey: config.googleCalendar.apiKey,
+        enabled: true
+      };
+      
+      // Check if user is already signed in
+      if (isGoogleSignedIn()) {
+        updateGoogleSignInUI();
+      }
+    } else {
+      // Hide Google Calendar buttons if not configured
+      document.querySelectorAll('.add-to-calendar-btn, #addAllToCalendar').forEach(btn => {
+        btn.style.display = 'none';
+      });
+    }
+  } catch (error) {
+    console.error("Error loading Google config:", error);
+  }
 }
 
 function bindEvents() {
@@ -62,13 +93,35 @@ function bindEvents() {
   els.modalClose.addEventListener("click", closeModal);
   els.modalCancel.addEventListener("click", closeModal);
   els.modalConfirm.addEventListener("click", confirmCalendarSetup);
-  
-  // Load saved credentials
-  if (state.googleCalendarConfig.clientId) {
-    els.clientIdInput.value = state.googleCalendarConfig.clientId;
-  }
-  if (state.googleCalendarConfig.apiKey) {
-    els.apiKeyInput.value = state.googleCalendarConfig.apiKey;
+}
+
+function updateGoogleSignInUI() {
+  const userInfo = getGoogleUserInfo();
+  if (userInfo && els.modalBody) {
+    const signedInHTML = `
+      <div class="google-signed-in">
+        <div class="google-user-info">
+          <img src="${escapeHtml(userInfo.imageUrl)}" alt="${escapeHtml(userInfo.name)}" class="google-avatar" />
+          <div>
+            <div class="google-user-name">${escapeHtml(userInfo.name)}</div>
+            <div class="google-user-email">${escapeHtml(userInfo.email)}</div>
+          </div>
+        </div>
+        <button class="btn ghost small" id="signOutBtn">Sign Out</button>
+      </div>
+    `;
+    
+    const container = els.modalBody.querySelector('.google-auth-container');
+    if (container) {
+      container.innerHTML = signedInHTML;
+      const signOutBtn = container.querySelector('#signOutBtn');
+      if (signOutBtn) {
+        signOutBtn.addEventListener('click', async () => {
+          await signOutGoogle();
+          location.reload();
+        });
+      }
+    }
   }
 }
 
@@ -203,42 +256,48 @@ function closeModal() {
 }
 
 async function confirmCalendarSetup() {
-  const clientId = els.clientIdInput.value.trim();
-  const apiKey = els.apiKeyInput.value.trim();
-  const startDate = new Date(els.startDateInput.value);
-
-  if (!clientId || !apiKey) {
-    showToast("Please enter both Client ID and API Key");
+  if (!state.googleCalendarConfig.enabled) {
+    showToast("Google Calendar is not configured on the server");
     return;
   }
 
-  // Save credentials
-  localStorage.setItem("googleClientId", clientId);
-  localStorage.setItem("googleApiKey", apiKey);
-  state.googleCalendarConfig.clientId = clientId;
-  state.googleCalendarConfig.apiKey = apiKey;
+  const startDate = new Date(els.startDateInput.value);
 
   closeModal();
 
   try {
+    // Authenticate with Google (will show sign-in if needed)
+    const isAuthenticated = await addMedicationToGoogleCalendar(
+      null, // We'll handle this differently
+      startDate,
+      state.googleCalendarConfig.clientId,
+      state.googleCalendarConfig.apiKey
+    );
+
+    if (!isAuthenticated) {
+      showToast("Google sign-in was cancelled");
+      return;
+    }
+
+    // Now add the medications
     if (state.currentMedicationIndex === "all") {
-      // Add all medications
       let successCount = 0;
       for (const schedule of state.currentSchedules) {
         try {
-          await addMedicationToGoogleCalendar(schedule, startDate, clientId, apiKey);
+          await addMedicationToGoogleCalendar(schedule, startDate, state.googleCalendarConfig.clientId, state.googleCalendarConfig.apiKey);
           successCount++;
         } catch (error) {
           console.error(`Failed to add ${schedule.medication}:`, error);
         }
       }
-      showToast(`Added ${successCount} medication(s) to Google Calendar`);
+      showToast(`✓ Added ${successCount} medication(s) to Google Calendar`);
     } else {
-      // Add single medication
       const schedule = state.currentSchedules[state.currentMedicationIndex];
-      await addMedicationToGoogleCalendar(schedule, startDate, clientId, apiKey);
-      showToast(`Added ${schedule.medication} to Google Calendar`);
+      await addMedicationToGoogleCalendar(schedule, startDate, state.googleCalendarConfig.clientId, state.googleCalendarConfig.apiKey);
+      showToast(`✓ Added ${schedule.medication} to Google Calendar`);
     }
+    
+    updateGoogleSignInUI();
   } catch (error) {
     console.error("Calendar error:", error);
     showToast(`Error: ${error.message}`);

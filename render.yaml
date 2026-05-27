@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: prescription-ocr
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NVIDIA_API_KEY
+        sync: false
