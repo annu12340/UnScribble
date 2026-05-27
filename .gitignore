@@ -44,10 +44,11 @@ outputs/
 Thumbs.db
 
 # Data
-data/
-*.nc
-*.grib
-*.grib2
+data/*.nc
+data/*.grib
+data/*.grib2
+# Keep formulary.json in git
+!data/formulary.json
 
 # Logs
 *.log
