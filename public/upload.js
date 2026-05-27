@@ -271,16 +271,27 @@ function handleWorkflowEvent(event, payload) {
   switch (event) {
     case "workflow.start":
       initAgentProgress(payload.agents || state.workflowAgents);
-      setLoadingHint("Running multi-agent workflow...");
+      setLoadingTitle("Analyzing Your Prescription");
+      setLoadingHint("Starting multi-agent analysis workflow...");
       break;
     case "agent.start":
-      setLoadingHint(payload.label || payload.id);
+      const agentLabels = {
+        "image-quality": "Step 1: Checking image clarity and readability",
+        "raw-transcription": "Step 2: Reading handwritten text from prescription",
+        "patient-header": "Step 3: Extracting patient information",
+        "medications": "Step 4: Identifying medications and dosages",
+        "clinical-context": "Step 5: Understanding clinical context",
+        "safety-review": "Step 6: Performing safety checks",
+        "synthesis": "Step 7: Finalizing prescription details"
+      };
+      const stepLabel = agentLabels[payload.id] || payload.label || payload.id;
+      setLoadingHint(stepLabel);
       setAgentStatus(payload.id, "active");
       break;
     case "agent.complete":
       setAgentStatus(payload.id, "done");
       if (payload.summary) {
-        setLoadingHint(`${agentLabel(payload.id)} · ${payload.summary}`);
+        setLoadingHint(`✓ ${agentLabel(payload.id)} completed`);
       }
       break;
     case "agent.error":
@@ -310,12 +321,34 @@ function initAgentProgress(agents) {
   if (!els.agentProgress || !agents?.length) return;
   state.workflowAgents = agents;
   els.agentProgress.hidden = false;
+  
+  const agentStepLabels = {
+    "image-quality": "Image Quality Check",
+    "raw-transcription": "Text Recognition",
+    "patient-header": "Patient Information",
+    "medications": "Medication Extraction",
+    "clinical-context": "Clinical Analysis",
+    "safety-review": "Safety Verification",
+    "synthesis": "Final Summary"
+  };
+  
   els.agentProgress.replaceChildren(
-    ...agents.map((agent) => {
+    ...agents.map((agent, index) => {
       const li = document.createElement("li");
       li.dataset.agentId = agent.id;
       li.className = "is-pending";
-      li.textContent = agent.label;
+      
+      const stepNumber = document.createElement("span");
+      stepNumber.className = "step-number";
+      stepNumber.textContent = `${index + 1}`;
+      
+      const stepLabel = document.createElement("span");
+      stepLabel.className = "step-label";
+      stepLabel.textContent = agentStepLabels[agent.id] || agent.label;
+      
+      li.appendChild(stepNumber);
+      li.appendChild(stepLabel);
+      
       return li;
     })
   );
@@ -335,11 +368,17 @@ function setLoadingHint(text) {
   if (els.loadingHint) els.loadingHint.textContent = text;
 }
 
+function setLoadingTitle(text) {
+  if (els.loadingTitle) els.loadingTitle.textContent = text;
+}
+
 function setLoading(isLoading) {
   els.loadingOverlay.hidden = !isLoading;
   els.processBtn.disabled = isLoading;
   if (isLoading) {
     els.previewSection.hidden = true;
+    setLoadingTitle("Analyzing Your Prescription");
+    setLoadingHint("Preparing to process your prescription image...");
     // Set a random joke
     state.currentJoke = MEDICAL_JOKES[Math.floor(Math.random() * MEDICAL_JOKES.length)];
     const jokeElement = document.querySelector("#loadingJoke");

@@ -103,7 +103,34 @@
               <div class="section-card-header">
                 <h3>
                   <span class="subhead-icon" aria-hidden="true">Rx</span>
-                  Medication Lines
+                  Medications
+                </h3>
+                <p class="section-desc">Extracted medication information from prescription</p>
+              </div>
+              <div class="medications-table-container">
+                <table class="medications-table" id="medicationsTable">
+                  <thead>
+                    <tr>
+                      <th>Medication Name</th>
+                      <th>Strength</th>
+                      <th>Dose</th>
+                      <th>Frequency</th>
+                      <th>Duration</th>
+                      <th>Administration</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="medicationsTableBody">
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="section-card">
+              <div class="section-card-header">
+                <h3>
+                  <span class="subhead-icon" aria-hidden="true">📋</span>
+                  Detailed Medication Information
                 </h3>
               </div>
               <div class="med-list" id="medList"></div>
@@ -128,10 +155,7 @@
                 <h3 class="subhead">Abbreviations</h3>
                 <div id="abbrevList" class="compact-list"></div>
               </section>
-              <section class="section-card">
-                <h3 class="subhead">Other Text</h3>
-                <div id="otherTextList" class="compact-list"></div>
-              </section>
+        
             </div>
 
             <details class="workflow-trace" id="workflowTraceWrap" hidden>

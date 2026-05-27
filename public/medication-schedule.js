@@ -177,113 +177,207 @@ export function renderScheduleView(container, medications, escapeHtml) {
 }
 
 export function initGoogleCalendar() {
+  console.log('[Google Calendar] Initializing Google Calendar API...');
+  
   // Load Google API client
   return new Promise((resolve, reject) => {
     if (window.gapi) {
+      console.log('[Google Calendar] Google API already loaded');
       resolve();
       return;
     }
 
+    console.log('[Google Calendar] Loading Google API script...');
     const script = document.createElement("script");
     script.src = "https://apis.google.com/js/api.js";
     script.onload = () => {
+      console.log('[Google Calendar] Google API script loaded successfully');
       window.gapi.load("client:auth2", () => {
+        console.log('[Google Calendar] Google API client and auth2 loaded');
         resolve();
       });
     };
-    script.onerror = reject;
+    script.onerror = (error) => {
+      console.error('[Google Calendar] Failed to load Google API script:', error);
+      reject(error);
+    };
     document.head.appendChild(script);
   });
 }
 
 export async function authenticateGoogleCalendar(clientId, apiKey) {
+  console.log('[Google Calendar] Starting authentication process...');
+  console.log('[Google Calendar] Client ID:', clientId ? `${clientId.substring(0, 20)}...` : 'NOT PROVIDED');
+  console.log('[Google Calendar] API Key:', apiKey ? `${apiKey.substring(0, 10)}...` : 'NOT PROVIDED');
+  
   await initGoogleCalendar();
   
-  await window.gapi.client.init({
-    apiKey: apiKey,
-    clientId: clientId,
-    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
-    scope: "https://www.googleapis.com/auth/calendar.events"
-  });
+  console.log('[Google Calendar] Initializing Google API client...');
+  try {
+    await window.gapi.client.init({
+      apiKey: apiKey,
+      clientId: clientId,
+      discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
+      scope: "https://www.googleapis.com/auth/calendar.events"
+    });
+    console.log('[Google Calendar] Google API client initialized successfully');
+  } catch (error) {
+    console.error('[Google Calendar] Failed to initialize Google API client:', error);
+    throw error;
+  }
 
   const authInstance = window.gapi.auth2.getAuthInstance();
+  console.log('[Google Calendar] Auth instance obtained');
   
-  if (!authInstance.isSignedIn.get()) {
+  const isSignedIn = authInstance.isSignedIn.get();
+  console.log('[Google Calendar] Current sign-in status:', isSignedIn);
+  
+  if (!isSignedIn) {
+    console.log('[Google Calendar] User not signed in, initiating sign-in flow...');
     try {
       await authInstance.signIn({
         prompt: 'select_account'
       });
+      console.log('[Google Calendar] User signed in successfully');
     } catch (error) {
       if (error.error === 'popup_closed_by_user') {
+        console.warn('[Google Calendar] Sign-in popup closed by user');
         throw new Error('Sign-in cancelled. Please try again.');
       }
+      console.error('[Google Calendar] Sign-in error:', error);
       throw error;
     }
+  } else {
+    console.log('[Google Calendar] User already signed in');
   }
 
-  return authInstance.isSignedIn.get();
+  const finalSignInStatus = authInstance.isSignedIn.get();
+  console.log('[Google Calendar] Final authentication status:', finalSignInStatus);
+  return finalSignInStatus;
 }
 
 export function isGoogleSignedIn() {
   if (!window.gapi || !window.gapi.auth2) {
+    console.log('[Google Calendar] Google API not loaded');
     return false;
   }
   const authInstance = window.gapi.auth2.getAuthInstance();
-  return authInstance && authInstance.isSignedIn.get();
+  const signedIn = authInstance && authInstance.isSignedIn.get();
+  console.log('[Google Calendar] Sign-in check:', signedIn);
+  return signedIn;
 }
 
 export async function signOutGoogle() {
+  console.log('[Google Calendar] Signing out...');
   if (window.gapi && window.gapi.auth2) {
     const authInstance = window.gapi.auth2.getAuthInstance();
     if (authInstance) {
       await authInstance.signOut();
+      console.log('[Google Calendar] Signed out successfully');
+    } else {
+      console.warn('[Google Calendar] No auth instance found');
     }
+  } else {
+    console.warn('[Google Calendar] Google API not loaded');
   }
 }
 
 export function getGoogleUserInfo() {
+  console.log('[Google Calendar] Getting user info...');
   if (!isGoogleSignedIn()) {
+    console.warn('[Google Calendar] User not signed in');
     return null;
   }
   const authInstance = window.gapi.auth2.getAuthInstance();
   const user = authInstance.currentUser.get();
   const profile = user.getBasicProfile();
-  return {
+  const userInfo = {
     name: profile.getName(),
     email: profile.getEmail(),
     imageUrl: profile.getImageUrl()
   };
+  console.log('[Google Calendar] User info retrieved:', { name: userInfo.name, email: userInfo.email });
+  return userInfo;
 }
 
 export async function addMedicationToGoogleCalendar(schedule, startDate, clientId, apiKey) {
+  console.log('[Google Calendar] ========================================');
+  console.log('[Google Calendar] Adding medication to Google Calendar');
+  console.log('[Google Calendar] Medication:', schedule.medication);
+  console.log('[Google Calendar] Start date:', startDate);
+  console.log('[Google Calendar] Schedule times:', schedule.schedule.times.length);
+  
   try {
+    console.log('[Google Calendar] Authenticating...');
     const isAuthenticated = await authenticateGoogleCalendar(clientId, apiKey);
     if (!isAuthenticated) {
+      console.error('[Google Calendar] Authentication failed');
       throw new Error("Failed to authenticate with Google Calendar");
     }
+    console.log('[Google Calendar] Authentication successful');
 
     const duration = parseDuration(schedule.duration);
+    console.log('[Google Calendar] Parsed duration:', duration.days, 'days');
+    
     const events = [];
 
-    for (const timeSlot of schedule.schedule.times) {
-      if (!timeSlot.time) continue; // Skip "as needed" medications
+    for (let i = 0; i < schedule.schedule.times.length; i++) {
+      const timeSlot = schedule.schedule.times[i];
+      console.log(`[Google Calendar] Processing time slot ${i + 1}/${schedule.schedule.times.length}:`, timeSlot);
+      
+      if (!timeSlot.time) {
+        console.log('[Google Calendar] Skipping "as needed" medication');
+        continue;
+      }
 
       const event = createCalendarEvent(schedule, timeSlot, startDate, duration);
-      const response = await window.gapi.client.calendar.events.insert({
-        calendarId: "primary",
-        resource: event
+      console.log('[Google Calendar] Created event object:', {
+        summary: event.summary,
+        start: event.start.dateTime,
+        end: event.end.dateTime,
+        hasRecurrence: !!event.recurrence
       });
-      events.push(response.result);
+      
+      console.log('[Google Calendar] Inserting event into calendar...');
+      try {
+        const response = await window.gapi.client.calendar.events.insert({
+          calendarId: "primary",
+          resource: event
+        });
+        console.log('[Google Calendar] Event inserted successfully:', response.result.id);
+        console.log('[Google Calendar] Event link:', response.result.htmlLink);
+        events.push(response.result);
+      } catch (insertError) {
+        console.error('[Google Calendar] Failed to insert event:', insertError);
+        console.error('[Google Calendar] Error details:', {
+          code: insertError.status,
+          message: insertError.result?.error?.message,
+          errors: insertError.result?.error?.errors
+        });
+        throw insertError;
+      }
     }
 
+    console.log('[Google Calendar] All events added successfully. Total:', events.length);
+    console.log('[Google Calendar] ========================================');
     return events;
   } catch (error) {
-    console.error("Error adding to Google Calendar:", error);
+    console.error('[Google Calendar] ========================================');
+    console.error('[Google Calendar] Error adding to Google Calendar:', error);
+    console.error('[Google Calendar] Error type:', error.constructor.name);
+    console.error('[Google Calendar] Error message:', error.message);
+    if (error.result) {
+      console.error('[Google Calendar] API error details:', error.result);
+    }
+    console.error('[Google Calendar] ========================================');
     throw error;
   }
 }
 
 function createCalendarEvent(schedule, timeSlot, startDate, duration) {
+  console.log('[Google Calendar] Creating calendar event...');
+  console.log('[Google Calendar] Time slot:', timeSlot.time, '-', timeSlot.label);
+  
   const [hours, minutes] = timeSlot.time.split(":").map(Number);
   const eventStart = new Date(startDate);
   eventStart.setHours(hours, minutes, 0, 0);
@@ -291,16 +385,21 @@ function createCalendarEvent(schedule, timeSlot, startDate, duration) {
   const eventEnd = new Date(eventStart);
   eventEnd.setMinutes(eventEnd.getMinutes() + 15); // 15-minute reminder window
 
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  console.log('[Google Calendar] Timezone:', timeZone);
+  console.log('[Google Calendar] Event start:', eventStart.toISOString());
+  console.log('[Google Calendar] Event end:', eventEnd.toISOString());
+
   const event = {
     summary: `💊 ${schedule.medication}`,
     description: `Medication: ${schedule.medication}\nStrength: ${schedule.strength}\nDose: ${schedule.dose}\nFrequency: ${schedule.frequency}\nTiming: ${timeSlot.label}`,
     start: {
       dateTime: eventStart.toISOString(),
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      timeZone: timeZone
     },
     end: {
       dateTime: eventEnd.toISOString(),
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      timeZone: timeZone
     },
     reminders: {
       useDefault: false,
@@ -316,32 +415,49 @@ function createCalendarEvent(schedule, timeSlot, startDate, duration) {
   if (duration.days > 1) {
     const until = new Date(startDate);
     until.setDate(until.getDate() + duration.days);
-    event.recurrence = [`RRULE:FREQ=DAILY;UNTIL=${formatDateForRRule(until)}`];
+    const rrule = `RRULE:FREQ=DAILY;UNTIL=${formatDateForRRule(until)}`;
+    event.recurrence = [rrule];
+    console.log('[Google Calendar] Added recurrence:', rrule);
+    console.log('[Google Calendar] Recurrence until:', until.toISOString());
+  } else {
+    console.log('[Google Calendar] Single event (no recurrence)');
   }
 
   return event;
 }
 
 function parseDuration(durationStr) {
-  if (!durationStr) return { days: 7 }; // Default 7 days
+  console.log('[Google Calendar] Parsing duration:', durationStr);
+  
+  if (!durationStr) {
+    console.log('[Google Calendar] No duration specified, defaulting to 7 days');
+    return { days: 7 };
+  }
 
   const str = durationStr.toLowerCase();
   
   if (str.includes("day")) {
     const match = str.match(/(\d+)\s*day/);
-    return { days: match ? parseInt(match[1]) : 7 };
+    const days = match ? parseInt(match[1]) : 7;
+    console.log('[Google Calendar] Parsed days:', days);
+    return { days };
   }
   
   if (str.includes("week")) {
     const match = str.match(/(\d+)\s*week/);
-    return { days: match ? parseInt(match[1]) * 7 : 7 };
+    const days = match ? parseInt(match[1]) * 7 : 7;
+    console.log('[Google Calendar] Parsed weeks to days:', days);
+    return { days };
   }
   
   if (str.includes("month")) {
     const match = str.match(/(\d+)\s*month/);
-    return { days: match ? parseInt(match[1]) * 30 : 30 };
+    const days = match ? parseInt(match[1]) * 30 : 30;
+    console.log('[Google Calendar] Parsed months to days:', days);
+    return { days };
   }
 
+  console.log('[Google Calendar] Could not parse duration, defaulting to 7 days');
   return { days: 7 };
 }
 
@@ -350,13 +466,27 @@ function formatDateForRRule(date) {
 }
 
 export function exportScheduleAsICS(schedules, startDate) {
+  console.log('[ICS Export] ========================================');
+  console.log('[ICS Export] Exporting schedule as ICS');
+  console.log('[ICS Export] Number of medications:', schedules.length);
+  console.log('[ICS Export] Start date:', startDate);
+  
   const events = [];
   
-  for (const schedule of schedules) {
+  for (let i = 0; i < schedules.length; i++) {
+    const schedule = schedules[i];
+    console.log(`[ICS Export] Processing medication ${i + 1}/${schedules.length}:`, schedule.medication);
+    
     const duration = parseDuration(schedule.duration);
     
-    for (const timeSlot of schedule.schedule.times) {
-      if (!timeSlot.time) continue;
+    for (let j = 0; j < schedule.schedule.times.length; j++) {
+      const timeSlot = schedule.schedule.times[j];
+      console.log(`[ICS Export]   Time slot ${j + 1}/${schedule.schedule.times.length}:`, timeSlot);
+      
+      if (!timeSlot.time) {
+        console.log('[ICS Export]   Skipping "as needed" medication');
+        continue;
+      }
       
       const [hours, minutes] = timeSlot.time.split(":").map(Number);
       const eventStart = new Date(startDate);
@@ -368,21 +498,38 @@ export function exportScheduleAsICS(schedules, startDate) {
       const until = new Date(startDate);
       until.setDate(until.getDate() + duration.days);
       
-      events.push({
+      const event = {
         start: eventStart,
         end: eventEnd,
         summary: `💊 ${schedule.medication}`,
         description: `Medication: ${schedule.medication}\\nStrength: ${schedule.strength}\\nDose: ${schedule.dose}\\nFrequency: ${schedule.frequency}\\nTiming: ${timeSlot.label}`,
         rrule: duration.days > 1 ? `FREQ=DAILY;UNTIL=${formatDateForRRule(until)}` : null
+      };
+      
+      console.log('[ICS Export]   Event created:', {
+        summary: event.summary,
+        start: event.start.toISOString(),
+        hasRecurrence: !!event.rrule
       });
+      
+      events.push(event);
     }
   }
   
+  console.log('[ICS Export] Total events created:', events.length);
+  console.log('[ICS Export] Generating ICS content...');
   const icsContent = generateICS(events);
+  console.log('[ICS Export] ICS content generated, size:', icsContent.length, 'bytes');
+  
+  console.log('[ICS Export] Downloading file...');
   downloadICS(icsContent, "medication-schedule.ics");
+  console.log('[ICS Export] Export complete');
+  console.log('[ICS Export] ========================================');
 }
 
 function generateICS(events) {
+  console.log('[ICS Export] Generating ICS format for', events.length, 'events');
+  
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -391,7 +538,10 @@ function generateICS(events) {
     "METHOD:PUBLISH"
   ];
   
-  for (const event of events) {
+  for (let i = 0; i < events.length; i++) {
+    const event = events[i];
+    console.log(`[ICS Export] Adding event ${i + 1}/${events.length} to ICS`);
+    
     lines.push("BEGIN:VEVENT");
     lines.push(`DTSTART:${formatICSDate(event.start)}`);
     lines.push(`DTEND:${formatICSDate(event.end)}`);
@@ -402,6 +552,7 @@ function generateICS(events) {
     
     if (event.rrule) {
       lines.push(`RRULE:${event.rrule}`);
+      console.log(`[ICS Export]   Added recurrence rule: ${event.rrule}`);
     }
     
     lines.push("BEGIN:VALARM");
@@ -414,6 +565,7 @@ function generateICS(events) {
   }
   
   lines.push("END:VCALENDAR");
+  console.log('[ICS Export] ICS generation complete, total lines:', lines.length);
   return lines.join("\r\n");
 }
 
@@ -426,11 +578,21 @@ function generateUID() {
 }
 
 function downloadICS(content, filename) {
+  console.log('[ICS Export] Creating blob and download link');
+  console.log('[ICS Export] Filename:', filename);
+  
   const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
+  console.log('[ICS Export] Blob created, size:', blob.size, 'bytes');
+  
   const url = URL.createObjectURL(blob);
+  console.log('[ICS Export] Object URL created:', url);
+  
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = filename;
   anchor.click();
+  console.log('[ICS Export] Download triggered');
+  
   URL.revokeObjectURL(url);
+  console.log('[ICS Export] Object URL revoked');
 }

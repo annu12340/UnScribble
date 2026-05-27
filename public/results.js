@@ -30,6 +30,8 @@ const els = {
   summaryText: document.querySelector("#summaryText"),
   qualityText: document.querySelector("#qualityText"),
   patientStrip: document.querySelector("#patientStrip"),
+  medicationsTable: document.querySelector("#medicationsTable"),
+  medicationsTableBody: document.querySelector("#medicationsTableBody"),
   medList: document.querySelector("#medList"),
   scheduleSection: document.querySelector("#scheduleSection"),
   scheduleContainer: document.querySelector("#scheduleContainer"),
@@ -180,7 +182,10 @@ function renderResults() {
   // Patient info
   renderPatient(els.patientStrip, result.patient || {});
 
-  // Medications
+  // Medications table
+  renderMedicationsTable(els.medicationsTableBody, result.medications || []);
+
+  // Medications detailed view
   renderMedications(els.medList, result.medications || []);
 
   // Schedule
@@ -195,16 +200,6 @@ function renderResults() {
   // Abbreviations
   renderAbbreviations(els.abbrevList, result.abbreviations || []);
 
-  // Other text
-  renderOtherText(
-    els.otherTextList,
-    result.non_medication_text || [],
-    result.follow_up_instructions || [],
-    result.global_warnings || [],
-    result.allergies || [],
-    result.clinical_context || {},
-    result.raw_transcription || []
-  );
 
   // Workflow trace
   if (state.resultPayload.workflow) {
@@ -323,6 +318,91 @@ function renderPatient(container, patient) {
       return node;
     })
   );
+}
+
+function renderMedicationsTable(tbody, medications) {
+  if (!medications.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--muted);">No medications extracted</td></tr>`;
+    return;
+  }
+
+  tbody.replaceChildren(
+    ...medications.map((med, index) => {
+      const tr = document.createElement("tr");
+      tr.style.animationDelay = `${index * 0.05}s`;
+      
+      const frequency = med.normalized_frequency?.expansion || med.frequency || "Not specified";
+      const administration = med.administration_notes || med.timing || "Not specified";
+      
+      tr.innerHTML = `
+        <td>
+          <div class="med-name-cell">
+            <strong>${escapeHtml(med.medication_name || "Unknown")}</strong>
+            ${med.form ? `<span class="med-form">${escapeHtml(med.form)}</span>` : ''}
+          </div>
+        </td>
+        <td><strong>${escapeHtml(med.strength || "—")}</strong></td>
+        <td>${escapeHtml(med.dose || "—")}</td>
+        <td>
+          <div class="frequency-cell">
+            <span>${escapeHtml(frequency)}</span>
+            ${med.normalized_frequency?.abbreviation ? `<span class="freq-abbrev">${escapeHtml(med.normalized_frequency.abbreviation)}</span>` : ''}
+          </div>
+        </td>
+        <td>${escapeHtml(med.duration || "—")}</td>
+        <td>
+          <div class="admin-cell">
+            ${escapeHtml(administration)}
+          </div>
+        </td>
+        <td>
+          <div class="table-actions">
+            <button class="btn small icon-btn view-details-btn" data-med-index="${index}" title="View Details">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4M12 8h.01"/>
+              </svg>
+              Details
+            </button>
+            <button class="btn small primary add-to-calendar-btn-table" data-med-index="${index}" title="Add to Calendar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <path d="M16 2v4M8 2v4M3 10h18"/>
+              </svg>
+              Calendar
+            </button>
+          </div>
+        </td>
+      `;
+      
+      return tr;
+    })
+  );
+
+  // Bind events for table buttons
+  document.querySelectorAll('.view-details-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const index = parseInt(e.currentTarget.dataset.medIndex);
+      scrollToMedicationDetails(index);
+    });
+  });
+
+  document.querySelectorAll('.add-to-calendar-btn-table').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const index = parseInt(e.currentTarget.dataset.medIndex);
+      state.currentMedicationIndex = index;
+      openModal();
+    });
+  });
+}
+
+function scrollToMedicationDetails(index) {
+  const medCards = document.querySelectorAll('.med-card');
+  if (medCards[index]) {
+    medCards[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    medCards[index].classList.add('highlight');
+    setTimeout(() => medCards[index].classList.remove('highlight'), 2000);
+  }
 }
 
 function renderMedications(container, medications) {

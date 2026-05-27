@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Medication Details - Prescription OCR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="https://apis.google.com/js/api.js"></script>
+  </head>
+  <body class="results-page">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+              <rect x="9" y="3" width="6" height="4" rx="1" />
+              <path d="M9 12h6M9 16h4" />
+            </svg>
+          </div>
+          <div>
+            <p class="eyebrow">Medical transcription workspace</p>
+            <h1>Prescription <em>OCR</em></h1>
+          </div>
+        </div>
+        <div class="result-header-actions">
+          <a href="/results.html" class="btn ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Results
+          </a>
+        </div>
+      </header>
+
+      <main class="results-workspace">
+        <div class="results-container">
+          
+          <div class="no-data-state" id="noDataState">
+            <div class="empty-illustration" aria-hidden="true">
+              <span class="empty-ring"></span>
+              <span class="empty-doc"></span>
+            </div>
+            <h3>No medication data found</h3>
+            <p>Please select a medication from the results page.</p>
+            <a href="/results.html" class="btn primary">Back to Results</a>
+          </div>
+
+          <div class="medication-details-content" id="medicationDetailsContent" hidden>
+            
+            <div class="medication-header">
+              <div class="medication-header-main">
+                <div class="medication-icon">💊</div>
+                <div>
+                  <h2 id="medName">Medication Name</h2>
+                  <p class="medication-meta">
+                    <span id="medStrength"></span> · <span id="medForm"></span>
+                  </p>
+                </div>
+              </div>
+              <div class="medication-header-actions">
+                <button class="btn primary" id="addToCalendarBtn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <path d="M16 2v4M8 2v4M3 10h18"/>
+                  </svg>
+                  Add to Calendar
+                </button>
+              </div>
+            </div>
+
+            <div class="medication-details-grid">
+              
+              <section class="section-card">
+                <h3>Dosage Information</h3>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">Dose</span>
+                    <span class="detail-value" id="medDose">—</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Frequency</span>
+                    <span class="detail-value" id="medFrequency">—</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Duration</span>
+                    <span class="detail-value" id="medDuration">—</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Route</span>
+                    <span class="detail-value" id="medRoute">—</span>
+                  </div>
+                </div>
+              </section>
+
+              <section class="section-card">
+                <h3>Administration Instructions</h3>
+                <div class="instruction-box" id="medAdministration">
+                  <p>No specific instructions provided.</p>
+                </div>
+              </section>
+
+              <section class="section-card">
+                <h3>Medication Schedule</h3>
+                <div class="schedule-times" id="medScheduleTimes">
+                </div>
+                <div class="schedule-duration" id="medScheduleDuration"></div>
+              </section>
+
+              <section class="section-card">
+                <h3>Additional Information</h3>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">Quantity</span>
+                    <span class="detail-value" id="medQuantity">—</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Refills</span>
+                    <span class="detail-value" id="medRefills">—</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Timing</span>
+                    <span class="detail-value" id="medTiming">—</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Confidence</span>
+                    <span class="detail-value" id="medConfidence">—</span>
+                  </div>
+                </div>
+              </section>
+
+              <section class="section-card" id="sigSection">
+                <h3>Sig (Prescription Instructions)</h3>
+                <div class="instruction-box" id="medSig">
+                  <p>No sig provided.</p>
+                </div>
+              </section>
+
+              <section class="section-card" id="warningsSection" hidden>
+                <h3>⚠️ Safety Warnings</h3>
+                <ul class="warning-list" id="medWarnings"></ul>
+              </section>
+
+              <section class="section-card" id="alternativesSection" hidden>
+                <h3>Alternative Interpretations</h3>
+                <ul class="alt-list" id="medAlternatives"></ul>
+              </section>
+
+              <section class="section-card">
+                <h3>Raw Prescription Text</h3>
+                <div class="raw-text-box" id="medRawText">
+                  <p>No raw text available.</p>
+                </div>
+              </section>
+
+            </div>
+
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <div class="modal" id="calendarModal" hidden>
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Add to Google Calendar</h3>
+          <button class="modal-close" id="modalClose" aria-label="Close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="google-auth-container">
+            <p>Sign in with your Google account to add medication reminders to your calendar.</p>
+            <div class="google-sign-in-info">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4M12 8h.01"/>
+              </svg>
+              <span>You'll be asked to grant calendar access permissions</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="startDateInput">Start Date</label>
+            <input type="date" id="startDateInput" class="input" />
+            <p class="field-hint">When should the medication schedule begin?</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn ghost" id="modalCancel">Cancel</button>
+          <button class="btn primary" id="modalConfirm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              <path d="M9 10h.01M15 10h.01M9.5 15a3.5 3.5 0 005 0"/>
+            </svg>
+            Sign in & Add to Calendar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/medication-details.js"></script>
+  </body>
+</html>
