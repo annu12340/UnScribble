@@ -6,7 +6,6 @@ export function createResultRenderer(els, state, { getEnhancementMode, escapeHtm
       els.resultContent.hidden = false;
       els.copyBtn.disabled = false;
       els.downloadBtn.disabled = false;
-      els.printBtn.disabled = false;
 
       els.reviewBanner.textContent = result.requires_human_review
         ? `Human review required: ${result.review_reason || "verify prescription details"}`

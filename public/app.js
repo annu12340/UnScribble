@@ -25,7 +25,6 @@ const els = {
   clearBtn: document.querySelector("#clearBtn"),
   copyBtn: document.querySelector("#copyBtn"),
   downloadBtn: document.querySelector("#downloadBtn"),
-  printBtn: document.querySelector("#printBtn"),
   emptyState: document.querySelector("#emptyState"),
   loadingState: document.querySelector("#loadingState"),
   errorState: document.querySelector("#errorState"),
@@ -106,8 +105,7 @@ function bindEvents() {
   els.clearBtn.addEventListener("click", resetAll);
   els.copyBtn.addEventListener("click", copyResult);
   els.downloadBtn.addEventListener("click", downloadResult);
-  els.printBtn.addEventListener("click", () => window.print());
-}
+ }
 
 async function loadConfig() {
   try {
@@ -442,7 +440,6 @@ function clearResult() {
   els.resultContent.hidden = true;
   els.copyBtn.disabled = true;
   els.downloadBtn.disabled = true;
-  els.printBtn.disabled = true;
   if (els.workflowTraceWrap) els.workflowTraceWrap.hidden = true;
   updateSteps();
 }
