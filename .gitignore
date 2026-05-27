@@ -51,3 +51,23 @@ data/
 
 # Logs
 *.log
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build
+dist-ssr/
+*.local
+.cache/
+
+# Environment variables
+.env
+.env.local
+
+# Server
+server/node_modules/
+server/.env

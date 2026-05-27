@@ -1,164 +1,60 @@
-# NVIDIA Earth-2 Weather Simulation Model
+# Prescription OCR
 
-A comprehensive implementation of NVIDIA's Earth-2 climate digital twin platform for AI-powered weather forecasting and climate simulation.
+A web app for decoding handwritten doctor prescriptions using a **multi-agent workflow** on **NVIDIA NIM** (OpenAI-compatible Responses API), with live SSE progress and prescription-specific structured extraction.
 
-## Overview
+## Run
 
-This project leverages NVIDIA's Earth2Studio framework to run state-of-the-art AI weather models including:
-
-- **FourCastNet3** - NVIDIA's neural operator-based global forecast model
-- **GraphCast** - Google DeepMind's graph neural network weather model  
-- **AIFS** - ECMWF's AI Integrated Forecasting System
-
-## Features
-
-- Multi-model ensemble forecasting
-- Global weather prediction at 0.25° resolution
-- 6-hour time step forecasts
-- Visualization tools for temperature, wind, and pressure fields
-- Ensemble statistics (mean, spread, probability)
-- Zarr-based efficient data storage
-
-## Quick Start
-
-**New to Earth-2?** Check out the [Getting Started Guide](GETTING_STARTED.md) for a step-by-step tutorial.
-
-### Installation
+1. Copy `.env copy.example` to `.env`.
+2. Set `NVIDIA_API_KEY` from [build.nvidia.com](https://build.nvidia.com) → API Keys.
+3. Install dependencies and start:
 
 ```bash
-# Quick install
-chmod +x quickstart.sh
-./quickstart.sh
-source venv/bin/activate
-
-# Or manual install
-pip install -r requirements.txt
+npm install
+npm start
 ```
 
-For detailed installation instructions, see [INSTALL.md](INSTALL.md).
+Open `http://localhost:3000`.
 
-## Usage
-
-### Run Your First Forecast
+### Local UI testing (no API)
 
 ```bash
-python earth2_simulation.py
+WORKFLOW_MOCK=1 npm start
 ```
 
-### Python API
+### Tests
 
-```python
-from earth2_simulation import Earth2Simulator
-
-simulator = Earth2Simulator(
-    start_date="2025-01-01T00:00:00",
-    steps=10
-)
-
-output = simulator.run_fourcastnet()
+```bash
+npm test
 ```
 
-For comprehensive usage examples, see [USAGE.md](USAGE.md).
+## Multi-agent workflow
 
-## Documentation
+Decoding runs through specialized agents orchestrated in stages:
 
-- **[Getting Started Guide](GETTING_STARTED.md)** - Step-by-step tutorial for beginners
-- **[Installation Guide](INSTALL.md)** - Detailed installation instructions
-- **[Usage Guide](USAGE.md)** - Comprehensive usage examples
-- **[API Reference](API.md)** - Complete API documentation
+| Agent | Role |
+|-------|------|
+| Image quality | Legibility gate; early exit if unusable |
+| Raw transcription | Line-by-line OCR |
+| Patient header | Demographics and prescriber |
+| Medications | Rx lines, doses, alternatives |
+| Clinical context | Abbrevs, allergies, non-Rx text |
+| Safety review | Deterministic review rules |
+| Summary | Plain-language summary |
 
-## Project Structure
+Stage 1 assesses image quality first, then transcribes if legible. Stage 2 runs patient header, medications, and clinical context in parallel. Progress streams to the browser via `POST /api/decode/stream` (Server-Sent Events). Batch decode without streaming: `POST /api/decode`.
 
-```
-.
-├── earth2_simulation.py    # Main simulation engine
-├── ensemble_forecast.py    # Ensemble forecasting
-├── visualize.py            # Visualization tools
-├── config.py               # Configuration settings
-├── example_usage.py        # Usage examples
-├── test_simulation.py      # Unit tests
-├── requirements.txt        # Python dependencies
-├── setup.py                # Package setup
-├── quickstart.sh           # Quick installation script
-├── notebook_example.ipynb  # Jupyter notebook tutorial
-├── README.md               # This file
-├── INSTALL.md              # Installation guide
-├── USAGE.md                # Detailed usage guide
-└── outputs/                # Forecast outputs (generated)
-```
+## Model
 
-## Model Details
+- **Base URL:** `https://inference-api.nvidia.com/v1` (`NVIDIA_API_BASE_URL`)
+- **Model:** `openai/openai/gpt-5.5` (`NVIDIA_MODEL`)
+- Reasoning is intentionally omitted from structured-JSON calls — it competes with `max_output_tokens` and tends to truncate the JSON body.
 
-### FourCastNet3
-- Resolution: 0.25° (~25km)
-- Architecture: Fourier Neural Operator
-- Time step: 6 hours
-- Coverage: Global
+## Medical tuning
 
-### GraphCast Operational
-- Resolution: 0.25° (~25km)  
-- Architecture: Graph Neural Network
-- Time step: 6 hours
-- Coverage: Global
+- Per-agent prompts and small JSON schemas reduce hallucination surface
+- Formulary fuzzy-match (`data/formulary.json`) after extraction
+- Safety rules force human review for low confidence, missing fields, poor legibility, and high-risk tokens
 
-### AIFS
-- Resolution: 0.25° (~25km)
-- Architecture: Transformer
-- Time step: 6 hours
-- Coverage: Global
+## Safety
 
-## Data Sources
-
-The models use GFS (Global Forecast System) data as initial conditions, automatically fetched from NOAA servers.
-
-## Output Format
-
-Forecasts are saved in Zarr format with the following structure:
-
-```
-forecast.zarr/
-├── time          # Forecast time steps
-├── lat           # Latitude coordinates
-├── lon           # Longitude coordinates
-├── t2m           # 2-meter temperature (K)
-├── u10m          # 10-meter U wind (m/s)
-├── v10m          # 10-meter V wind (m/s)
-├── msl           # Mean sea level pressure (Pa)
-└── ...           # Additional variables
-```
-
-## Performance
-
-Typical forecast times on NVIDIA A100:
-- FourCastNet3: ~2 seconds per time step
-- GraphCast: ~3 seconds per time step
-- AIFS: ~4 seconds per time step
-
-## References
-
-- [NVIDIA Earth-2 Platform](https://www.nvidia.com/en-us/high-performance-computing/earth-2/)
-- [Earth2Studio Documentation](https://nvidia.github.io/earth2studio/)
-- [Earth2Studio GitHub](https://github.com/NVIDIA/earth2studio)
-- [FourCastNet Paper](https://arxiv.org/abs/2202.11214)
-- [GraphCast Paper](https://arxiv.org/abs/2212.12794)
-
-## License
-
-This project uses NVIDIA Earth2Studio under the Apache License 2.0. Individual models may have their own licenses - please refer to the original sources.
-
-## Contributing
-
-Contributions are welcome! Please ensure:
-- Code follows PEP 8 style guidelines
-- All functions include docstrings
-- Tests pass before submitting PRs
-
-## Support
-
-For issues related to:
-- Earth2Studio: [GitHub Issues](https://github.com/NVIDIA/earth2studio/issues)
-- This implementation: Open an issue in this repository
-
-## Acknowledgments
-
-Built with [NVIDIA Earth2Studio](https://github.com/NVIDIA/earth2studio) - an open-source framework for AI weather and climate modeling.
+This app is a transcription aid, not a medical decision system. Every medication name, strength, dose, route, frequency, and duration must be verified by a licensed clinician or pharmacist before use.
