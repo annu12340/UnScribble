@@ -26,6 +26,15 @@ export function createResultRenderer(els, state, { getEnhancementMode, escapeHtm
 
       renderPatient(els.patientStrip, result.patient || {}, escapeHtml);
       renderMedications(els.medList, result.medications || [], escapeHtml);
+      
+      // Render medication schedule if there are medications
+      if (els.scheduleView && result.medications && result.medications.length > 0) {
+        els.scheduleView.hidden = false;
+        state.currentSchedules = window.renderScheduleView(els.scheduleContainer, result.medications || [], escapeHtml);
+      } else if (els.scheduleView) {
+        els.scheduleView.hidden = true;
+      }
+      
       renderAbbreviations(els.abbrevList, result.abbreviations || [], escapeHtml);
       renderOtherText(
         els.otherTextList,

@@ -85,6 +85,12 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "GET" || req.method === "HEAD") {
+      // Redirect root to upload page
+      if (requestUrl.pathname === "/") {
+        res.writeHead(302, { Location: "/upload.html" });
+        res.end();
+        return;
+      }
       await serveStatic(req, res, requestUrl.pathname);
       return;
     }

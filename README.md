@@ -2,9 +2,18 @@
 
 A web app for decoding handwritten doctor prescriptions using a **multi-agent workflow** on **NVIDIA NIM** (OpenAI-compatible Responses API), with live SSE progress and prescription-specific structured extraction.
 
+## Features
+
+- **Two-page workflow**: Upload page for image processing, results page for detailed analysis
+- **Medication schedule extraction**: Automatically parses medication timing and frequency
+- **Google Calendar integration**: Add medication reminders directly to your calendar
+- **ICS export**: Download schedule for any calendar app
+- **Multi-agent OCR**: Specialized agents for quality, transcription, medications, and safety
+- **Real-time progress**: Live SSE streaming shows agent workflow status
+
 ## Run
 
-1. Copy `.env copy.example` to `.env`.
+1. Copy `.env.example` to `.env`.
 2. Set `NVIDIA_API_KEY` from [build.nvidia.com](https://build.nvidia.com) → API Keys.
 3. Install dependencies and start:
 
@@ -13,7 +22,23 @@ npm install
 npm start
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000` (redirects to `/upload.html`).
+
+### Workflow
+
+1. **Upload page** (`/upload.html`): Upload prescription image, choose enhancement mode, process
+2. **Results page** (`/results.html`): View extracted medications, patient info, and medication schedule
+3. **Calendar integration**: Click "Add to Google Calendar" to set medication reminders
+
+### Google Calendar Setup
+
+To enable calendar integration, see [GOOGLE_CALENDAR_SETUP.md](./GOOGLE_CALENDAR_SETUP.md) for detailed instructions on:
+- Creating Google Cloud project
+- Enabling Calendar API
+- Getting OAuth credentials
+- Configuring API keys
+
+**Quick alternative**: Use "Export as ICS" button to download and import into any calendar app without API setup.
 
 ### Local UI testing (no API)
 
@@ -42,6 +67,16 @@ Decoding runs through specialized agents orchestrated in stages:
 | Summary | Plain-language summary |
 
 Stage 1 assesses image quality first, then transcribes if legible. Stage 2 runs patient header, medications, and clinical context in parallel. Progress streams to the browser via `POST /api/decode/stream` (Server-Sent Events). Batch decode without streaming: `POST /api/decode`.
+
+## Medication Schedule Features
+
+The app automatically extracts medication schedules from prescription data:
+
+- **Frequency parsing**: Recognizes OD, BD, TID, QID, and custom frequencies
+- **Timing extraction**: Identifies morning, afternoon, evening, bedtime dosing
+- **Duration tracking**: Parses treatment duration (days, weeks, months)
+- **Smart defaults**: Generates reasonable schedules when timing is unclear
+- **Visual timeline**: Shows when to take each medication throughout the day
 
 ## Model
 

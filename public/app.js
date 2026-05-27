@@ -1,6 +1,11 @@
 import { MAX_EDGE, JPEG_QUALITY, enhanceImageData } from "./image-enhance.js";
 import { buildDecodeRequestBody, decodePrescriptionStream } from "./decode-client.js";
 import { createResultRenderer } from "./render-result.js";
+import { 
+  renderScheduleView, 
+  addMedicationToGoogleCalendar, 
+  exportScheduleAsICS 
+} from "./medication-schedule.js";
 
 const state = {
   file: null,
@@ -9,7 +14,12 @@ const state = {
   originalDataUrl: "",
   resultPayload: null,
   model: "",
-  workflowAgents: []
+  workflowAgents: [],
+  currentSchedules: [],
+  googleCalendarConfig: {
+    clientId: "", // User needs to configure
+    apiKey: "" // User needs to configure
+  }
 };
 
 const els = {
@@ -35,6 +45,8 @@ const els = {
   qualityText: document.querySelector("#qualityText"),
   patientStrip: document.querySelector("#patientStrip"),
   medList: document.querySelector("#medList"),
+  scheduleView: document.querySelector("#scheduleView"),
+  scheduleContainer: document.querySelector("#scheduleContainer"),
   abbrevList: document.querySelector("#abbrevList"),
   otherTextList: document.querySelector("#otherTextList"),
   rawJson: document.querySelector("#rawJson"),
@@ -53,6 +65,9 @@ let previewDebounceTimer = null;
 let decodeAbortController = null;
 let enhanceWorker = null;
 let enhanceJobId = 0;
+
+// Expose renderScheduleView globally for render-result.js
+window.renderScheduleView = renderScheduleView;
 
 const resultRenderer = createResultRenderer(els, state, {
   getEnhancementMode,
