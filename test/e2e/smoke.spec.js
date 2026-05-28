@@ -97,7 +97,7 @@ test("results page renders seeded prescription data", async ({ page }) => {
   await expect(page.locator("#medicationsTableBody")).toContainText("Amoxicillin");
 });
 
-test("medication details render schedule, body map, and mechanism fallback", async ({ page }) => {
+test("medication details render schedule and mechanism fallback", async ({ page }) => {
   await page.route("**/api/protein-mechanism", async (route) => {
     await route.fulfill({
       status: 200,
@@ -105,11 +105,6 @@ test("medication details render schedule, body map, and mechanism fallback", asy
       body: JSON.stringify({
         medication: "Amoxicillin",
         hasProteinData: false,
-        bodyEffects: {
-          regions: ["respiratory"],
-          organs: ["lungs"],
-          summary: "Demo body-effect summary."
-        },
         message: "Protein target data not available for this medication"
       })
     });
@@ -121,7 +116,6 @@ test("medication details render schedule, body map, and mechanism fallback", asy
   await page.goto("/medication-details.html");
   await expect(page.locator("#medicationDetailsContent")).toBeVisible();
   await expect(page.locator("#medScheduleTimes")).toContainText(/Morning|Afternoon|Night/);
-  await expect(page.locator("#bodyEffectsSummary")).not.toHaveText("—");
   await expect(page.locator("#mechanismSidebar")).toBeVisible();
   await expect(page.locator("#mechanismTargetProtein")).toContainText(/not available/i);
 });

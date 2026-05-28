@@ -13,12 +13,6 @@
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/rx-quirky.css" />
     <link rel="stylesheet" href="/css/medication-details.css" />
-    <link
-      rel="preload"
-      href="https://prod.spline.design/0eI7JO23zWEe8FiA/scene.splinecode"
-      as="fetch"
-      crossorigin
-    />
   </head>
   <body class="results-page rx-app medication-details-page">
     <div class="app-shell med-shell">
@@ -164,9 +158,15 @@
                     </a>
                   </li>
                   <li>
-                    <a href="#section-body" class="med-side-nav-link">
-                      <span class="med-side-nav-icon" aria-hidden="true">◎</span>
-                      Where it acts
+                    <a href="#section-regulatory" class="med-side-nav-link" id="navRegulatoryLink">
+                      <span class="med-side-nav-icon" aria-hidden="true">⚠</span>
+                      Regulatory status
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#section-ingredients" class="med-side-nav-link" id="navIngredientsLink">
+                      <span class="med-side-nav-icon" aria-hidden="true">🧬</span>
+                      Ingredient analysis
                     </a>
                   </li>
                   <li>
@@ -286,6 +286,75 @@
                       </div>
 
                       <section
+                        class="med-content-col section-card med-content-col--wide"
+                        id="section-regulatory"
+                        aria-labelledby="regulatory-heading"
+                      >
+                        <h3 id="regulatory-heading" class="med-panel-title">
+                          <span class="subhead-icon" aria-hidden="true">⚠</span>
+                          Regulatory status
+                        </h3>
+                        <p class="regulatory-summary" id="medRegulatorySummary">
+                          No regulatory notes are available for this medication.
+                        </p>
+                        <div class="regulatory-grid">
+                          <div class="regulatory-card">
+                            <h4>Fully banned countries</h4>
+                            <ul class="regulatory-list" id="medFullyBannedCountries"></ul>
+                          </div>
+                          <div class="regulatory-card">
+                            <h4>Prescription-only countries</h4>
+                            <ul class="regulatory-list" id="medPrescriptionOnlyCountries"></ul>
+                          </div>
+                          <div class="regulatory-card">
+                            <h4>Restricted age groups</h4>
+                            <ul class="regulatory-list" id="medRestrictedAgeGroups"></ul>
+                          </div>
+                          <div class="regulatory-card">
+                            <h4>Black-box warnings</h4>
+                            <ul class="regulatory-list" id="medBlackBoxWarnings"></ul>
+                          </div>
+                          <div class="regulatory-card">
+                            <h4>Withdrawn formulations</h4>
+                            <ul class="regulatory-list" id="medWithdrawnFormulations"></ul>
+                          </div>
+                          <div class="regulatory-card">
+                            <h4>Recent regulatory alerts</h4>
+                            <ul class="regulatory-list" id="medRegulatoryAlerts"></ul>
+                          </div>
+                        </div>
+                      </section>
+
+                      <section
+                        class="med-content-col section-card med-content-col--wide"
+                        id="section-ingredients"
+                        aria-labelledby="ingredients-heading"
+                      >
+                        <h3 id="ingredients-heading" class="med-panel-title">
+                          <span class="subhead-icon" aria-hidden="true">🧬</span>
+                          Ingredient-level analysis
+                        </h3>
+                        <div class="ingredient-grid">
+                          <div class="ingredient-item">
+                            <h4>Active ingredient</h4>
+                            <p id="medActiveIngredient">—</p>
+                          </div>
+                          <div class="ingredient-item">
+                            <h4>Equivalent brands</h4>
+                            <ul class="ingredient-list" id="medEquivalentBrands"></ul>
+                          </div>
+                          <div class="ingredient-item">
+                            <h4>Combination drugs</h4>
+                            <ul class="ingredient-list" id="medCombinationDrugs"></ul>
+                          </div>
+                          <div class="ingredient-item">
+                            <h4>Duplicate ingredient warnings</h4>
+                            <ul class="ingredient-list" id="medDuplicateIngredientWarnings"></ul>
+                          </div>
+                        </div>
+                      </section>
+
+                      <section
                         class="med-alert section-card med-card--alert"
                         id="warningsSection"
                         hidden
@@ -311,40 +380,6 @@
                         <ul class="alt-list" id="medAlternatives"></ul>
                       </section>
                     </div>
-                  </section>
-
-                  <section
-                    class="med-page-section"
-                    id="section-body"
-                    aria-labelledby="body-heading"
-                  >
-                    <h2 id="body-heading" class="med-section-title">Where it acts</h2>
-                    <article
-                      class="med-panel med-panel--body section-card body-effects-panel"
-                      id="bodyEffectsPanel"
-                    >
-                      <header class="med-panel-head">
-                        <span class="sticker sticker-tilt-right">3d scan</span>
-                        <h3 class="med-panel-title">
-                          <span class="subhead-icon" aria-hidden="true">◎</span>
-                          Body areas affected
-                        </h3>
-                      </header>
-                      <p class="body-effects-disclaimer">
-                        Educational illustration only — not medical advice.
-                      </p>
-                      <div class="body-effects-layout body-effects-layout--wide">
-                        <div
-                          id="bodyEffectsMap"
-                          class="body-effects-map body-effects-map--spline"
-                          aria-label="Interactive 3D human body scan with affected region legend"
-                        ></div>
-                        <div class="body-effects-copy">
-                          <p id="bodyEffectsSummary" class="body-effects-summary">—</p>
-                          <ul id="bodyEffectsOrgans" class="body-effects-organs"></ul>
-                        </div>
-                      </div>
-                    </article>
                   </section>
 
                   <section

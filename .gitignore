@@ -72,3 +72,13 @@ dist-ssr/
 # Server
 server/node_modules/
 server/.env
+
+
+node_modules/
+npm-debug.log*
+
+# Playwright e2e output
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

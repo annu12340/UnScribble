@@ -397,27 +397,6 @@ body.medication-details-page .med-shell {
   overflow: visible;
 }
 
-.medication-details-page .body-effects-disclaimer {
-  margin: 0 0 var(--med-gap-sm);
-}
-
-.med-panel--body .body-effects-layout--wide {
-  display: grid;
-  grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
-  gap: 1.5rem;
-  align-items: start;
-}
-
-.medication-details-page .med-panel--body .body-map-canvas,
-.medication-details-page .med-panel--body .body-spline-canvas {
-  height: min(420px, 55vh);
-  min-height: 300px;
-}
-
-.medication-details-page .body-effects-map--spline {
-  min-width: 0;
-}
-
 .med-panel--mechanism .mechanism-layout {
   display: grid;
   grid-template-columns: minmax(280px, 1fr) minmax(260px, 380px);
@@ -763,20 +742,8 @@ body.medication-details-page .med-shell {
   margin-bottom: 0;
 }
 
-.medication-details-page .body-effects-organs {
-  margin: 0;
-}
-
-.medication-details-page .body-map-legend {
-  margin-top: 0.65rem;
-}
-
 /* ── Responsive ────────────────────────────────── */
 @media (max-width: 1024px) {
-  .med-panel--body .body-effects-layout--wide {
-    grid-template-columns: 1fr;
-  }
-
   .med-panel--mechanism .mechanism-layout {
     grid-template-columns: 1fr;
   }

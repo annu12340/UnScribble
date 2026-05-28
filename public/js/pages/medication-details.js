@@ -6,10 +6,6 @@ import {
   getGoogleUserInfo
 } from "../medication/medication-schedule.js";
 import { loadMechanismSidebar, mechanismSidebarElements } from "../medication/mechanism-sidebar.js";
-import {
-  renderBodyEffectsForMedication,
-  bodyEffectsPanelElements
-} from "../medication/body-effects-panel.js";
 
 /** Change this to test another drug in the demo database (e.g. lisinopril, metformin, ibuprofen). */
 const DEMO_MEDICATION_NAME = "Amoxicillin";
@@ -69,6 +65,19 @@ const els = {
   warningsSection: document.querySelector("#warningsSection"),
   medAlternatives: document.querySelector("#medAlternatives"),
   alternativesSection: document.querySelector("#alternativesSection"),
+  regulatorySection: document.querySelector("#section-regulatory"),
+  medRegulatorySummary: document.querySelector("#medRegulatorySummary"),
+  medFullyBannedCountries: document.querySelector("#medFullyBannedCountries"),
+  medPrescriptionOnlyCountries: document.querySelector("#medPrescriptionOnlyCountries"),
+  medRestrictedAgeGroups: document.querySelector("#medRestrictedAgeGroups"),
+  medBlackBoxWarnings: document.querySelector("#medBlackBoxWarnings"),
+  medWithdrawnFormulations: document.querySelector("#medWithdrawnFormulations"),
+  medRegulatoryAlerts: document.querySelector("#medRegulatoryAlerts"),
+  medIngredientsSection: document.querySelector("#section-ingredients"),
+  medActiveIngredient: document.querySelector("#medActiveIngredient"),
+  medEquivalentBrands: document.querySelector("#medEquivalentBrands"),
+  medCombinationDrugs: document.querySelector("#medCombinationDrugs"),
+  medDuplicateIngredientWarnings: document.querySelector("#medDuplicateIngredientWarnings"),
   medRawText: document.querySelector("#medRawText"),
   addToCalendarBtn: document.querySelector("#addToCalendarBtn"),
   toast: document.querySelector("#toast"),
@@ -79,7 +88,6 @@ const els = {
   modalBody: document.querySelector("#calendarModal .modal-body"),
   startDateInput: document.querySelector("#startDateInput"),
   mechanism: mechanismSidebarElements(),
-  bodyEffects: bodyEffectsPanelElements(),
   demoBanner: document.querySelector("#demoBanner")
 };
 
@@ -111,7 +119,12 @@ function bindSideNav() {
     });
   });
 
-  const sectionIds = ["section-overview", "section-body", "section-mechanism"];
+  const sectionIds = [
+    "section-overview",
+    "section-regulatory",
+    "section-ingredients",
+    "section-mechanism"
+  ];
   const sections = sectionIds.map((id) => document.getElementById(id)).filter(Boolean);
 
   if (!sections.length || !("IntersectionObserver" in window)) return;
@@ -156,10 +169,10 @@ async function loadGoogleConfig() {
 }
 
 function bindEvents() {
-  els.addToCalendarBtn.addEventListener("click", openModal);
-  els.modalClose.addEventListener("click", closeModal);
-  els.modalCancel.addEventListener("click", closeModal);
-  els.modalConfirm.addEventListener("click", confirmCalendarSetup);
+  if (els.addToCalendarBtn) els.addToCalendarBtn.addEventListener("click", openModal);
+  if (els.modalClose) els.modalClose.addEventListener("click", closeModal);
+  if (els.modalCancel) els.modalCancel.addEventListener("click", closeModal);
+  if (els.modalConfirm) els.modalConfirm.addEventListener("click", confirmCalendarSetup);
 }
 
 function updateGoogleSignInUI() {
@@ -207,7 +220,20 @@ function loadMedicationData() {
   const params = new URLSearchParams(window.location.search);
   const medOverride = params.get("med");
   const forceDemo = params.get("demo") === "1";
-  const storedData = sessionStorage.getItem("selectedMedication");
+  let storedData = sessionStorage.getItem("selectedMedication");
+
+  // Fallback to localStorage if sessionStorage wasn't populated for some reason
+  if (!storedData) {
+    try {
+      storedData = localStorage.getItem("selectedMedication");
+      if (storedData) {
+        // Remove the fallback so it doesn't persist across unrelated visits
+        localStorage.removeItem("selectedMedication");
+      }
+    } catch (err) {
+      console.warn("localStorage fallback failed", err);
+    }
+  }
 
   if (forceDemo) {
     state.medication = buildDemoMedication(medOverride);
@@ -243,6 +269,7 @@ function loadMedicationData() {
 
 function renderMedicationDetails() {
   const med = state.medication;
+  if (!med) return;
 
   const strength = med.strength?.trim() || "";
   const form = med.form?.trim() || "";
@@ -251,9 +278,9 @@ function renderMedicationDetails() {
     formatNormalizedFrequency(med.normalized_frequency) || med.frequency?.trim() || "";
   const route = med.route?.trim() || "";
 
-  els.medName.textContent = med.medication_name || "Unknown Medication";
-  els.medStrength.textContent = strength || "";
-  els.medForm.textContent = form || "";
+  if (els.medName) els.medName.textContent = med.medication_name || "Unknown Medication";
+  if (els.medStrength) els.medStrength.textContent = strength || "";
+  if (els.medForm) els.medForm.textContent = form || "";
 
   if (els.medMeta) {
     const hasMeta = Boolean(strength || form);
@@ -263,14 +290,14 @@ function renderMedicationDetails() {
 
   renderHeroChips({ dose, frequency, route, duration: med.duration?.trim() || "" });
 
-  els.medDose.textContent = dose || "—";
-  els.medFrequency.textContent = frequency || "—";
-  els.medDuration.textContent = med.duration || "—";
-  els.medRoute.textContent = route || "—";
+  if (els.medDose) els.medDose.textContent = dose || "—";
+  if (els.medFrequency) els.medFrequency.textContent = frequency || "—";
+  if (els.medDuration) els.medDuration.textContent = med.duration || "—";
+  if (els.medRoute) els.medRoute.textContent = route || "—";
 
   // Administration
   const adminText = [med.administration_notes, med.instructions].filter(Boolean).join(". ");
-  if (adminText) {
+  if (adminText && els.medAdministration) {
     els.medAdministration.replaceChildren(createElement("p", "", adminText));
   }
 
@@ -282,22 +309,22 @@ function renderMedicationDetails() {
   }
 
   // Additional Information
-  els.medQuantity.textContent = med.quantity || "—";
-  els.medRefills.textContent = med.refills || "—";
-  els.medTiming.textContent = med.timing || "—";
+  if (els.medQuantity) els.medQuantity.textContent = med.quantity || "—";
+  if (els.medRefills) els.medRefills.textContent = med.refills || "—";
+  if (els.medTiming) els.medTiming.textContent = med.timing || "—";
 
   const confidence = Math.round(Number(med.confidence || 0) * 100);
-  els.medConfidence.textContent = med.confidence != null ? `${confidence}%` : "—";
+  if (els.medConfidence) els.medConfidence.textContent = med.confidence != null ? `${confidence}%` : "—";
   if (els.medConfidenceWrap) {
     els.medConfidenceWrap.classList.toggle("is-low", confidence > 0 && confidence < 75);
     els.medConfidenceWrap.classList.toggle("is-high", confidence >= 75);
   }
 
   // Sig
-  if (med.sig) {
+  if (med.sig && els.medSig && els.sigSection) {
     els.medSig.replaceChildren(createElement("p", "", med.sig));
     els.sigSection.hidden = false;
-  } else {
+  } else if (els.sigSection) {
     els.sigSection.hidden = true;
   }
 
@@ -308,42 +335,103 @@ function renderMedicationDetails() {
     .concat(med.requires_verification ? ["Human verification required for this medication."] : []);
 
   if (warnings.length > 0) {
-    els.medWarnings.replaceChildren(...warnings.map((warning) => createElement("li", "", warning)));
-    els.warningsSection.hidden = false;
+    if (els.medWarnings) els.medWarnings.replaceChildren(...warnings.map((warning) => createElement("li", "", warning)));
+    if (els.warningsSection) els.warningsSection.hidden = false;
   } else {
-    els.medWarnings.replaceChildren();
-    els.warningsSection.hidden = true;
+    if (els.medWarnings) els.medWarnings.replaceChildren();
+    if (els.warningsSection) els.warningsSection.hidden = true;
   }
 
   // Alternatives
   const alternatives = med.alternatives || [];
   if (alternatives.length > 0) {
-    els.medAlternatives.replaceChildren(
-      ...alternatives.map((alt) =>
-        createElement(
-          "li",
-          "",
-          `${alt.text || ""} (${Math.round(Number(alt.confidence || 0) * 100)}%) - ${
-            alt.reason || ""
-          }`
-        )
+    if (els.medAlternatives) els.medAlternatives.replaceChildren(...alternatives.map((alt) =>
+      createElement(
+        "li",
+        "",
+        `${alt.text || ""} (${Math.round(Number(alt.confidence || 0) * 100)}%) - ${alt.reason || ""}`
       )
-    );
-    els.alternativesSection.hidden = false;
+    ));
+    if (els.alternativesSection) els.alternativesSection.hidden = false;
   } else {
-    els.medAlternatives.replaceChildren();
-    els.alternativesSection.hidden = true;
+    if (els.medAlternatives) els.medAlternatives.replaceChildren();
+    if (els.alternativesSection) els.alternativesSection.hidden = true;
   }
 
   const rawDetails = document.querySelector(".med-details-raw");
   if (med.raw_text) {
-    els.medRawText.replaceChildren(createElement("p", "", med.raw_text));
+    if (els.medRawText) els.medRawText.replaceChildren(createElement("p", "", med.raw_text));
     if (rawDetails) rawDetails.hidden = false;
   } else if (rawDetails) {
     rawDetails.hidden = true;
   }
 
-  renderBodyEffectsForMedication(med.medication_name || "", els.bodyEffects);
+  const regulatory = med.regulatory_status || {};
+  const regulatoryLists = {
+    fullyBannedCountries: regulatory.fully_banned_countries || [],
+    prescriptionOnlyCountries: regulatory.prescription_only_countries || [],
+    restrictedAgeGroups: regulatory.restricted_age_groups || [],
+    blackBoxWarnings: regulatory.black_box_warnings || [],
+    withdrawnFormulations: regulatory.withdrawn_formulations || [],
+    regulatoryAlerts: regulatory.recent_regulatory_alerts || []
+  };
+
+  const hasRegulatoryInfo = Object.values(regulatoryLists).some((list) => list.length > 0);
+  if (els.medRegulatorySummary) {
+    els.medRegulatorySummary.textContent = hasRegulatoryInfo
+      ? "Regulatory information is available below."
+      : "No regulatory notes are available for this medication.";
+  }
+  renderList(
+    els.medFullyBannedCountries,
+    regulatoryLists.fullyBannedCountries,
+    "No countries listed."
+  );
+  renderList(
+    els.medPrescriptionOnlyCountries,
+    regulatoryLists.prescriptionOnlyCountries,
+    "No countries listed."
+  );
+  renderList(
+    els.medRestrictedAgeGroups,
+    regulatoryLists.restrictedAgeGroups,
+    "No age restrictions identified."
+  );
+  renderList(
+    els.medBlackBoxWarnings,
+    regulatoryLists.blackBoxWarnings,
+    "No black-box warnings identified."
+  );
+  renderList(
+    els.medWithdrawnFormulations,
+    regulatoryLists.withdrawnFormulations,
+    "No withdrawn formulations listed."
+  );
+  renderList(
+    els.medRegulatoryAlerts,
+    regulatoryLists.regulatoryAlerts,
+    "No recent alerts listed."
+  );
+
+  const ingredientData = med.ingredient_analysis || {};
+  const activeIngredient =
+    med.active_ingredient || ingredientData.active_ingredient || med.medication_name || "—";
+  const equivalentBrands =
+    med.equivalent_brands || ingredientData.equivalent_brands || [];
+  const combinationDrugs =
+    med.combination_drugs || ingredientData.combination_drugs || [];
+  const duplicateWarnings =
+    med.duplicate_ingredient_warnings || ingredientData.duplicate_ingredient_warnings || [];
+
+  if (els.medActiveIngredient) els.medActiveIngredient.textContent = activeIngredient;
+  renderList(els.medEquivalentBrands, equivalentBrands, "None identified.");
+  renderList(els.medCombinationDrugs, combinationDrugs, "None identified.");
+  renderList(
+    els.medDuplicateIngredientWarnings,
+    duplicateWarnings,
+    "No duplicate ingredient warnings."
+  );
+
   loadMechanismSidebar(med.medication_name || "", els.mechanism);
 }
 
@@ -377,7 +465,9 @@ function renderHeroChips({ dose, frequency, route, duration }) {
 }
 
 function renderSchedule(schedule) {
-  if (!schedule.schedule.times || schedule.schedule.times.length === 0) {
+  if (!els.medScheduleTimes) return;
+
+  if (!schedule || !schedule.schedule || !schedule.schedule.times || schedule.schedule.times.length === 0) {
     els.medScheduleTimes.replaceChildren(
       createElement(
         "p",
@@ -385,6 +475,9 @@ function renderSchedule(schedule) {
         "No schedule times parsed - check frequency on the prescription."
       )
     );
+    if (els.medScheduleDuration) {
+      els.medScheduleDuration.style.display = "none";
+    }
     return;
   }
 
@@ -400,12 +493,26 @@ function renderSchedule(schedule) {
     })
   );
 
-  if (schedule.duration) {
-    els.medScheduleDuration.textContent = `Duration: ${schedule.duration}`;
-    els.medScheduleDuration.style.display = "block";
-  } else {
-    els.medScheduleDuration.style.display = "none";
+  if (els.medScheduleDuration) {
+    if (schedule.duration) {
+      els.medScheduleDuration.textContent = `Duration: ${schedule.duration}`;
+      els.medScheduleDuration.style.display = "block";
+    } else {
+      els.medScheduleDuration.style.display = "none";
+    }
   }
+}
+
+function renderList(el, values, emptyText) {
+  if (!el) return;
+  const items = Array.isArray(values) ? values : [];
+  if (items.length === 0) {
+    el.replaceChildren(createElement("li", "", emptyText));
+    return;
+  }
+  el.replaceChildren(
+    ...items.map((item) => createElement("li", "", String(item)))
+  );
 }
 
 function formatNormalizedFrequency(frequency) {
