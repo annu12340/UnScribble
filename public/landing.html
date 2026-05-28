@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RxScan - Because Doctor Handwriting Shouldn't Be a Puzzle</title>
+    <title>RxScan - Your Prescription Translator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/landing.css">
 </head>
 <body>
-    <!-- Floating Elements -->
-    <div class="floating-pills">
-        <div class="pill pill-1"></div>
-        <div class="pill pill-2"></div>
-        <div class="pill pill-3"></div>
+    <!-- Progress Indicator -->
+    <div class="story-progress">
+        <div class="progress-bar"></div>
     </div>
 
     <!-- Navigation -->
@@ -35,362 +33,265 @@
                 <span>RxScan</span>
             </div>
             <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="#how">How it works</a>
-                <a href="/upload.html" class="btn-nav">Try it free</a>
+                <a href="/upload.html" class="btn-nav">Try it now</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-container">
-            <div class="hero-content">
-                <div class="hero-tag">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 6v6l4 2"/>
-                    </svg>
-                    <span>Reads prescriptions in under 3 seconds</span>
-                </div>
-                
-                <h1 class="hero-title">
-                    Your doctor's handwriting<br/>
-                    <span class="title-highlight">finally makes sense</span>
+    <!-- Chapter 1: The Problem -->
+    <section class="chapter chapter-1" data-chapter="1">
+        <div class="chapter-container">
+            <div class="chapter-content">
+                <div class="chapter-label">Chapter 1</div>
+                <h1 class="chapter-title">
+                    Picture this:<br/>
+                    You're holding a <span class="highlight">prescription</span>
                 </h1>
-                
-                <p class="hero-desc">
-                    We built an AI that actually understands medical scribbles. Upload a prescription, 
-                    get organized medication schedules, and never wonder "did they write 15mg or 150mg?" again.
+                <p class="chapter-text">
+                    The doctor handed it to you with a reassuring smile. "Take this twice daily," they said. 
+                    Simple enough, right?
                 </p>
-                
-                <div class="hero-actions">
-                    <a href="/upload.html" class="btn-primary">
-                        <span>Start scanning</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                    </a>
-                    <a href="#demo" class="btn-ghost">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/>
-                        </svg>
-                        <span>Watch demo</span>
-                    </a>
-                </div>
-
-                <div class="hero-proof">
-                    <div class="proof-item">
-                        <div class="proof-number">99.2%</div>
-                        <div class="proof-label">Accuracy rate</div>
-                    </div>
-                    <div class="proof-divider"></div>
-                    <div class="proof-item">
-                        <div class="proof-number">2.8s</div>
-                        <div class="proof-label">Avg. processing</div>
-                    </div>
-                    <div class="proof-divider"></div>
-                    <div class="proof-item">
-                        <div class="proof-number">5+</div>
-                        <div class="proof-label">AI agents</div>
-                    </div>
-                </div>
+                <p class="chapter-text">
+                    You look down at the paper. The handwriting looks like it was written during an earthquake. 
+                    By a chicken. Wearing mittens.
+                </p>
             </div>
-
-            <div class="hero-visual">
-                <div class="prescription-card">
-                    <div class="card-header">
-                        <div class="card-dots">
-                            <span></span><span></span><span></span>
+            <div class="chapter-visual">
+                <div class="prescription-demo" id="prescriptionDemo">
+                    <div class="prescription-paper">
+                        <div class="prescription-header">
+                            <div class="doctor-info">
+                                <div class="doctor-name">Dr. Smith</div>
+                                <div class="doctor-details">General Practitioner</div>
+                            </div>
                         </div>
-                        <div class="card-title">prescription.jpg</div>
-                    </div>
-                    <div class="card-content">
-                        <div class="scribble-lines">
-                            <svg width="100%" height="120" viewBox="0 0 280 120">
-                                <path d="M20,30 Q40,20 60,30 T100,30" stroke="#6366f1" stroke-width="3" fill="none" stroke-linecap="round"/>
-                                <path d="M20,60 Q50,50 80,60 T140,60" stroke="#8b5cf6" stroke-width="3" fill="none" stroke-linecap="round"/>
-                                <path d="M20,90 Q35,80 50,90 T90,90" stroke="#ec4899" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <div class="prescription-body">
+                            <svg class="scribble" width="100%" height="200" viewBox="0 0 300 200">
+                                <path class="scribble-path" d="M20,40 Q40,20 60,40 T100,40 Q120,30 140,40" 
+                                      stroke="#1a1a2e" stroke-width="3" fill="none" stroke-linecap="round"/>
+                                <path class="scribble-path" d="M20,80 Q50,60 80,80 T140,80 Q160,70 180,80" 
+                                      stroke="#1a1a2e" stroke-width="3" fill="none" stroke-linecap="round" style="animation-delay: 0.3s"/>
+                                <path class="scribble-path" d="M20,120 Q35,100 50,120 T90,120" 
+                                      stroke="#1a1a2e" stroke-width="3" fill="none" stroke-linecap="round" style="animation-delay: 0.6s"/>
+                                <path class="scribble-path" d="M20,160 Q45,140 70,160 T130,160" 
+                                      stroke="#1a1a2e" stroke-width="3" fill="none" stroke-linecap="round" style="animation-delay: 0.9s"/>
                             </svg>
                         </div>
-                        <div class="scan-beam"></div>
-                    </div>
-                </div>
-                <div class="result-card">
-                    <div class="result-item">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Amoxicillin 500mg</span>
-                    </div>
-                    <div class="result-item">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>3x daily, after meals</span>
-                    </div>
-                    <div class="result-item">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>7 days duration</span>
+                        <div class="confusion-overlay">
+                            <div class="confusion-mark">?</div>
+                            <div class="confusion-mark">?</div>
+                            <div class="confusion-mark">?</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- Problem Section -->
-    <section class="problem">
-        <div class="container">
-            <div class="problem-content">
-                <div class="problem-text">
-                    <h2>Let's be honest</h2>
-                    <p>You've stared at a prescription for 10 minutes trying to figure out if that says "BD" or "8D" or maybe just a coffee stain.</p>
-                    <p>You've Googled "what does TDS mean" at midnight.</p>
-                    <p>You've called the pharmacy three times because you can't read the dosage.</p>
-                    <p class="problem-highlight">There's a better way.</p>
-                </div>
-                <div class="problem-visual">
-                    <svg width="300" height="300" viewBox="0 0 300 300">
-                        <circle cx="150" cy="150" r="140" fill="#f8f9fa" stroke="#e5e7eb" stroke-width="2"/>
-                        <path d="M80,120 Q100,100 120,120 T160,120" stroke="#6366f1" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.3"/>
-                        <path d="M80,160 Q110,140 140,160 T200,160" stroke="#8b5cf6" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.3"/>
-                        <path d="M80,200 Q95,180 110,200 T150,200" stroke="#ec4899" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.3"/>
-                        <text x="150" y="160" text-anchor="middle" font-size="48" fill="#1a1a2e" opacity="0.1">???</text>
-                    </svg>
-                </div>
-            </div>
+        <div class="scroll-hint">
+            <span>Scroll to continue the story</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section id="features" class="features">
-        <div class="container">
-            <div class="section-header">
-                <h2>What makes RxScan different</h2>
-                <p>Hint: It's not just another OCR tool</p>
-            </div>
-            
-            <div class="features-grid">
-                <div class="feature">
-                    <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                            <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+    <!-- Chapter 2: The Struggle -->
+    <section class="chapter chapter-2" data-chapter="2">
+        <div class="chapter-container">
+            <div class="struggle-grid">
+                <div class="struggle-item" data-struggle="1">
+                    <div class="struggle-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="M21 21l-4.35-4.35"/>
                         </svg>
                     </div>
-                    <h3>Multiple AI agents, one goal</h3>
-                    <p>One checks image quality. Another transcribes. One extracts medications. Another runs safety checks. They work together like a well-rehearsed band.</p>
+                    <h3>You squint</h3>
+                    <p>Maybe if you hold it at a different angle? Nope. Still looks like abstract art.</p>
                 </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="12" y1="18" x2="12" y2="12"/>
-                            <line x1="9" y1="15" x2="15" y2="15"/>
+                <div class="struggle-item" data-struggle="2">
+                    <div class="struggle-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="15" rx="2"/>
+                            <polyline points="17 2 12 7 7 2"/>
                         </svg>
                     </div>
-                    <h3>Trained on actual prescriptions</h3>
-                    <p>We fed it thousands of real prescriptions. It knows "BD" means twice daily, "TDS" means three times, and "PRN" means as needed. You don't have to.</p>
+                    <h3>You Google</h3>
+                    <p>"What does BD mean in prescriptions?" "Is TDS a real thing or did my doctor invent it?"</p>
                 </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2"/>
-                            <path d="M16 2v4M8 2v4M3 10h18"/>
+                <div class="struggle-item" data-struggle="3">
+                    <div class="struggle-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                         </svg>
                     </div>
-                    <h3>Syncs with your calendar</h3>
-                    <p>Automatically creates Google Calendar reminders. Because "I'll remember to take it" is what we all say before we forget.</p>
+                    <h3>You call the pharmacy</h3>
+                    <p>"Hi, um, I can't read my prescription. Can you help?" They can't either. They suggest calling the doctor.</p>
                 </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                            <path d="M9 12l2 2 4-4"/>
-                        </svg>
-                    </div>
-                    <h3>Safety checks included</h3>
-                    <p>Flags anything suspicious. Like if your prescription says "take 47 pills" or the dosage looks off. Better safe than sorry.</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                        </svg>
-                    </div>
-                    <h3>Watch it work in real-time</h3>
-                    <p>See each AI agent do its thing. It's oddly satisfying, like watching a well-organized assembly line.</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="7 10 12 15 17 10"/>
-                            <line x1="12" y1="15" x2="12" y2="3"/>
-                        </svg>
-                    </div>
-                    <h3>Export however you want</h3>
-                    <p>JSON for developers. ICS for calendar apps. We're not picky about how you use your data.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works -->
-    <section id="how" class="how">
-        <div class="container">
-            <div class="section-header">
-                <h2>Three steps. That's it.</h2>
-                <p>No PhD required</p>
-            </div>
-            
-            <div class="steps-container">
-                <div class="step-card">
-                    <div class="step-num">1</div>
-                    <div class="step-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                            <circle cx="12" cy="13" r="4"/>
-                        </svg>
-                    </div>
-                    <h3>Take a photo</h3>
-                    <p>Use your phone. Doesn't matter if it's blurry, sideways, or taken in dim lighting. We've seen worse.</p>
-                </div>
-
-                <div class="step-arrow">
-                    <svg width="60" height="24" viewBox="0 0 60 24" fill="none">
-                        <path d="M0 12h54m0 0l-6-6m6 6l-6 6" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-num">2</div>
-                    <div class="step-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <div class="struggle-item" data-struggle="4">
+                    <div class="struggle-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v6l4 2"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
                         </svg>
                     </div>
-                    <h3>Wait 3 seconds</h3>
-                    <p>Our AI agents analyze, transcribe, extract, and verify. You can grab a coffee. Or just wait. It's really fast.</p>
+                    <h3>You guess</h3>
+                    <p>Is that 15mg or 150mg? Does it say "twice" or "thrice"? You're playing medical roulette.</p>
                 </div>
-
-                <div class="step-arrow">
-                    <svg width="60" height="24" viewBox="0 0 60 24" fill="none">
-                        <path d="M0 12h54m0 0l-6-6m6 6l-6 6" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-num">3</div>
-                    <div class="step-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                    </div>
-                    <h3>Get organized</h3>
-                    <p>Structured data, medication schedule, calendar reminders. Everything you need, nothing you don't.</p>
-                </div>
+            </div>
+            <div class="chapter-conclusion">
+                <h2>Sound familiar?</h2>
+                <p>You're not alone. Millions of people face this every single day.</p>
             </div>
         </div>
     </section>
 
-    <!-- Demo Section -->
-    <section id="demo" class="demo">
-        <div class="container">
-            <div class="demo-grid">
-                <div class="demo-content">
-                    <h2>See it in action</h2>
-                    <p>Here's what happens when you upload a prescription that looks like it was written during an earthquake.</p>
+    <!-- Chapter 3: The Solution -->
+    <section class="chapter chapter-3" data-chapter="3">
+        <div class="chapter-container">
+            <div class="chapter-label">Chapter 3</div>
+            <h2 class="chapter-title">
+                What if there was a <span class="highlight">better way?</span>
+            </h2>
+            <p class="chapter-intro">
+                Meet RxScan. We built an AI that actually understands doctor handwriting. 
+                Not just reads it—understands it.
+            </p>
+            
+            <div class="interactive-demo">
+                <div class="demo-controls">
+                    <button class="demo-btn active" data-step="upload">
+                        <span class="step-num">1</span>
+                        <span>Upload</span>
+                    </button>
+                    <div class="demo-arrow">→</div>
+                    <button class="demo-btn" data-step="process">
+                        <span class="step-num">2</span>
+                        <span>Process</span>
+                    </button>
+                    <div class="demo-arrow">→</div>
+                    <button class="demo-btn" data-step="result">
+                        <span class="step-num">3</span>
+                        <span>Result</span>
+                    </button>
+                </div>
+                
+                <div class="demo-stage">
+                    <div class="demo-content active" data-content="upload">
+                        <div class="upload-zone">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            <h3>Drop your prescription here</h3>
+                            <p>Photo from your phone? Perfect. Scanned PDF? Great. Blurry image taken in bad lighting? We've seen worse.</p>
+                        </div>
+                    </div>
                     
-                    <div class="demo-list">
-                        <div class="demo-list-item">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                            <div>
-                                <strong>Extracts medications</strong>
-                                <p>Even the ones with 15-letter names</p>
-                            </div>
-                        </div>
-                        <div class="demo-list-item">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                            <div>
-                                <strong>Decodes abbreviations</strong>
-                                <p>BD, TDS, PRN - we speak doctor</p>
-                            </div>
-                        </div>
-                        <div class="demo-list-item">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                            <div>
-                                <strong>Creates reminders</strong>
-                                <p>Because you will definitely forget</p>
-                            </div>
-                        </div>
-                        <div class="demo-list-item">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                            <div>
-                                <strong>Flags issues</strong>
-                                <p>Safety first, always</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <a href="/upload.html" class="btn-primary">Try it yourself</a>
-                </div>
-
-                <div class="demo-visual">
-                    <div class="demo-window">
-                        <div class="window-header">
-                            <div class="window-dots">
-                                <span></span><span></span><span></span>
-                            </div>
-                            <span class="window-title">Processing...</span>
-                        </div>
-                        <div class="window-content">
-                            <div class="agent-line">
-                                <div class="agent-status active"></div>
-                                <span>Image Quality Check</span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12"/>
-                                </svg>
-                            </div>
-                            <div class="agent-line">
-                                <div class="agent-status active"></div>
-                                <span>Transcription</span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12"/>
-                                </svg>
-                            </div>
-                            <div class="agent-line">
-                                <div class="agent-status active"></div>
-                                <span>Medication Extraction</span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12"/>
-                                </svg>
-                            </div>
-                            <div class="agent-line">
-                                <div class="agent-status loading"></div>
-                                <span>Safety Review</span>
-                                <div class="loading-dots">
-                                    <span></span><span></span><span></span>
+                    <div class="demo-content" data-content="process">
+                        <div class="processing-view">
+                            <div class="agent-work">
+                                <div class="agent-card">
+                                    <div class="agent-avatar">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="agent-info">
+                                        <div class="agent-name">Quality Agent</div>
+                                        <div class="agent-status">Checking image clarity...</div>
+                                    </div>
+                                    <div class="agent-check">✓</div>
+                                </div>
+                                <div class="agent-card">
+                                    <div class="agent-avatar">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="4 7 4 4 20 4 20 7"/>
+                                            <line x1="9" y1="20" x2="15" y2="20"/>
+                                            <line x1="12" y1="4" x2="12" y2="20"/>
+                                        </svg>
+                                    </div>
+                                    <div class="agent-info">
+                                        <div class="agent-name">Transcription Agent</div>
+                                        <div class="agent-status">Reading handwriting...</div>
+                                    </div>
+                                    <div class="agent-check">✓</div>
+                                </div>
+                                <div class="agent-card">
+                                    <div class="agent-avatar">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="11" width="18" height="11" rx="2"/>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                        </svg>
+                                    </div>
+                                    <div class="agent-info">
+                                        <div class="agent-name">Medication Agent</div>
+                                        <div class="agent-status">Extracting medications...</div>
+                                    </div>
+                                    <div class="agent-check">✓</div>
+                                </div>
+                                <div class="agent-card">
+                                    <div class="agent-avatar">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="agent-info">
+                                        <div class="agent-name">Safety Agent</div>
+                                        <div class="agent-status">Running safety checks...</div>
+                                    </div>
+                                    <div class="agent-check loading">
+                                        <span></span><span></span><span></span>
+                                    </div>
                                 </div>
                             </div>
+                            <p class="process-note">Watch them work together like a well-oiled machine</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-content" data-content="result">
+                        <div class="result-view">
+                            <div class="result-card-demo">
+                                <div class="result-header">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                    <span>All done!</span>
+                                </div>
+                                <div class="medication-list">
+                                    <div class="med-item">
+                                        <div class="med-name">Amoxicillin 500mg</div>
+                                        <div class="med-schedule">3 times daily, after meals</div>
+                                        <div class="med-duration">7 days</div>
+                                    </div>
+                                    <div class="med-item">
+                                        <div class="med-name">Ibuprofen 400mg</div>
+                                        <div class="med-schedule">As needed for pain</div>
+                                        <div class="med-duration">14 days</div>
+                                    </div>
+                                </div>
+                                <div class="result-actions">
+                                    <button class="result-action">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                            <path d="M16 2v4M8 2v4M3 10h18"/>
+                                        </svg>
+                                        Add to Calendar
+                                    </button>
+                                    <button class="result-action">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7 10 12 15 17 10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                        Export
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="result-note">Clear. Organized. Actually readable.</p>
                         </div>
                     </div>
                 </div>
@@ -398,64 +299,141 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta">
-        <div class="container">
-            <div class="cta-content">
-                <h2>Stop playing prescription detective</h2>
-                <p>Let AI do the hard work while you do literally anything else</p>
-                <div class="cta-buttons">
-                    <a href="/upload.html" class="btn-cta">
-                        <span>Start scanning for free</span>
+    <!-- Chapter 4: The Magic -->
+    <section class="chapter chapter-4" data-chapter="4">
+        <div class="chapter-container">
+            <div class="chapter-label">Chapter 4</div>
+            <h2 class="chapter-title">
+                How does it <span class="highlight">actually work?</span>
+            </h2>
+            
+            <div class="magic-reveal">
+                <div class="magic-item" data-reveal="1">
+                    <div class="magic-number">01</div>
+                    <div class="magic-content">
+                        <h3>Multiple AI agents</h3>
+                        <p>Not just one AI—a whole team. Each specializes in something different. One checks image quality. Another transcribes. One extracts medications. Another runs safety checks. They work together, catch each other's mistakes, and make sure nothing slips through.</p>
+                    </div>
+                    <div class="magic-visual">
+                        <div class="agent-network">
+                            <div class="network-node"></div>
+                            <div class="network-node"></div>
+                            <div class="network-node"></div>
+                            <div class="network-node"></div>
+                            <svg class="network-lines" width="200" height="200" viewBox="0 0 200 200">
+                                <line x1="50" y1="50" x2="150" y2="50" stroke="#6366f1" stroke-width="2"/>
+                                <line x1="50" y1="50" x2="50" y2="150" stroke="#6366f1" stroke-width="2"/>
+                                <line x1="150" y1="50" x2="150" y2="150" stroke="#6366f1" stroke-width="2"/>
+                                <line x1="50" y1="150" x2="150" y2="150" stroke="#6366f1" stroke-width="2"/>
+                                <line x1="50" y1="50" x2="150" y2="150" stroke="#6366f1" stroke-width="2"/>
+                                <line x1="150" y1="50" x2="50" y2="150" stroke="#6366f1" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="magic-item" data-reveal="2">
+                    <div class="magic-number">02</div>
+                    <div class="magic-content">
+                        <h3>Trained on real prescriptions</h3>
+                        <p>We fed it thousands of actual prescriptions. The good, the bad, and the "is this even English?" It learned that "BD" means twice daily, "TDS" means three times, "PRN" means as needed. All those cryptic abbreviations? It knows them by heart.</p>
+                    </div>
+                    <div class="magic-visual">
+                        <div class="training-data">
+                            <div class="data-item">BD → Twice daily</div>
+                            <div class="data-item">TDS → Three times</div>
+                            <div class="data-item">PRN → As needed</div>
+                            <div class="data-item">QID → Four times</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="magic-item" data-reveal="3">
+                    <div class="magic-number">03</div>
+                    <div class="magic-content">
+                        <h3>Safety checks built in</h3>
+                        <p>The AI doesn't just read—it thinks. If something looks off (like "take 47 pills at once" or a dosage that seems wrong), it flags it. Better to double-check than to guess wrong.</p>
+                    </div>
+                    <div class="magic-visual">
+                        <div class="safety-shield">
+                            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                <path d="M9 12l2 2 4-4"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chapter 5: The Ending -->
+    <section class="chapter chapter-5" data-chapter="5">
+        <div class="chapter-container">
+            <div class="ending-content">
+                <h2 class="ending-title">
+                    So, what happens next?
+                </h2>
+                <p class="ending-text">
+                    You could keep squinting at prescriptions. Keep Googling medical abbreviations at midnight. 
+                    Keep calling pharmacies and hoping someone can decipher your doctor's handwriting.
+                </p>
+                <p class="ending-text">
+                    Or you could try RxScan. Upload a prescription. Wait 3 seconds. Get organized, readable results.
+                </p>
+                <p class="ending-text strong">
+                    Your choice.
+                </p>
+                
+                <div class="ending-cta">
+                    <a href="/upload.html" class="btn-ending">
+                        <span>Try RxScan now</span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M5 12h14M12 5l7 7-7 7"/>
                         </svg>
                     </a>
+                    <p class="cta-subtext">No signup. No credit card. Just upload and go.</p>
                 </div>
-                <p class="cta-note">No signup required. No credit card. Just upload and go.</p>
+                
+                <div class="social-proof">
+                    <div class="proof-stat">
+                        <div class="stat-big">99.2%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="proof-stat">
+                        <div class="stat-big">2.8s</div>
+                        <div class="stat-label">Average time</div>
+                    </div>
+                    <div class="proof-stat">
+                        <div class="stat-big">10k+</div>
+                        <div class="stat-label">Prescriptions scanned</div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-                        <rect width="40" height="40" rx="10" fill="url(#footer-gradient)"/>
-                        <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                        <circle cx="28" cy="26" r="3" fill="white"/>
-                        <defs>
-                            <linearGradient id="footer-gradient" x1="0" y1="0" x2="40" y2="40">
-                                <stop offset="0%" stop-color="#6366f1"/>
-                                <stop offset="100%" stop-color="#8b5cf6"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                    <p>Making prescriptions readable since 2026</p>
-                </div>
-                <div class="footer-links">
-                    <div>
-                        <h4>Product</h4>
-                        <a href="#features">Features</a>
-                        <a href="#how">How it works</a>
-                        <a href="/upload.html">Try it</a>
-                    </div>
-                    <div>
-                        <h4>Resources</h4>
-                        <a href="/GOOGLE_CALENDAR_SETUP.md">Setup guide</a>
-                        <a href="/test-gcal.html">API test</a>
-                    </div>
-                    <div>
-                        <h4>Tech</h4>
-                        <a href="https://www.nvidia.com/en-us/ai/" target="_blank">NVIDIA AI</a>
-                        <a href="https://developers.google.com/calendar" target="_blank">Google Calendar</a>
-                    </div>
-                </div>
+        <div class="footer-container">
+            <div class="footer-brand">
+                <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="10" fill="url(#footer-gradient)"/>
+                    <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                    <circle cx="28" cy="26" r="3" fill="white"/>
+                    <defs>
+                        <linearGradient id="footer-gradient" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#6366f1"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <p>Making prescriptions readable, one scan at a time</p>
             </div>
-            <div class="footer-bottom">
-                <p>Built with caffeine and determination</p>
+            <div class="footer-links">
+                <a href="/upload.html">Try it</a>
+                <a href="/GOOGLE_CALENDAR_SETUP.md">Setup guide</a>
+                <a href="/test-gcal.html">API test</a>
             </div>
         </div>
     </footer>
