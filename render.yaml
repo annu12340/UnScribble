@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: prescription-ocr
+    name: unscribble
     runtime: node
     buildCommand: npm install
     startCommand: npm start

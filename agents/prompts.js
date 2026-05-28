@@ -10,7 +10,7 @@ const SHARED_RULES = [
 
 const imageQuality = [
   SHARED_RULES,
-  "Assess only image legibility for handwritten prescription OCR.",
+  "Assess only image legibility for handwritten prescription decoding.",
   "Rate legibility: high, medium, low, or unusable.",
   "List capture issues (blur, shadow, crop, glare) and recommend how to retake the photo.",
   "Recommend preprocessing for the next capture: `mono` for faded ink, `contrast` for uneven lighting or shadows, `original` for clear scans, `none` if the image is unusable.",

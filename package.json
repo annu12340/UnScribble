@@ -1,8 +1,8 @@
 {
-  "name": "prescription-ocr",
+  "name": "unscribble",
   "version": "1.0.0",
   "private": true,
-  "description": "Medical prescription OCR tool for handwritten doctor prescriptions.",
+  "description": "UnScribble - Making sense of handwritten doctor prescriptions.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

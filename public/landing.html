@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RxScan - Your Prescription Translator</title>
+    <title>UnScribble - Your Prescription Translator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Nothing+You+Could+Do&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -30,7 +30,7 @@
                         </linearGradient>
                     </defs>
                 </svg>
-                <span>RxScan</span>
+                <span>UnScribble</span>
             </div>
             <div class="nav-links">
                 <a href="/upload.html" class="btn-nav">Try it now</a>
@@ -190,7 +190,7 @@
                 What if there was a <span class="highlight">better way?<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
             </h2>
             <p class="chapter-intro">
-                Meet RxScan. We built an AI that actually understands doctor handwriting. 
+                Meet UnScribble. We built an AI that actually understands doctor handwriting. 
                 Not just reads it—understands it.
             </p>
             
@@ -228,73 +228,84 @@
                     <div class="demo-content" data-content="process">
                         <div class="processing-view">
                             <div class="processing-header">
-                                <p class="processing-title">Analyzing your prescription</p>
-                                <div class="processing-meta">
-                                    <span class="processing-pill">quirky mode</span>
-                                    <span class="processing-percent">78%</span>
-                                </div>
-                                <div class="processing-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="78" aria-label="Processing progress">
-                                    <span class="processing-bar-fill"></span>
-                                    <span class="processing-bar-glow"></span>
-                                </div>
-                            </div>
-                            <div class="agent-work">
-                                <div class="agent-card">
-                                    <div class="agent-avatar">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="agent-info">
-                                        <div class="agent-name">Quality Agent</div>
-                                        <div class="agent-status">Checking image clarity...</div>
-                                    </div>
-                                    <div class="agent-check">✓</div>
-                                </div>
-                                <div class="agent-card">
-                                    <div class="agent-avatar">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <polyline points="4 7 4 4 20 4 20 7"/>
-                                            <line x1="9" y1="20" x2="15" y2="20"/>
-                                            <line x1="12" y1="4" x2="12" y2="20"/>
-                                        </svg>
-                                    </div>
-                                    <div class="agent-info">
-                                        <div class="agent-name">Transcription Agent</div>
-                                        <div class="agent-status">Reading handwriting...</div>
-                                    </div>
-                                    <div class="agent-check">✓</div>
-                                </div>
-                                <div class="agent-card">
-                                    <div class="agent-avatar">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <div class="processing-icon-wrapper">
+                                    <div class="processing-icon">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <rect x="3" y="11" width="18" height="11" rx="2"/>
                                             <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                                         </svg>
                                     </div>
-                                    <div class="agent-info">
-                                        <div class="agent-name">Medication Agent</div>
-                                        <div class="agent-status">Extracting medications...</div>
-                                    </div>
-                                    <div class="agent-check">✓</div>
                                 </div>
-                                <div class="agent-card">
-                                    <div class="agent-avatar">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                <h3 class="processing-title">Decoding prescription</h3>
+                                <p class="processing-subtitle">Raw transcription</p>
+                                <div class="processing-meta">
+                                    <span class="processing-pill">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                            <polyline points="20 6 9 17 4 12"/>
                                         </svg>
+                                        quirky mode
+                                    </span>
+                                    <span class="processing-percent">14%</span>
+                                </div>
+                                <div class="processing-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="14" aria-label="Processing progress">
+                                    <span class="processing-bar-fill"></span>
+                                    <span class="processing-bar-glow"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="pipeline-section">
+                                <h4 class="pipeline-title">PIPELINE</h4>
+                                <div class="agent-work">
+                                    <div class="agent-card agent-card-complete">
+                                        <div class="agent-pill">
+                                            <div class="agent-check-icon">✓</div>
+                                            <span class="agent-name">Image quality</span>
+                                        </div>
                                     </div>
-                                    <div class="agent-info">
-                                        <div class="agent-name">Safety Agent</div>
-                                        <div class="agent-status">Running safety checks...</div>
+                                    <div class="agent-card agent-card-active">
+                                        <div class="agent-pill agent-pill-active">
+                                            <div class="agent-spinner">
+                                                <span></span><span></span><span></span>
+                                            </div>
+                                            <span class="agent-name">Raw transcription</span>
+                                        </div>
                                     </div>
-                                    <div class="agent-check loading">
-                                        <span></span><span></span><span></span>
+                                    <div class="agent-card">
+                                        <div class="agent-pill">
+                                            <div class="agent-check-icon"></div>
+                                            <span class="agent-name">Patient header</span>
+                                        </div>
+                                    </div>
+                                    <div class="agent-card">
+                                        <div class="agent-pill">
+                                            <div class="agent-check-icon"></div>
+                                            <span class="agent-name">Medications</span>
+                                        </div>
+                                    </div>
+                                    <div class="agent-card">
+                                        <div class="agent-pill">
+                                            <div class="agent-check-icon"></div>
+                                            <span class="agent-name">Clinical context</span>
+                                        </div>
+                                    </div>
+                                    <div class="agent-card">
+                                        <div class="agent-pill">
+                                            <div class="agent-check-icon"></div>
+                                            <span class="agent-name">Safety review</span>
+                                        </div>
+                                    </div>
+                                    <div class="agent-card">
+                                        <div class="agent-pill">
+                                            <div class="agent-check-icon"></div>
+                                            <span class="agent-name">Summary</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <p class="process-note">Watch them work together like a well-oiled machine</p>
+
+                            <div class="agent-output">
+                                <p class="agent-output-text">Why was the antibiotic so popular? It was a real culture killer!</p>
+                            </div>
                         </div>
                     </div>
                     
@@ -468,7 +479,7 @@
                     </div>
                     <div class="magic-visual">
                         <div class="safety-shield">
-                            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                                 <path d="M9 12l2 2 4-4"/>
                             </svg>
@@ -479,8 +490,79 @@
         </div>
     </section>
 
-    <!-- Chapter 5: The Ending -->
-    <section class="chapter chapter-5" data-chapter="5">
+    <!-- Chapter 5: The Features -->
+    <section class="chapter chapter-features" data-chapter="5">
+        <div class="chapter-container">
+            <span class="sticker sticker-tilt-right">the superpowers</span>
+            <div class="chapter-label">Chapter 5</div>
+            <h2 class="chapter-title">
+                But wait, there's <span class="highlight">more<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
+            </h2>
+            <p class="chapter-intro">
+                We didn't stop at just reading prescriptions. We built features that make managing your medications actually enjoyable.
+            </p>
+            
+            <div class="magic-reveal">
+                <div class="magic-item" data-reveal="1">
+                    <div class="magic-number">01</div>
+                    <div class="magic-content">
+                        <h3>Google Calendar Integration</h3>
+                        <p>Never miss a dose again. One click adds all your medication reminders directly to Google Calendar. Morning pills at 8am? Evening dose at 9pm? It's all scheduled automatically. You can also export as ICS for any calendar app.</p>
+                    </div>
+                    <div class="magic-visual">
+                        <div class="feature-icon-large">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.5">
+                                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                <path d="M16 2v4M8 2v4M3 10h18"/>
+                                <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="magic-item" data-reveal="2">
+                    <div class="magic-number">02</div>
+                    <div class="magic-content">
+                        <h3>3D Protein Folding</h3>
+                        <p>Ever wonder how your medication actually works? Click any drug to see its target protein in stunning 3D. Watch how the molecule binds to enzymes, blocks receptors, or activates pathways. It's like having a molecular biology lab in your browser. Powered by ESMFold AI.</p>
+                    </div>
+                    <div class="magic-visual">
+                        <div class="feature-icon-large protein-spin">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="1.5">
+                                <path d="M12 2a10 10 0 1 0 10 10"/>
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+                                <circle cx="12" cy="5" r="1.5" fill="#0d9488"/>
+                                <circle cx="12" cy="19" r="1.5" fill="#0d9488"/>
+                                <circle cx="5" cy="12" r="1.5" fill="#0d9488"/>
+                                <circle cx="19" cy="12" r="1.5" fill="#0d9488"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="magic-item" data-reveal="3">
+                    <div class="magic-number">03</div>
+                    <div class="magic-content">
+                        <h3>Body Effect Visualization</h3>
+                        <p>See exactly which organs your medication affects. Interactive 3D body map shows you where each drug works—heart, liver, kidneys, brain. Understand side effects before they happen. Knowledge is power.</p>
+                    </div>
+                    <div class="magic-visual">
+                        <div class="feature-icon-large">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                <circle cx="12" cy="12" r="2" fill="#10b981"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Chapter 6: The Ending -->
+    <section class="chapter chapter-6" data-chapter="6">
         <div class="chapter-container">
             <div class="ending-content">
                 <h2 class="ending-title">
@@ -491,7 +573,7 @@
                     Keep calling pharmacies and hoping someone can decipher your doctor's handwriting.
                 </p>
                 <p class="ending-text">
-                    Or you could try RxScan. Upload a prescription. Wait 3 seconds. Get organized, readable results.
+                    Or you could try UnScribble. Upload a prescription. Wait 3 seconds. Get organized, readable results.
                 </p>
                 <p class="ending-text strong">
                     Your choice.
@@ -499,7 +581,7 @@
                 
                 <div class="ending-cta">
                     <a href="/upload.html" class="btn-ending" id="ctaBtn">
-                        <span>Try RxScan now</span>
+                        <span>Try UnScribble now</span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M5 12h14M12 5l7 7-7 7"/>
                         </svg>

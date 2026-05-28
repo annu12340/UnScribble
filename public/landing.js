@@ -407,5 +407,5 @@ window.addEventListener('scroll', () => {
     });
 }, { passive: true });
 
-console.log('✨ RxScan Landing Page Loaded');
+console.log('✨ UnScribble Landing Page Loaded');
 console.log('📖 Scroll to experience the story');

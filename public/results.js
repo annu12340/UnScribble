@@ -511,7 +511,7 @@ function downloadResult() {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = `prescription-ocr-${new Date().toISOString().slice(0, 10)}.json`;
+  anchor.download = `unscribble-${new Date().toISOString().slice(0, 10)}.json`;
   anchor.click();
   URL.revokeObjectURL(url);
   showToast("JSON downloaded");

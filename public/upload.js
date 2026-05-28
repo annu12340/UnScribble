@@ -31,6 +31,9 @@ const els = {
   statusText: document.querySelector("#modelStatus .status-text"),
   fileInput: document.querySelector("#fileInput"),
   dropzone: document.querySelector("#dropzone"),
+  dropzoneContent: document.querySelector("#dropzoneContent"),
+  dropzonePreview: document.querySelector("#dropzonePreview"),
+  dropzoneImage: document.querySelector("#dropzoneImage"),
   fileName: document.querySelector("#fileName"),
   previewSection: document.querySelector("#previewSection"),
   previewCanvas: document.querySelector("#previewCanvas"),
@@ -146,6 +149,13 @@ async function handleFile(file) {
 
   state.file = file;
   state.originalImage = await loadImage(file);
+  
+  // Show image in dropzone
+  els.dropzoneImage.src = state.originalImage.src;
+  els.dropzoneContent.hidden = true;
+  els.dropzonePreview.hidden = false;
+  els.dropzone.classList.add("has-image");
+  
   els.fileName.textContent = file.name;
   els.previewSection.hidden = false;
   await renderPreview();
@@ -197,6 +207,8 @@ async function renderPreview() {
 
   if (mode === "original") {
     state.imageDataUrl = state.originalDataUrl;
+    // Update dropzone image to show original
+    els.dropzoneImage.src = state.originalDataUrl;
     return;
   }
 
@@ -209,6 +221,9 @@ async function renderPreview() {
   ctx.putImageData(imageData, 0, 0);
 
   state.imageDataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
+  
+  // Update dropzone image to show enhanced version
+  els.dropzoneImage.src = state.imageDataUrl;
 }
 
 async function processPrescription() {
@@ -385,6 +400,12 @@ function resetUpload() {
   els.fileInput.value = "";
   els.previewSection.hidden = true;
   els.errorCard.hidden = true;
+  
+  // Reset dropzone to initial state
+  els.dropzoneContent.hidden = false;
+  els.dropzonePreview.hidden = true;
+  els.dropzone.classList.remove("has-image");
+  els.dropzoneImage.src = "";
 }
 
 function syncSegmentedControls() {

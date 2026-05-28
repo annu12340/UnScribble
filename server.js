@@ -117,7 +117,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Prescription OCR running at http://localhost:${PORT}`);
+  console.log(`UnScribble running at http://localhost:${PORT}`);
   console.log(`Workflow: multi-agent SSE · formulary entries: ${formularySize}`);
   if (config.mock) console.log("WORKFLOW_MOCK=1 — using fixture agent outputs");
   if (!config.apiKey) {

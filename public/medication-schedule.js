@@ -683,7 +683,7 @@ function generateICS(events) {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Prescription OCR//Medication Schedule//EN",
+    "PRODID:-//UnScribble//Medication Schedule//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH"
   ];
@@ -724,7 +724,7 @@ function formatICSDate(date) {
 }
 
 function generateUID() {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}@prescription-ocr`;
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}@unscribble.app`;
 }
 
 function downloadICS(content, filename) {

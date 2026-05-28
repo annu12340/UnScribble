@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Upload Prescription - RxScan</title>
+    <title>Upload Prescription - UnScribble</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -24,7 +24,7 @@
             </svg>
           </div>
           <div>
-            <p class="eyebrow">RxScan</p>
+            <p class="eyebrow">UnScribble</p>
             <h1>Prescription <em>translator</em></h1>
           </div>
         </a>
@@ -45,14 +45,22 @@
           <div class="upload-card">
             <label class="dropzone large" id="dropzone">
               <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" capture="environment" />
-              <span class="dropzone-icon" aria-hidden="true">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V8m0 0l-3 3m3-3 3 3" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-                </svg>
-              </span>
-              <span class="dropzone-title">Drop image here or click to browse</span>
-              <span class="dropzone-subtitle">PNG, JPG, WEBP · Maximum 10 MB</span>
+              <div class="dropzone-content" id="dropzoneContent">
+                <span class="dropzone-icon" aria-hidden="true">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V8m0 0l-3 3m3-3 3 3" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                  </svg>
+                </span>
+                <span class="dropzone-title">Drop image here or click to browse</span>
+                <span class="dropzone-subtitle">PNG, JPG, WEBP · Maximum 10 MB</span>
+              </div>
+              <div class="dropzone-preview" id="dropzonePreview" hidden>
+                <img id="dropzoneImage" alt="Uploaded prescription" />
+                <div class="dropzone-overlay">
+                  <span class="dropzone-overlay-text">Click to change image</span>
+                </div>
+              </div>
             </label>
 
             <div class="preview-section" id="previewSection" hidden>

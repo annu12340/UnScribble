@@ -1,4 +1,4 @@
-# Prescription OCR
+# UnScribble
 
 A web app for decoding handwritten doctor prescriptions using a **multi-agent workflow** on **NVIDIA NIM** (OpenAI-compatible Responses API), with live SSE progress and prescription-specific structured extraction.
 
