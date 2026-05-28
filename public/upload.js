@@ -21,7 +21,9 @@ const state = {
   originalDataUrl: "",
   model: "",
   workflowAgents: [],
-  currentJoke: ""
+  currentJoke: "",
+  totalAgents: 7,
+  completedAgents: 0
 };
 
 const els = {
@@ -37,7 +39,6 @@ const els = {
   loadingOverlay: document.querySelector("#loadingOverlay"),
   loadingTitle: document.querySelector("#loadingTitle"),
   loadingHint: document.querySelector("#loadingHint"),
-  agentProgress: document.querySelector("#agentProgress"),
   errorCard: document.querySelector("#errorCard"),
   errorMessage: document.querySelector("#errorMessage"),
   retryBtn: document.querySelector("#retryBtn"),
@@ -260,7 +261,9 @@ async function processPrescription() {
 function handleWorkflowEvent(event, payload) {
   switch (event) {
     case "workflow.start":
-      initAgentProgress(payload.agents || state.workflowAgents);
+      state.completedAgents = 0;
+      updateProgressBar(0);
+      initStepList();
       setLoadingTitle("Analyzing Your Prescription");
       setLoadingHint("Starting multi-agent analysis workflow...");
       break;
@@ -276,21 +279,86 @@ function handleWorkflowEvent(event, payload) {
       };
       const stepLabel = agentLabels[payload.id] || payload.label || payload.id;
       setLoadingHint(stepLabel);
-      setAgentStatus(payload.id, "active");
+      updateStepStatus(payload.id, "active");
       break;
     case "agent.complete":
-      setAgentStatus(payload.id, "done");
+      state.completedAgents++;
+      const progress = Math.round((state.completedAgents / state.totalAgents) * 100);
+      updateProgressBar(progress);
+      updateStepStatus(payload.id, "completed");
       if (payload.summary) {
         setLoadingHint(`✓ ${agentLabel(payload.id)} completed`);
       }
       break;
     case "agent.error":
-      setAgentStatus(payload.id, "error");
+      updateStepStatus(payload.id, "error");
       throw new Error(formatWorkflowError(payload.id, payload));
     case "workflow.error":
       throw new Error(formatWorkflowError(payload.agentId, payload));
     default:
       break;
+  }
+}
+
+function initStepList() {
+  // Reset all steps to pending state
+  const steps = document.querySelectorAll('.step-item');
+  steps.forEach(step => {
+    step.classList.remove('active', 'completed', 'error');
+    const icon = step.querySelector('.step-icon');
+    if (icon) {
+      icon.textContent = '○';
+    }
+  });
+}
+
+function updateStepStatus(agentId, status) {
+  // Map agent IDs to step data attributes
+  const agentMap = {
+    "image_quality": "image_quality",
+    "raw_transcription": "raw_transcription",
+    "patient_header": "patient_header",
+    "medications": "medications",
+    "clinical_context": "clinical_context",
+    "safety_review": "safety_review",
+    "synthesis": "synthesis"
+  };
+  
+  const mappedId = agentMap[agentId] || agentId;
+  const step = document.querySelector(`.step-item[data-step="${mappedId}"]`);
+  
+  if (!step) {
+    console.warn(`Step not found for agent: ${agentId} (mapped: ${mappedId})`);
+    return;
+  }
+  
+  // Update step status
+  step.classList.remove('active', 'completed', 'error');
+  step.classList.add(status);
+  
+  // Update icon
+  const icon = step.querySelector('.step-icon');
+  if (icon) {
+    if (status === 'active') {
+      icon.textContent = '●';
+    } else if (status === 'completed') {
+      icon.textContent = '✓';
+    } else if (status === 'error') {
+      icon.textContent = '✗';
+    }
+  }
+}
+
+function updateProgressBar(percentage) {
+  const progressFill = document.getElementById('progressBarFill');
+  const progressText = document.getElementById('progressText');
+  
+  if (progressFill) {
+    progressFill.style.width = `${percentage}%`;
+  }
+  
+  if (progressText) {
+    progressText.textContent = `${percentage}%`;
   }
 }
 
@@ -305,53 +373,6 @@ function formatWorkflowError(agentId, payload) {
   const parts = [`${label}: ${message}`];
   if (payload?.detail && payload.detail !== message) parts.push(payload.detail);
   return parts.join("\n");
-}
-
-function initAgentProgress(agents) {
-  if (!els.agentProgress || !agents?.length) return;
-  state.workflowAgents = agents;
-  els.agentProgress.hidden = false;
-  
-  const agentStepLabels = {
-    "image-quality": "Image Quality Check",
-    "raw-transcription": "Text Recognition",
-    "patient-header": "Patient Information",
-    "medications": "Medication Extraction",
-    "clinical-context": "Clinical Analysis",
-    "safety-review": "Safety Verification",
-    "synthesis": "Final Summary"
-  };
-  
-  els.agentProgress.replaceChildren(
-    ...agents.map((agent, index) => {
-      const li = document.createElement("li");
-      li.dataset.agentId = agent.id;
-      li.className = "is-pending";
-      
-      const stepNumber = document.createElement("span");
-      stepNumber.className = "step-number";
-      stepNumber.textContent = `${index + 1}`;
-      
-      const stepLabel = document.createElement("span");
-      stepLabel.className = "step-label";
-      stepLabel.textContent = agentStepLabels[agent.id] || agent.label;
-      
-      li.appendChild(stepNumber);
-      li.appendChild(stepLabel);
-      
-      return li;
-    })
-  );
-}
-
-function setAgentStatus(agentId, status) {
-  if (!els.agentProgress) return;
-  const item = els.agentProgress.querySelector(`[data-agent-id="${agentId}"]`);
-  if (!item) return;
-  item.classList.remove("is-pending", "is-active", "is-done");
-  if (status === "active") item.classList.add("is-active");
-  else if (status === "done") item.classList.add("is-done");
-  else item.classList.add("is-pending");
 }
 
 function setLoadingHint(text) {
@@ -369,6 +390,8 @@ function setLoading(isLoading) {
     els.previewSection.hidden = true;
     setLoadingTitle("Analyzing Your Prescription");
     setLoadingHint("Preparing to process your prescription image...");
+    state.completedAgents = 0;
+    updateProgressBar(0);
     // Set a random joke
     state.currentJoke = MEDICAL_JOKES[Math.floor(Math.random() * MEDICAL_JOKES.length)];
     const jokeElement = document.querySelector("#loadingJoke");

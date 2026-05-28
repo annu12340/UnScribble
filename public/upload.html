@@ -101,10 +101,50 @@
               </div>
               <h3 id="loadingTitle">Processing prescription</h3>
               <p class="loading-hint" id="loadingHint">Analyzing image quality...</p>
+              
+              <!-- Progress Bar -->
+              <div class="progress-bar-container">
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+              </div>
+              
+              <!-- Simple Step List -->
+              <ul class="step-list" id="stepList">
+                <li class="step-item" data-step="image_quality">
+                  <span class="step-icon">○</span>
+                  <span class="step-text">Image Quality Check</span>
+                </li>
+                <li class="step-item" data-step="raw_transcription">
+                  <span class="step-icon">○</span>
+                  <span class="step-text">Text Recognition</span>
+                </li>
+                <li class="step-item" data-step="patient_header">
+                  <span class="step-icon">○</span>
+                  <span class="step-text">Patient Information</span>
+                </li>
+                <li class="step-item" data-step="medications">
+                  <span class="step-icon">○</span>
+                  <span class="step-text">Medication Extraction</span>
+                </li>
+                <li class="step-item" data-step="clinical_context">
+                  <span class="step-icon">○</span>
+                  <span class="step-text">Clinical Context</span>
+                </li>
+                <li class="step-item" data-step="safety_review">
+                  <span class="step-icon">○</span>
+                  <span class="step-text">Safety Review</span>
+                </li>
+                <li class="step-item" data-step="synthesis">
+                  <span class="step-icon">○</span>
+                  <span class="step-text">Final Summary</span>
+                </li>
+              </ul>
+              
               <div class="loading-joke">
                 <span id="loadingJoke"></span>
               </div>
-              <ul class="agent-progress" id="agentProgress" hidden></ul>
             </div>
           </div>
 

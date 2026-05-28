@@ -61,6 +61,8 @@ async function loadGoogleConfig() {
     const response = await fetch("/api/config");
     const config = await response.json();
     
+    console.log('[Config] Loaded config:', config.googleCalendar);
+    
     if (config.googleCalendar && config.googleCalendar.enabled) {
       state.googleCalendarConfig = {
         clientId: config.googleCalendar.clientId,
@@ -68,11 +70,19 @@ async function loadGoogleConfig() {
         enabled: true
       };
       
+      console.log('[Config] Google Calendar enabled:', {
+        hasClientId: !!state.googleCalendarConfig.clientId,
+        hasApiKey: !!state.googleCalendarConfig.apiKey,
+        clientIdLength: state.googleCalendarConfig.clientId?.length,
+        apiKeyLength: state.googleCalendarConfig.apiKey?.length
+      });
+      
       // Check if user is already signed in
       if (isGoogleSignedIn()) {
         updateGoogleSignInUI();
       }
     } else {
+      console.log('[Config] Google Calendar not enabled, hiding buttons');
       // Hide Google Calendar buttons if not configured
       document.querySelectorAll('.add-to-calendar-btn, #addAllToCalendar').forEach(btn => {
         btn.style.display = 'none';
@@ -246,6 +256,13 @@ async function confirmCalendarSetup() {
     return;
   }
 
+  console.log('[Calendar Setup] Starting calendar setup with config:', {
+    hasClientId: !!state.googleCalendarConfig.clientId,
+    hasApiKey: !!state.googleCalendarConfig.apiKey,
+    clientId: state.googleCalendarConfig.clientId,
+    apiKey: state.googleCalendarConfig.apiKey ? `${state.googleCalendarConfig.apiKey.substring(0, 10)}...` : 'undefined'
+  });
+
   const startDate = new Date(els.startDateInput.value);
 
   closeModal();
@@ -254,15 +271,32 @@ async function confirmCalendarSetup() {
     // Now add the medications
     if (state.currentMedicationIndex === "all") {
       let successCount = 0;
-      for (const schedule of state.currentSchedules) {
+      let failCount = 0;
+      const errors = [];
+      
+      for (let i = 0; i < state.currentSchedules.length; i++) {
+        const schedule = state.currentSchedules[i];
         try {
+          console.log(`[Calendar Setup] Adding medication ${i + 1}/${state.currentSchedules.length}: ${schedule.medication}`);
           await addMedicationToGoogleCalendar(schedule, startDate, state.googleCalendarConfig.clientId, state.googleCalendarConfig.apiKey);
           successCount++;
+          console.log(`[Calendar Setup] Successfully added ${schedule.medication}`);
         } catch (error) {
-          console.error(`Failed to add ${schedule.medication}:`, error);
+          failCount++;
+          console.error(`[Calendar Setup] Failed to add ${schedule.medication}:`, error);
+          errors.push({ medication: schedule.medication, error: error.message });
         }
       }
-      showToast(`✓ Added ${successCount} medication(s) to Google Calendar`);
+      
+      if (successCount > 0 && failCount === 0) {
+        showToast(`✓ Added all ${successCount} medication(s) to Google Calendar`);
+      } else if (successCount > 0 && failCount > 0) {
+        showToast(`⚠️ Added ${successCount} medication(s), ${failCount} failed`);
+        console.error('[Calendar Setup] Failed medications:', errors);
+      } else {
+        showToast(`❌ Failed to add medications. Check console for details.`);
+        console.error('[Calendar Setup] All medications failed:', errors);
+      }
     } else {
       const schedule = state.currentSchedules[state.currentMedicationIndex];
       await addMedicationToGoogleCalendar(schedule, startDate, state.googleCalendarConfig.clientId, state.googleCalendarConfig.apiKey);
