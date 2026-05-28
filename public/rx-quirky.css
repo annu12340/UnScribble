@@ -243,9 +243,6 @@ body.rx-app::before {
   align-items: flex-start;
 }
 
-.rx-app .medication-details-main > .sticker {
-  margin-bottom: 16px;
-}
 
 .rx-app .demo-banner {
   margin: 0 0 1rem;
@@ -258,35 +255,27 @@ body.rx-app::before {
   line-height: 1.45;
 }
 
-/* Medication details — main + mechanism sidebar */
-.rx-app .results-container {
-  max-width: min(1180px, 100%);
+/* Medication details page — shared card + 3D panel tokens */
+.rx-app .med-panel.section-card,
+.rx-app .med-content-col.section-card,
+.rx-app .med-alert.section-card {
+  margin-bottom: 0;
+  overflow: visible;
 }
 
-.rx-app .medication-details-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
-  gap: 1.25rem;
-  align-items: start;
-}
-
-.rx-app .medication-details-main {
-  min-width: 0;
-}
-
-.rx-app .mechanism-sidebar {
-  position: sticky;
-  top: 1rem;
-  padding: 1rem 1rem 0.85rem;
+.rx-app .mechanism-sidebar,
+.rx-app .med-panel--mechanism {
+  position: relative;
+  top: auto;
   margin: 0;
+  overflow: visible;
   background: linear-gradient(160deg, #ffffff 0%, #f0fdf4 100%);
   border: 1px solid rgba(5, 150, 105, 0.18);
   box-shadow: 0 10px 28px rgba(5, 150, 105, 0.1);
 }
 
-.rx-app .mechanism-sidebar > .sticker {
-  margin-bottom: 10px;
-  font-size: 0.72rem;
+.medication-details-page .med-panel--mechanism {
+  padding: var(--med-card-pad, 1.25rem 1.35rem);
 }
 
 .rx-app .mechanism-sidebar-title {
@@ -392,89 +381,154 @@ body.rx-app::before {
 }
 
 /* Body areas affected — main column */
-.rx-app .body-effects-panel .sticker {
-  margin-bottom: 10px;
-}
 
 .rx-app .body-effects-disclaimer {
-  margin: -0.25rem 0 1rem;
+  margin: 0 0 0.75rem;
   font-size: 0.72rem;
   color: var(--muted);
   font-style: italic;
 }
 
+.medication-details-page .body-effects-map {
+  margin: 0;
+}
+
 .rx-app .body-effects-layout {
   display: grid;
-  grid-template-columns: minmax(140px, 200px) 1fr;
-  gap: 1.25rem;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  gap: 1.5rem;
   align-items: start;
 }
 
+.rx-app .body-effects-layout--wide {
+  grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+}
+
 .rx-app .body-effects-map {
-  min-height: 260px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
-  background: linear-gradient(160deg, #f0fdf4, #ecfdf5);
-  border-radius: 16px;
-  border: 1px solid rgba(5, 150, 105, 0.16);
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.rx-app .body-map-stage {
+  position: relative;
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(5, 150, 105, 0.18);
+  background: linear-gradient(165deg, #ecfdf5 0%, #d1fae5 45%, #e0f2fe 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 12px 32px rgba(5, 150, 105, 0.12);
 }
 
 .rx-app .body-map-canvas {
   width: 100%;
-  max-width: 190px;
-  height: 250px;
-  border-radius: 14px;
+  height: min(380px, 52vw);
+  min-height: 280px;
+  border-radius: 0;
   overflow: hidden;
-  border: 1px solid rgba(5, 150, 105, 0.16);
-  background: radial-gradient(circle at 50% 30%, #f2fff8 0%, #e8f5ef 65%, #dfeee7 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  border: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 .rx-app .body-map-canvas canvas {
   width: 100% !important;
   height: 100% !important;
   display: block;
+  cursor: grab;
+}
+
+.rx-app .body-map-canvas canvas:active {
+  cursor: grabbing;
+}
+
+.rx-app .body-map-hint {
+  margin: 0;
+  padding: 0.4rem 0.75rem 0.55rem;
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+  background: rgba(255, 255, 255, 0.45);
+  border-top: 1px solid rgba(5, 150, 105, 0.1);
+}
+
+.rx-app .body-map-tooltip {
+  position: absolute;
+  z-index: 5;
+  transform: translate(-50%, -120%);
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.88);
+  color: #f8fafc;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .rx-app .body-map-legend {
   list-style: none;
-  margin: 12px 0 0;
+  margin: 0.85rem 0 0;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 10px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
   width: 100%;
 }
 
-.rx-app .body-map-legend li {
-  display: inline-flex;
+.rx-app .body-map-legend-item {
+  display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.65rem;
+  gap: 0.45rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 10px;
+  border: 1px solid rgba(5, 150, 105, 0.12);
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 0.68rem;
   font-weight: 600;
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 }
 
-.rx-app .body-map-legend li.is-active {
+.rx-app .body-map-legend-item:hover {
+  background: #ffffff;
+  border-color: rgba(5, 150, 105, 0.28);
+  transform: translateY(-1px);
+}
+
+.rx-app .body-map-legend-item.is-active {
   color: var(--rx-primary-dark);
+  background: #ecfdf5;
+  border-color: rgba(5, 150, 105, 0.35);
+}
+
+.rx-app .body-map-legend-item.is-focus {
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.35);
 }
 
 .rx-app .body-map-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: #cbd5e1;
 }
 
-.rx-app .body-map-legend li.is-active .body-map-dot {
+.rx-app .body-map-legend-item.is-active .body-map-dot {
   background: var(--rx-primary);
   box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.25);
+}
+
+.rx-app .body-map-legend-label {
+  line-height: 1.2;
 }
 
 .rx-app .body-effects-summary {
@@ -519,20 +573,25 @@ body.rx-app::before {
   font-weight: 600;
 }
 
-@media (max-width: 640px) {
-  .rx-app .body-effects-layout {
+@media (max-width: 768px) {
+  .rx-app .body-effects-layout,
+  .rx-app .body-effects-layout--wide {
     grid-template-columns: 1fr;
+  }
+
+  .rx-app .body-map-canvas {
+    height: min(340px, 70vw);
+    min-height: 260px;
+  }
+
+  .rx-app .body-map-legend {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 1024px) {
-  .rx-app .medication-details-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .rx-app .mechanism-sidebar {
-    position: static;
-    order: -1;
+@media (max-width: 480px) {
+  .rx-app .body-map-legend {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

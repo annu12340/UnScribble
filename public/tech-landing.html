@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UnScribble — Technical Architecture</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Nothing+You+Could+Do&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/tech-landing.css">
+</head>
+<body>
+    <div class="story-progress">
+        <div class="progress-bar"></div>
+    </div>
+
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/landing.html" class="nav-logo" style="text-decoration:none;color:inherit">
+                <svg width="36" height="36" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                    <rect width="40" height="40" rx="10" fill="url(#logo-gradient)"/>
+                    <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                    <circle cx="28" cy="26" r="3" fill="white"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#059669"/>
+                            <stop offset="100%" stop-color="#0d9488"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>UnScribble</span>
+            </a>
+            <div class="nav-links nav-links-tech">
+                <a href="/landing.html">Story</a>
+                <a href="#architecture">Architecture</a>
+                <a href="#agents">Agents</a>
+                <a href="/upload.html" class="btn-nav">Try it</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="chapter chapter-1 tech-hero" data-chapter="hero">
+        <div class="chapter-container">
+            <span class="sticker sticker-tilt-left">for builders</span>
+            <div class="chapter-label">Technical overview</div>
+            <h1 class="chapter-title">
+                Under the <span class="highlight">hood<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
+            </h1>
+            <p class="chapter-intro" style="max-width:640px;margin:0 auto">
+                UnScribble is a transcription aid—not a clinical decision system. This page documents
+                the multi-agent decode pipeline, deterministic safety layer, image preprocessing, and
+                vanilla frontend that turns handwritten prescriptions into structured, reviewable output.
+            </p>
+            <div class="tech-badge-row">
+                <span class="tech-badge">Node ≥ 18</span>
+                <span class="tech-badge">NVIDIA NIM</span>
+                <span class="tech-badge">SSE streaming</span>
+                <span class="tech-badge">Strict JSON schemas</span>
+                <span class="tech-badge">No bundler</span>
+            </div>
+            <nav class="tech-toc" aria-label="Page sections">
+                <a href="#architecture">Architecture</a>
+                <a href="#stack">Tech stack</a>
+                <a href="#pipeline">Pipeline</a>
+                <a href="#agents">Agents</a>
+                <a href="#algorithms">Algorithms</a>
+                <a href="#api">API &amp; SSE</a>
+            </nav>
+        </div>
+        <div class="scroll-hint">
+            <span>Scroll to explore</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Architecture -->
+    <section id="architecture" class="chapter chapter-tech chapter-4" data-chapter="arch">
+        <div class="chapter-container">
+            <span class="sticker sticker-tilt-right">two-tier</span>
+            <div class="chapter-label">Section 01</div>
+            <h2 class="chapter-title">
+                System <span class="highlight">architecture</span>
+            </h2>
+            <p class="chapter-intro">
+                A thin HTTP server serves static assets and orchestrates a staged agent workflow.
+                All decode intelligence lives server-side under <code>agents/</code>; the browser handles
+                capture, optional preprocessing, SSE progress, and rich result visualization.
+            </p>
+
+            <div class="arch-diagram">
+                <div class="arch-layers">
+                    <div class="arch-layer">
+                        <div class="arch-layer-label">Client</div>
+                        <div class="arch-layer-body">
+                            <h4>Vanilla frontend (<code>public/</code>)</h4>
+                            <p>ES modules, Canvas/Web Worker image enhancement, <code>fetch</code> + ReadableStream on <code>/api/decode/stream</code>, results &amp; medication detail views (3D protein, body map).</p>
+                        </div>
+                    </div>
+                    <div class="arch-arrow" aria-hidden="true">↓</div>
+                    <div class="arch-layer">
+                        <div class="arch-layer-label">Transport</div>
+                        <div class="arch-layer-body">
+                            <h4>HTTP + Server-Sent Events</h4>
+                            <p><code>POST /api/decode/stream</code> emits <code>workflow.start</code>, per-agent progress, and <code>workflow.complete</code>. Batch JSON at <code>POST /api/decode</code>.</p>
+                        </div>
+                    </div>
+                    <div class="arch-arrow" aria-hidden="true">↓</div>
+                    <div class="arch-layer">
+                        <div class="arch-layer-label">Server</div>
+                        <div class="arch-layer-body">
+                            <h4><code>server.js</code></h4>
+                            <p>Static file host, route handlers, env loading. Binds <code>127.0.0.1:${PORT||3000}</code>. No build step.</p>
+                        </div>
+                    </div>
+                    <div class="arch-arrow" aria-hidden="true">↓</div>
+                    <div class="arch-layer">
+                        <div class="arch-layer-label">Orchestrator</div>
+                        <div class="arch-layer-body">
+                            <h4><code>agents/orchestrator.js</code></h4>
+                            <p>Staged workflow, parallel Stage 2, self-consistency re-run, merger, formulary validation, SHA-256 LRU cache (16 entries, 5 min TTL).</p>
+                        </div>
+                    </div>
+                    <div class="arch-arrow" aria-hidden="true">↓</div>
+                    <div class="arch-layer">
+                        <div class="arch-layer-label">Model API</div>
+                        <div class="arch-layer-body">
+                            <h4>NVIDIA Inference (NIM)</h4>
+                            <p>Vision + text agents via Responses API (<code>nim-client.js</code>). Structured JSON with strict schemas; mock mode via <code>WORKFLOW_MOCK=1</code>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-panel">
+                <div class="code-panel-header">
+                    <span class="code-dot code-dot--r"></span>
+                    <span class="code-dot code-dot--y"></span>
+                    <span class="code-dot code-dot--g"></span>
+                    <span>Repository layout</span>
+                </div>
+                <pre><span class="cmt"># Simplified tree</span>
+server.js              <span class="cmt">→ routes, static, SSE</span>
+agents/
+  orchestrator.js      <span class="cmt">→ staged workflow + cache</span>
+  run-agent.js         <span class="cmt">→ runVisionAgent / runTextAgent</span>
+  nim-client.js        <span class="cmt">→ NVIDIA Responses API</span>
+  schemas.js / prompts.js
+  merger.js            <span class="cmt">→ merge artifacts + summary</span>
+  safety-rules.js      <span class="cmt">→ deterministic review flags</span>
+  formulary.js         <span class="cmt">→ Levenshtein fuzzy match</span>
+  agents/*.js          <span class="cmt">→ one runner per agent</span>
+public/                <span class="cmt">→ upload, results, landing, viz</span></pre>
+            </div>
+
+            <p class="disclaimer-tech">
+                <strong>Transcription aid only.</strong> Output is for reading and organizing prescription text—not dosing advice or clinical decisions. Low-confidence and safety flags route to human review.
+            </p>
+        </div>
+    </section>
+
+    <!-- Tech stack -->
+    <section id="stack" class="chapter chapter-tech chapter-features" data-chapter="stack">
+        <div class="chapter-container">
+            <span class="sticker sticker-tilt-left">the stack</span>
+            <div class="chapter-label">Section 02</div>
+            <h2 class="chapter-title">Tech <span class="highlight">stack</span></h2>
+            <p class="chapter-intro">Minimal dependencies by design—one npm package for formulary fuzzy matching; everything else is Node builtins and browser APIs.</p>
+
+            <div class="stack-grid">
+                <article class="stack-card">
+                    <h3><span class="stack-icon" aria-hidden="true">⚙️</span> Runtime</h3>
+                    <ul>
+                        <li><code>Node.js ≥ 18</code> — global <code>fetch</code></li>
+                        <li><code>node --test</code> — safety, merger, formulary, orchestrator</li>
+                        <li><code>.env</code> — API keys &amp; workflow toggles</li>
+                    </ul>
+                </article>
+                <article class="stack-card">
+                    <h3><span class="stack-icon" aria-hidden="true">🧠</span> AI / ML</h3>
+                    <ul>
+                        <li>NVIDIA NIM Responses API</li>
+                        <li>Default model: <code>openai/openai/gpt-5.5</code></li>
+                        <li>Strict JSON schemas per agent</li>
+                        <li>ESMFold (protein viewer, optional)</li>
+                    </ul>
+                </article>
+                <article class="stack-card">
+                    <h3><span class="stack-icon" aria-hidden="true">🖼️</span> Image (client)</h3>
+                    <ul>
+                        <li>Canvas 2D preprocessing</li>
+                        <li><strong>CLAHE</strong> — contrast mode</li>
+                        <li><strong>Sauvola</strong> — mono/binarize mode</li>
+                        <li>Web Worker when available</li>
+                    </ul>
+                </article>
+                <article class="stack-card">
+                    <h3><span class="stack-icon" aria-hidden="true">📐</span> Algorithms (server)</h3>
+                    <ul>
+                        <li><code>fastest-levenshtein</code> — formulary match</li>
+                        <li>SHA-256 content-hash cache</li>
+                        <li>LASA pair detection (<code>medical-context.js</code>)</li>
+                        <li>Deterministic safety rules</li>
+                    </ul>
+                </article>
+                <article class="stack-card">
+                    <h3><span class="stack-icon" aria-hidden="true">🌐</span> Frontend</h3>
+                    <ul>
+                        <li>Vanilla HTML/CSS/JS (ES modules)</li>
+                        <li>No React, no bundler</li>
+                        <li>SSE via ReadableStream</li>
+                        <li>3D body map + protein viewer pages</li>
+                    </ul>
+                </article>
+                <article class="stack-card">
+                    <h3><span class="stack-icon" aria-hidden="true">🔧</span> Dev &amp; ops flags</h3>
+                    <ul>
+                        <li><code>WORKFLOW_MOCK=1</code> — fixture outputs</li>
+                        <li><code>WORKFLOW_SKIP_SYNTHESIS=1</code></li>
+                        <li><code>WORKFLOW_CACHE_DISABLE=1</code></li>
+                        <li><code>WORKFLOW_AGENT_TIMEOUT_MS</code></li>
+                    </ul>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pipeline flowchart -->
+    <section id="pipeline" class="chapter chapter-tech chapter-4" data-chapter="pipeline">
+        <div class="chapter-container">
+            <span class="sticker sticker-tilt-right">flow</span>
+            <div class="chapter-label">Section 03</div>
+            <h2 class="chapter-title">Decode <span class="highlight">pipeline</span></h2>
+            <p class="chapter-intro">
+                Stages run sequentially except Stage 2 (three agents in parallel). Unusable images short-circuit
+                after quality check; formulary validation always runs at the end.
+            </p>
+
+            <div class="flowchart-wrap">
+                <svg class="flowchart-svg" viewBox="0 0 720 920" role="img" aria-labelledby="flow-title flow-desc">
+                    <title id="flow-title">UnScribble decode workflow</title>
+                    <desc id="flow-desc">Staged agent pipeline from image upload through formulary validation</desc>
+                    <defs>
+                        <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                            <polygon points="0 0, 8 4, 0 8" fill="#34d399"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Cache check -->
+                    <g data-animate data-delay="0">
+                        <rect class="flow-node--post" x="210" y="20" width="300" height="52" rx="10"/>
+                        <text class="flow-stage-tag" x="230" y="38">CACHE</text>
+                        <text class="flow-label" x="230" y="58">SHA-256(image) hit → skip agents</text>
+                    </g>
+                    <path class="flow-arrow" d="M360 72 L360 100" marker-end="url(#arrowhead)"/>
+
+                    <!-- Stage 1 -->
+                    <g data-animate data-delay="80">
+                        <rect class="flow-node" x="200" y="100" width="320" height="64" rx="10"/>
+                        <text class="flow-stage-tag" x="220" y="118">STAGE 1</text>
+                        <text class="flow-label" x="220" y="140">image_quality</text>
+                        <text class="flow-sublabel" x="220" y="156">legibility: high / medium / low / unusable</text>
+                    </g>
+                    <path class="flow-arrow" d="M360 164 L360 192" marker-end="url(#arrowhead)"/>
+
+                    <!-- Branch unusable -->
+                    <g data-animate data-delay="160">
+                        <rect class="flow-node--det" x="40" y="200" width="200" height="48" rx="8"/>
+                        <text class="flow-label" x="55" y="230">unusable → early exit</text>
+                    </g>
+                    <path class="flow-arrow" d="M240 224 L280 224" stroke-dasharray="4 3"/>
+                    <g data-animate data-delay="200">
+                        <rect class="flow-node--det" x="280" y="200" width="160" height="48" rx="8"/>
+                        <text class="flow-label" x="295" y="230">safety_review</text>
+                    </g>
+                    <path class="flow-arrow" d="M360 248 L360 280" marker-end="url(#arrowhead)"/>
+
+                    <!-- Stage 1b -->
+                    <g data-animate data-delay="240">
+                        <rect class="flow-node" x="180" y="280" width="360" height="64" rx="10"/>
+                        <text class="flow-stage-tag" x="200" y="298">STAGE 1b</text>
+                        <text class="flow-label" x="200" y="320">raw_transcription + region_hint</text>
+                        <text class="flow-sublabel" x="200" y="336">style, confidence, evidence (UK/US/IN bias)</text>
+                    </g>
+                    <path class="flow-arrow" d="M360 344 L360 372" marker-end="url(#arrowhead)"/>
+
+                    <!-- Stage 2 parallel -->
+                    <g data-animate data-delay="320">
+                        <rect class="flow-node--parallel" x="40" y="380" width="200" height="56" rx="10"/>
+                        <text class="flow-stage-tag" x="55" y="398">STAGE 2 ∥</text>
+                        <text class="flow-label" x="55" y="418">patient_header</text>
+                    </g>
+                    <g data-animate data-delay="360">
+                        <rect class="flow-node--parallel" x="260" y="380" width="200" height="56" rx="10"/>
+                        <text class="flow-label" x="275" y="418">medications</text>
+                        <text class="flow-sublabel" x="275" y="432">critical agent</text>
+                    </g>
+                    <g data-animate data-delay="400">
+                        <rect class="flow-node--parallel" x="480" y="380" width="200" height="56" rx="10"/>
+                        <text class="flow-label" x="495" y="418">clinical_context</text>
+                    </g>
+                    <path class="flow-arrow" d="M360 436 L360 464" marker-end="url(#arrowhead)"/>
+
+                    <!-- Stage 2b -->
+                    <g data-animate data-delay="480">
+                        <rect class="flow-node" x="120" y="464" width="480" height="72" rx="10"/>
+                        <text class="flow-stage-tag" x="140" y="482">STAGE 2b (conditional)</text>
+                        <text class="flow-label" x="140" y="504">medications self-consistency re-run</text>
+                        <text class="flow-sublabel" x="140" y="522">if confidence &lt; 0.7 or uncertain tokens; max 6 rows; mergeMedicationRuns</text>
+                    </g>
+                    <path class="flow-arrow" d="M360 536 L360 564" marker-end="url(#arrowhead)"/>
+
+                    <!-- Merger -->
+                    <g data-animate data-delay="560">
+                        <rect class="flow-node--det" x="200" y="564" width="320" height="48" rx="10"/>
+                        <text class="flow-label" x="220" y="594">mergeArtifacts (merger.js)</text>
+                    </g>
+                    <path class="flow-arrow" d="M360 612 L360 640" marker-end="url(#arrowhead)"/>
+
+                    <!-- Stage 3 -->
+                    <g data-animate data-delay="640">
+                        <rect class="flow-node--det" x="200" y="640" width="320" height="48" rx="10"/>
+                        <text class="flow-stage-tag" x="220" y="658">STAGE 3</text>
+                        <text class="flow-label" x="220" y="678">safety_review (deterministic)</text>
+                    </g>
+                    <path class="flow-arrow" d="M360 688 L360 716" marker-end="url(#arrowhead)"/>
+
+                    <!-- Stage 4 -->
+                    <g data-animate data-delay="720">
+                        <rect class="flow-node" x="180" y="716" width="360" height="56" rx="10"/>
+                        <text class="flow-stage-tag" x="200" y="734">STAGE 4</text>
+                        <text class="flow-label" x="200" y="754">synthesis (LLM) or deterministic summary</text>
+                    </g>
+                    <path class="flow-arrow" d="M360 772 L360 800" marker-end="url(#arrowhead)"/>
+
+                    <!-- Post -->
+                    <g data-animate data-delay="800">
+                        <rect class="flow-node--post" x="160" y="800" width="400" height="56" rx="10"/>
+                        <text class="flow-stage-tag" x="180" y="818">POST</text>
+                        <text class="flow-label" x="180" y="838">validateAgainstFormulary · dedup · distance-1 auto-correct</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agents -->
+    <section id="agents" class="chapter chapter-tech chapter-4" data-chapter="agents">
+        <div class="chapter-container">
+            <span class="sticker sticker-tilt-left">the team</span>
+            <div class="chapter-label">Section 04</div>
+            <h2 class="chapter-title">Seven <span class="highlight">agents</span></h2>
+            <p class="chapter-intro">
+                Each agent has a strict JSON schema (<code>additionalProperties: false</code>), dedicated prompts,
+                and a thin runner in <code>agents/agents/</code>. Critical agents fail the whole workflow on error; others degrade gracefully.
+            </p>
+
+            <div class="agent-grid">
+                <article class="agent-card">
+                    <div class="agent-card-header">
+                        <h3>Image quality</h3>
+                        <span class="agent-id">image_quality</span>
+                    </div>
+                    <div class="agent-tags">
+                        <span class="agent-tag agent-tag--vision">Vision</span>
+                    </div>
+                    <p>Assesses legibility, blur, lighting, and recommends preprocessing (<code>original</code>, <code>contrast</code>, <code>mono</code>). If <code>unusable</code>, downstream extraction is skipped.</p>
+                    <p class="agent-io"><strong>Out:</strong> <code>image_quality.legibility</code>, <code>recommended_preprocessing</code></p>
+                </article>
+
+                <article class="agent-card">
+                    <div class="agent-card-header">
+                        <h3>Raw transcription</h3>
+                        <span class="agent-id">raw_transcription</span>
+                    </div>
+                    <div class="agent-tags">
+                        <span class="agent-tag agent-tag--vision">Vision</span>
+                        <span class="agent-tag agent-tag--critical">Critical</span>
+                    </div>
+                    <p>Line-by-line OCR-style transcription with uncertainty markers. Infers <code>region_hint</code> (UK/US/India style) to steer abbreviation expansion in later agents.</p>
+                    <p class="agent-io"><strong>Out:</strong> <code>raw_transcription[]</code>, <code>region_hint</code></p>
+                </article>
+
+                <article class="agent-card">
+                    <div class="agent-card-header">
+                        <h3>Patient header</h3>
+                        <span class="agent-id">patient_header</span>
+                    </div>
+                    <div class="agent-tags">
+                        <span class="agent-tag agent-tag--text">Text</span>
+                    </div>
+                    <p>Extracts patient demographics, prescriber, clinic, dates from transcribed text. Runs in parallel with medications and clinical context.</p>
+                    <p class="agent-io"><strong>Out:</strong> <code>patient</code> object</p>
+                </article>
+
+                <article class="agent-card">
+                    <div class="agent-card-header">
+                        <h3>Medications</h3>
+                        <span class="agent-id">medications</span>
+                    </div>
+                    <div class="agent-tags">
+                        <span class="agent-tag agent-tag--text">Text</span>
+                        <span class="agent-tag agent-tag--critical">Critical</span>
+                    </div>
+                    <p>Structured drug rows: name, strength, form, dose, frequency, duration, PRN flags, confidence scores, LASA-aware alternatives. May re-run with temperature nudge for low-confidence lines.</p>
+                    <p class="agent-io"><strong>Out:</strong> <code>medications[]</code> with <code>medication_name_confidence</code></p>
+                </article>
+
+                <article class="agent-card">
+                    <div class="agent-card-header">
+                        <h3>Clinical context</h3>
+                        <span class="agent-id">clinical_context</span>
+                    </div>
+                    <div class="agent-tags">
+                        <span class="agent-tag agent-tag--text">Text</span>
+                    </div>
+                    <p>Diagnoses, allergies, advice, follow-up instructions. Uses <code>regionDirective()</code> for locale-specific schedule abbreviations (BD, TDS, QID, etc.).</p>
+                    <p class="agent-io"><strong>Out:</strong> <code>clinical_context</code>, <code>allergies</code>, <code>abbreviations</code></p>
+                </article>
+
+                <article class="agent-card">
+                    <div class="agent-card-header">
+                        <h3>Safety review</h3>
+                        <span class="agent-id">safety_review</span>
+                    </div>
+                    <div class="agent-tags">
+                        <span class="agent-tag agent-tag--det">Deterministic</span>
+                    </div>
+                    <p>Rule engine in <code>safety-rules.js</code>—flags low legibility, missing dose/frequency, uncertain tokens, high-risk abbreviations (STAT, IU, MSO4, µg).</p>
+                    <p class="agent-io"><strong>Out:</strong> <code>requires_human_review</code>, <code>review_reason</code></p>
+                </article>
+
+                <article class="agent-card">
+                    <div class="agent-card-header">
+                        <h3>Summary</h3>
+                        <span class="agent-id">synthesis</span>
+                    </div>
+                    <div class="agent-tags">
+                        <span class="agent-tag agent-tag--text">Text</span>
+                    </div>
+                    <p>Patient-friendly narrative summary from merged artifacts. Skippable via <code>WORKFLOW_SKIP_SYNTHESIS=1</code> for a deterministic template from <code>merger.js</code>.</p>
+                    <p class="agent-io"><strong>Out:</strong> <code>summary</code></p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Algorithms -->
+    <section id="algorithms" class="chapter chapter-tech chapter-4" data-chapter="algo">
+        <div class="chapter-container">
+            <span class="sticker sticker-tilt-right">math &amp; rules</span>
+            <div class="chapter-label">Section 05</div>
+            <h2 class="chapter-title">Key <span class="highlight">algorithms</span></h2>
+            <p class="chapter-intro">A mix of classical image processing, edit-distance search, and deterministic merge logic—no black-box scoring on safety.</p>
+
+            <div class="algo-list">
+                <article class="algo-item">
+                    <div class="algo-num">1</div>
+                    <div>
+                        <h3>CLAHE (Contrast Limited Adaptive Histogram Equalization)</h3>
+                        <p>Client-side enhancement in <code>image-enhance.js</code>. Tiles the grayscale image, clips histogram peaks, and redistributes contrast locally—helps faded or uneven lighting before the vision model sees the image.</p>
+                        <div class="algo-formula">Mode: enhancementMode = "contrast" → applyCLAHE(imageData)</div>
+                    </div>
+                </article>
+
+                <article class="algo-item">
+                    <div class="algo-num">2</div>
+                    <div>
+                        <h3>Sauvola adaptive thresholding</h3>
+                        <p>Local mean + standard deviation per window (radius 12, k=0.2, R=128) binarizes ink vs paper—ideal for mono mode on noisy phone photos.</p>
+                        <div class="algo-formula">T(x,y) = mean · (1 + k · (σ/R − 1))  →  ink if gray &lt; T</div>
+                    </div>
+                </article>
+
+                <article class="algo-item">
+                    <div class="algo-num">3</div>
+                    <div>
+                        <h3>Formulary fuzzy match (Levenshtein)</h3>
+                        <p>After LLM extraction, drug names are validated against a JSON formulary. Candidates are bucketed by length; <code>fastest-levenshtein</code> finds distance ≤ 2. Distance-1 with a single unambiguous match auto-corrects the name (original kept in <code>medication_name_raw</code>).</p>
+                        <div class="algo-formula">dedup key: (name|strength|form) → promote | alternatives | cap confidence</div>
+                    </div>
+                </article>
+
+                <article class="algo-item">
+                    <div class="algo-num">4</div>
+                    <div>
+                        <h3>Self-consistency merge</h3>
+                        <p>When medication name confidence &lt; 0.7 or uncertainty markers exist (≤6 rows), a second medications pass runs with <code>temperatureNudge</code> and LASA-focused context. <code>mergeMedicationRuns</code> picks per line: agree → max confidence; disagree + higher conf + in formulary → second pass; else flag disagreement.</p>
+                    </div>
+                </article>
+
+                <article class="algo-item">
+                    <div class="algo-num">5</div>
+                    <div>
+                        <h3>Workflow LRU cache</h3>
+                        <p>SHA-256 of <code>imageDataUrl|originalImageDataUrl</code> keys a 16-entry LRU with 5-minute TTL. Cache hits emit only <code>workflow.start</code> + <code>workflow.complete</code> with <code>cached: true</code>.</p>
+                        <div class="algo-formula">cacheKey = sha256(image + "|" + originalImage)</div>
+                    </div>
+                </article>
+
+                <article class="algo-item">
+                    <div class="algo-num">6</div>
+                    <div>
+                        <h3>LASA (look-alike sound-alike) guardrails</h3>
+                        <p><code>medical-context.js</code> maintains LASA pairs and injects focused blocks on re-runs when first-pass drug names are ambiguous—reducing swaps like hydroxyzine / hydralazine.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- API & SSE -->
+    <section id="api" class="chapter chapter-tech chapter-6" data-chapter="api">
+        <div class="chapter-container">
+            <span class="sticker sticker-tilt-left">wire protocol</span>
+            <div class="chapter-label">Section 06</div>
+            <h2 class="chapter-title">API &amp; <span class="highlight">streaming</span></h2>
+
+            <div class="tech-split">
+                <div>
+                    <h3 style="font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:16px">Routes</h3>
+                    <div class="stack-card" style="margin-bottom:16px">
+                        <ul>
+                            <li><code>GET /api/config</code> — model, agents[], mock flag</li>
+                            <li><code>POST /api/decode/stream</code> — primary SSE decode</li>
+                            <li><code>POST /api/decode</code> — batch JSON + events[]</li>
+                        </ul>
+                    </div>
+
+                    <div class="sse-timeline">
+                        <div class="sse-event">
+                            <code>workflow.start</code>
+                            <p>{ workflowId, agents: [{ id, label }] }</p>
+                        </div>
+                        <div class="sse-event">
+                            <code>agent.start</code> / <code>agent.complete</code>
+                            <p>Per-agent progress; summaries only (no full PHI in stream)</p>
+                        </div>
+                        <div class="sse-event">
+                            <code>workflow.complete</code>
+                            <p>{ result, workflow: { steps, totalMs, model, cached? } }</p>
+                        </div>
+                        <div class="sse-event">
+                            <code>workflow.error</code>
+                            <p>{ message, agentId? } on critical failure</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style="font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:16px">Result contract</h3>
+                    <p style="font-size:var(--text-sm);color:var(--text-light);margin-bottom:16px">
+                        <code>merger.js</code> produces the object consumed by <code>render-result.js</code>:
+                    </p>
+                    <div class="code-panel">
+                        <div class="code-panel-header">
+                            <span class="code-dot code-dot--r"></span>
+                            <span class="code-dot code-dot--y"></span>
+                            <span class="code-dot code-dot--g"></span>
+                            <span>workflow.complete → result</span>
+                        </div>
+                        <pre>{
+  <span class="str">"summary"</span>,
+  <span class="str">"raw_transcription"</span>,
+  <span class="str">"region_hint"</span>,
+  <span class="str">"patient"</span>,
+  <span class="str">"medications"</span>: [{ <span class="str">"medication_name"</span>,
+    <span class="str">"medication_name_raw"</span>, <span class="str">"alternatives"</span>, ... }],
+  <span class="str">"allergies"</span>, <span class="str">"clinical_context"</span>,
+  <span class="str">"image_quality"</span>,
+  <span class="str">"requires_human_review"</span>,
+  <span class="str">"review_reason"</span>
+}</pre>
+                    </div>
+
+                    <div class="magic-reveal" style="margin-top:32px">
+                        <div class="magic-item visible">
+                            <div class="magic-number">→</div>
+                            <div class="magic-content">
+                                <h3>Frontend decode client</h3>
+                                <p><code>decode-client.js</code> posts the image (and optional <code>originalImageDataUrl</code> when enhanced), parses SSE from a ReadableStream, updates the Rx bottle loader and per-agent list, then hands off to results UI.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ending-cta" style="margin-top:64px">
+                <a href="/upload.html" class="btn-ending">
+                    <span>Run a decode</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <p class="cta-subtext"><code>npm install && npm start</code> · set <code>NVIDIA_API_KEY</code> or <code>WORKFLOW_MOCK=1</code></p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <svg width="32" height="32" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                    <rect width="40" height="40" rx="10" fill="url(#footer-gradient)"/>
+                    <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                    <circle cx="28" cy="26" r="3" fill="white"/>
+                    <defs>
+                        <linearGradient id="footer-gradient" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#059669"/>
+                            <stop offset="100%" stop-color="#0d9488"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <p>Multi-agent prescription transcription · built for clarity, not clinical decisions</p>
+            </div>
+            <div class="footer-links">
+                <a href="/landing.html">Story landing</a>
+                <a href="/upload.html">Try it</a>
+                <a href="/tech-landing.html">Architecture</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/tech-landing.js"></script>
+</body>
+</html>

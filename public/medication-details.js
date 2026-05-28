@@ -49,8 +49,12 @@ const els = {
   noDataState: document.querySelector("#noDataState"),
   medicationDetailsContent: document.querySelector("#medicationDetailsContent"),
   medName: document.querySelector("#medName"),
+  medMeta: document.querySelector("#medMeta"),
+  medMetaSep: document.querySelector("#medMetaSep"),
   medStrength: document.querySelector("#medStrength"),
   medForm: document.querySelector("#medForm"),
+  medHeroChips: document.querySelector("#medHeroChips"),
+  medConfidenceWrap: document.querySelector("#medConfidenceWrap"),
   medDose: document.querySelector("#medDose"),
   medFrequency: document.querySelector("#medFrequency"),
   medDuration: document.querySelector("#medDuration"),
@@ -89,8 +93,47 @@ init();
 function init() {
   loadMedicationData();
   bindEvents();
+  bindSideNav();
   setTodayAsDefault();
   loadGoogleConfig();
+}
+
+function bindSideNav() {
+  const links = document.querySelectorAll(".med-side-nav-link");
+  if (!links.length) return;
+
+  links.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      const id = link.getAttribute("href");
+      if (!id?.startsWith("#")) return;
+      const target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      links.forEach((l) => l.classList.toggle("is-active", l === link));
+    });
+  });
+
+  const sectionIds = ["section-overview", "section-body", "section-mechanism"];
+  const sections = sectionIds.map((id) => document.getElementById(id)).filter(Boolean);
+
+  if (!sections.length || !("IntersectionObserver" in window)) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      const id = visible.target.id;
+      links.forEach((link) => {
+        link.classList.toggle("is-active", link.getAttribute("href") === `#${id}`);
+      });
+    },
+    { rootMargin: "-20% 0px -60% 0px", threshold: [0, 0.2, 0.45] }
+  );
+
+  sections.forEach((section) => observer.observe(section));
 }
 
 async function loadGoogleConfig() {
@@ -197,17 +240,30 @@ function loadMedicationData() {
 
 function renderMedicationDetails() {
   const med = state.medication;
-  
-  // Header
+
+  const strength = med.strength?.trim() || "";
+  const form = med.form?.trim() || "";
+  const dose = med.dose?.trim() || "";
+  const frequency =
+    formatNormalizedFrequency(med.normalized_frequency) || med.frequency?.trim() || "";
+  const route = med.route?.trim() || "";
+
   els.medName.textContent = med.medication_name || "Unknown Medication";
-  els.medStrength.textContent = med.strength || "Not specified";
-  els.medForm.textContent = med.form || "Not specified";
-  
-  // Dosage Information
-  els.medDose.textContent = med.dose || "—";
-  els.medFrequency.textContent = formatNormalizedFrequency(med.normalized_frequency) || med.frequency || "—";
+  els.medStrength.textContent = strength || "";
+  els.medForm.textContent = form || "";
+
+  if (els.medMeta) {
+    const hasMeta = Boolean(strength || form);
+    els.medMeta.classList.toggle("is-empty", !hasMeta);
+    if (els.medMetaSep) els.medMetaSep.hidden = !(strength && form);
+  }
+
+  renderHeroChips({ dose, frequency, route, duration: med.duration?.trim() || "" });
+
+  els.medDose.textContent = dose || "—";
+  els.medFrequency.textContent = frequency || "—";
   els.medDuration.textContent = med.duration || "—";
-  els.medRoute.textContent = med.route || "—";
+  els.medRoute.textContent = route || "—";
   
   // Administration
   const adminText = [med.administration_notes, med.instructions].filter(Boolean).join(". ");
@@ -228,9 +284,11 @@ function renderMedicationDetails() {
   els.medTiming.textContent = med.timing || "—";
   
   const confidence = Math.round(Number(med.confidence || 0) * 100);
-  els.medConfidence.textContent = `${confidence}%`;
-  els.medConfidence.style.color = confidence < 75 ? '#b45309' : '#067647';
-  els.medConfidence.style.fontWeight = '700';
+  els.medConfidence.textContent = med.confidence != null ? `${confidence}%` : "—";
+  if (els.medConfidenceWrap) {
+    els.medConfidenceWrap.classList.toggle("is-low", confidence > 0 && confidence < 75);
+    els.medConfidenceWrap.classList.toggle("is-high", confidence >= 75);
+  }
   
   // Sig
   if (med.sig) {
@@ -264,18 +322,49 @@ function renderMedicationDetails() {
     els.alternativesSection.hidden = true;
   }
   
-  // Raw Text
+  const rawDetails = document.querySelector(".med-details-raw");
   if (med.raw_text) {
     els.medRawText.innerHTML = `<p>${escapeHtml(med.raw_text)}</p>`;
+    if (rawDetails) rawDetails.hidden = false;
+  } else if (rawDetails) {
+    rawDetails.hidden = true;
   }
 
   renderBodyEffectsForMedication(med.medication_name || "", els.bodyEffects);
   loadMechanismSidebar(med.medication_name || "", els.mechanism);
 }
 
+function renderHeroChips({ dose, frequency, route, duration }) {
+  if (!els.medHeroChips) return;
+
+  const chips = [
+    { label: "Dose", value: dose },
+    { label: "Frequency", value: frequency },
+    { label: "Route", value: route },
+    { label: "Duration", value: duration },
+  ].filter((chip) => chip.value);
+
+  if (chips.length === 0) {
+    els.medHeroChips.innerHTML = "";
+    els.medHeroChips.hidden = true;
+    return;
+  }
+
+  els.medHeroChips.hidden = false;
+  els.medHeroChips.innerHTML = chips
+    .map(
+      (chip) => `<span class="med-hero-chip">
+        <span class="med-hero-chip-label">${escapeHtml(chip.label)}</span>
+        <span class="med-hero-chip-value">${escapeHtml(chip.value)}</span>
+      </span>`
+    )
+    .join("");
+}
+
 function renderSchedule(schedule) {
   if (!schedule.schedule.times || schedule.schedule.times.length === 0) {
-    els.medScheduleTimes.innerHTML = '<p style="color: var(--muted);">No schedule times available</p>';
+    els.medScheduleTimes.innerHTML =
+      '<p class="schedule-empty">No schedule times parsed — check frequency on the prescription.</p>';
     return;
   }
   
