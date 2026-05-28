@@ -3,25 +3,15 @@ import { buildDecodeRequestBody, decodePrescriptionStream } from "./decode-clien
 
 const MEDICAL_JOKES = [
   "Why did the prescription go to therapy? It had too many issues to refill...",
-  "What's a pharmacist's favorite game? Pill-ow fight!",
   "Why don't doctors trust stairs? They're always up to something...",
   "What did the doctor say to the rocket ship? Time to get your booster shot!",
-  "Why did the pill go to school? To get a little capsule-ucation!",
-  "What's a doctor's favorite type of music? Hip-hop... replacement!",
   "Why was the medicine always calm? It had good patient-ce!",
   "What do you call a doctor who fixes websites? A URLologist!",
-  "Why did the prescription cross the road? To get to the pharmacy side!",
-  "What's a pill's favorite exercise? Capsule-robics!",
   "Why don't medications ever get lost? They always follow the directions!",
   "What did one prescription say to the other? Take it easy, don't overdose on stress!",
   "Why was the antibiotic so popular? It was a real culture killer!",
-  "What's a pharmacist's favorite dance? The pill-et!",
-  "Why did the doctor carry a red pen? In case they needed to draw blood!",
-  "What do you call a prescription that tells jokes? A pill-arious medication!",
   "Why was the medicine bottle always happy? It was filled with good spirits!",
   "What's a doctor's favorite instrument? The organ!",
-  "Why did the tablet go to the gym? To get more defined!",
-  "What do you call a sleeping pill that sings? A lulla-pill!"
 ];
 
 const state = {

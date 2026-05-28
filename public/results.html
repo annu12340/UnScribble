@@ -105,7 +105,7 @@
                   <span class="subhead-icon" aria-hidden="true">Rx</span>
                   Medications
                 </h3>
-                <p class="section-desc">Extracted medication information from prescription</p>
+                <p class="section-desc">Click "View Details" to see complete medication information</p>
               </div>
               <div class="medications-table-container">
                 <table class="medications-table" id="medicationsTable">
@@ -126,17 +126,7 @@
               </div>
             </section>
 
-            <section class="section-card">
-              <div class="section-card-header">
-                <h3>
-                  <span class="subhead-icon" aria-hidden="true">📋</span>
-                  Detailed Medication Information
-                </h3>
-              </div>
-              <div class="med-list" id="medList"></div>
-            </section>
-
-            <section class="section-card schedule-section" id="scheduleSection">
+            <section class="section-card schedule-section">
               <div class="section-card-header">
                 <h3>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -145,10 +135,26 @@
                   </svg>
                   Medication Schedule
                 </h3>
-                <p class="section-desc">Set reminders for when to take each medication</p>
+                <p class="section-desc">Add all medications to your calendar at once</p>
               </div>
-              <div id="scheduleContainer"></div>
+              <div class="schedule-actions">
+                <button class="btn primary" id="addAllToCalendar">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <path d="M16 2v4M8 2v4M3 10h18" />
+                  </svg>
+                  Add All to Google Calendar
+                </button>
+                <button class="btn ghost" id="exportScheduleICS">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 4v12m0 0l-4-4m4 4 4-4M4 18h16" />
+                  </svg>
+                  Export as ICS
+                </button>
+              </div>
             </section>
+
+      
 
             <div class="two-column">
               <section class="section-card">

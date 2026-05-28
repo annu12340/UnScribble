@@ -1,6 +1,5 @@
 import { 
-  renderScheduleView, 
-  addMedicationToGoogleCalendar, 
+  addMedicationToGoogleCalendar,
   exportScheduleAsICS,
   parseMedicationSchedule,
   isGoogleSignedIn,
@@ -32,9 +31,6 @@ const els = {
   patientStrip: document.querySelector("#patientStrip"),
   medicationsTable: document.querySelector("#medicationsTable"),
   medicationsTableBody: document.querySelector("#medicationsTableBody"),
-  medList: document.querySelector("#medList"),
-  scheduleSection: document.querySelector("#scheduleSection"),
-  scheduleContainer: document.querySelector("#scheduleContainer"),
   abbrevList: document.querySelector("#abbrevList"),
   otherTextList: document.querySelector("#otherTextList"),
   workflowTraceWrap: document.querySelector("#workflowTraceWrap"),
@@ -185,16 +181,10 @@ function renderResults() {
   // Medications table
   renderMedicationsTable(els.medicationsTableBody, result.medications || []);
 
-  // Medications detailed view
-  renderMedications(els.medList, result.medications || []);
-
-  // Schedule
+  // Parse schedules for calendar functionality
   if (result.medications && result.medications.length > 0) {
-    els.scheduleSection.hidden = false;
-    state.currentSchedules = renderScheduleView(els.scheduleContainer, result.medications, escapeHtml);
+    state.currentSchedules = parseMedicationSchedule(result.medications);
     bindScheduleEvents();
-  } else {
-    els.scheduleSection.hidden = true;
   }
 
   // Abbreviations
@@ -230,8 +220,8 @@ function bindScheduleEvents() {
     });
   }
 
-  // Individual medication calendar buttons
-  document.querySelectorAll(".add-to-calendar-btn").forEach((btn) => {
+  // Individual medication calendar buttons from table
+  document.querySelectorAll(".add-to-calendar-btn-table").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       const index = parseInt(e.currentTarget.dataset.medIndex);
       state.currentMedicationIndex = index;
@@ -261,19 +251,6 @@ async function confirmCalendarSetup() {
   closeModal();
 
   try {
-    // Authenticate with Google (will show sign-in if needed)
-    const isAuthenticated = await addMedicationToGoogleCalendar(
-      null, // We'll handle this differently
-      startDate,
-      state.googleCalendarConfig.clientId,
-      state.googleCalendarConfig.apiKey
-    );
-
-    if (!isAuthenticated) {
-      showToast("Google sign-in was cancelled");
-      return;
-    }
-
     // Now add the medications
     if (state.currentMedicationIndex === "all") {
       let successCount = 0;
@@ -357,14 +334,14 @@ function renderMedicationsTable(tbody, medications) {
         </td>
         <td>
           <div class="table-actions">
-            <button class="btn small icon-btn view-details-btn" data-med-index="${index}" title="View Details">
+            <button class="btn small primary view-details-btn" data-med-index="${index}" title="View Details">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4M12 8h.01"/>
+                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                <rect x="9" y="3" width="6" height="4" rx="1"/>
               </svg>
               Details
             </button>
-            <button class="btn small primary add-to-calendar-btn-table" data-med-index="${index}" title="Add to Calendar">
+            <button class="btn small ghost add-to-calendar-btn-table" data-med-index="${index}" title="Add to Calendar">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
                 <path d="M16 2v4M8 2v4M3 10h18"/>
@@ -383,7 +360,7 @@ function renderMedicationsTable(tbody, medications) {
   document.querySelectorAll('.view-details-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const index = parseInt(e.currentTarget.dataset.medIndex);
-      scrollToMedicationDetails(index);
+      navigateToMedicationDetails(medications[index]);
     });
   });
 
@@ -396,75 +373,11 @@ function renderMedicationsTable(tbody, medications) {
   });
 }
 
-function scrollToMedicationDetails(index) {
-  const medCards = document.querySelectorAll('.med-card');
-  if (medCards[index]) {
-    medCards[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
-    medCards[index].classList.add('highlight');
-    setTimeout(() => medCards[index].classList.remove('highlight'), 2000);
-  }
-}
-
-function renderMedications(container, medications) {
-  if (!medications.length) {
-    container.innerHTML = `<div class="compact-list"><p>No medication lines were confidently extracted.</p></div>`;
-    return;
-  }
-
-  container.replaceChildren(
-    ...medications.map((med, index) => {
-      const card = document.createElement("article");
-      card.className = "med-card";
-      card.style.animationDelay = `${0.08 + index * 0.06}s`;
-      const confidence = Math.round(Number(med.confidence || 0) * 100);
-      const nameConfidence = Math.round(Number(med.medication_name_confidence || 0) * 100);
-      const fields = [
-        ["Raw line", med.raw_text],
-        ["Strength", med.strength],
-        ["Dose", med.dose],
-        ["Form", med.form],
-        ["Route", med.route],
-        ["Frequency", med.frequency],
-        ["Frequency meaning", formatNormalizedFrequency(med.normalized_frequency)],
-        ["Duration", med.duration],
-        ["Quantity", med.quantity],
-        ["Refills", med.refills],
-        ["Sig", med.sig],
-        ["Timing", med.timing],
-        ["Administration", med.administration_notes],
-        ["Instructions", med.instructions]
-      ];
-
-      const alternatives = (med.alternatives || [])
-        .map(
-          (alt) =>
-            `<li>${escapeHtml(alt.text)} (${Math.round(Number(alt.confidence || 0) * 100)}%) — ${escapeHtml(alt.reason)}</li>`
-        )
-        .join("");
-      const warnings = (med.safety_flags || [])
-        .concat((med.critical_uncertainties || []).map((item) => `Uncertain: ${item}`))
-        .concat((med.uncertain_tokens || []).map((item) => `Token to verify: ${item}`))
-        .concat(med.requires_verification ? ["Human verification required for this line."] : [])
-        .map((warning) => `<li>${escapeHtml(warning)}</li>`)
-        .join("");
-
-      card.innerHTML = `
-        <div class="med-head">
-          <div>
-            <div class="med-name">${escapeHtml(med.medication_name || "Unread medicine")}</div>
-            <span class="muted">Line ${escapeHtml(String(med.line_number || ""))} · name ${nameConfidence}%</span>
-          </div>
-          <span class="confidence ${confidence < 75 ? "low" : ""}">${confidence}%</span>
-        </div>
-        <div class="med-grid">
-          ${fields.map(([label, value]) => `<div class="med-field"><span>${escapeHtml(label)}</span>${escapeHtml(value || "Not read")}</div>`).join("")}
-        </div>
-        ${alternatives ? `<ul class="alt-list">${alternatives}</ul>` : ""}
-        ${warnings ? `<ul class="warning-list">${warnings}</ul>` : ""}
-      `;
-      return card;
-    })
-  );
+function navigateToMedicationDetails(medication) {
+  // Store medication in sessionStorage
+  sessionStorage.setItem("selectedMedication", JSON.stringify(medication));
+  // Navigate to details page
+  window.location.href = "/medication-details.html";
 }
 
 function renderAbbreviations(container, abbreviations) {

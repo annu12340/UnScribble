@@ -2658,6 +2658,7 @@ pre {
   border-bottom: 1px solid var(--border);
   transition: background 0.2s ease;
   animation: table-row-in 0.4s ease-out both;
+  cursor: pointer;
 }
 
 @keyframes table-row-in {
@@ -2755,6 +2756,132 @@ pre {
 .table-actions .btn svg {
   width: 14px;
   height: 14px;
+}
+
+/* Medication Details Page */
+.medication-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafb 100%);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  margin-bottom: 2rem;
+}
+
+.medication-header-main {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1;
+}
+
+.medication-icon {
+  font-size: 3rem;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+  border-radius: 16px;
+  border: 2px solid #bae6fd;
+}
+
+.medication-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 2rem;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.medication-meta {
+  color: var(--muted);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.medication-header-actions {
+  flex-shrink: 0;
+}
+
+.medication-details-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.medication-details-content .section-card {
+  animation: card-in 0.4s ease-out both;
+}
+
+.medication-details-content .section-card:nth-child(1) { animation-delay: 0.05s; }
+.medication-details-content .section-card:nth-child(2) { animation-delay: 0.1s; }
+.medication-details-content .section-card:nth-child(3) { animation-delay: 0.15s; }
+.medication-details-content .section-card:nth-child(4) { animation-delay: 0.2s; }
+.medication-details-content .section-card:nth-child(5) { animation-delay: 0.25s; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.875rem 1rem;
+  background: #f8fafb;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.instruction-box {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 8px;
+  border: 1px solid #bae6fd;
+  line-height: 1.6;
+}
+
+.instruction-box p {
+  margin: 0;
+  color: #0c4a6e;
+}
+
+.raw-text-box {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f4f7f5;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.raw-text-box p {
+  margin: 0;
+  color: var(--ink-soft);
 }
 
 /* Responsive */
