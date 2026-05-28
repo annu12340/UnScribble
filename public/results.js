@@ -24,10 +24,9 @@ const els = {
   copyBtn: document.querySelector("#copyBtn"),
   downloadBtn: document.querySelector("#downloadBtn"),
   printBtn: document.querySelector("#printBtn"),
+  rawTextContent: document.querySelector("#rawTextContent"),
   reviewBanner: document.querySelector("#reviewBanner"),
   summaryText: document.querySelector("#summaryText"),
-  qualityText: document.querySelector("#qualityText"),
-  patientStrip: document.querySelector("#patientStrip"),
   medicationsTable: document.querySelector("#medicationsTable"),
   medicationsTableBody: document.querySelector("#medicationsTableBody"),
   abbrevList: document.querySelector("#abbrevList"),
@@ -97,6 +96,18 @@ function bindEvents() {
   els.modalClose.addEventListener("click", closeModal);
   els.modalCancel.addEventListener("click", closeModal);
   els.modalConfirm.addEventListener("click", confirmCalendarSetup);
+  
+  // Toggle raw text
+  const toggleBtn = document.querySelector("#toggleRawText");
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      const rawTextContent = document.querySelector("#rawTextContent");
+      if (rawTextContent) {
+        rawTextContent.hidden = !rawTextContent.hidden;
+        toggleBtn.classList.toggle("active", !rawTextContent.hidden);
+      }
+    });
+  }
 }
 
 function updateGoogleSignInUI() {
@@ -164,25 +175,17 @@ function renderResults() {
     els.processedDate.textContent = date.toLocaleString();
   }
 
+  // Raw transcription
+  renderRawText(els.rawTextContent, result.raw_transcription || []);
+
   // Review banner
   els.reviewBanner.textContent = result.requires_human_review
     ? `⚠️ Human review required: ${result.review_reason || "verify prescription details"}`
     : "✓ No major review flag reported. Still verify before medical use.";
   els.reviewBanner.classList.toggle("ok", !result.requires_human_review);
 
-  // Summary and quality
+  // Summary
   els.summaryText.textContent = result.summary || "No summary returned.";
-  const quality = result.image_quality || {};
-  els.qualityText.textContent = [
-    quality.legibility ? `Legibility: ${quality.legibility}` : "",
-    ...(quality.issues || []),
-    quality.recommended_next_capture || ""
-  ]
-    .filter(Boolean)
-    .join(" · ") || "Not reported.";
-
-  // Patient info
-  renderPatient(els.patientStrip, result.patient || {});
 
   // Medications table
   renderMedicationsTable(els.medicationsTableBody, result.medications || []);
@@ -195,45 +198,27 @@ function renderResults() {
 
   // Abbreviations
   renderAbbreviations(els.abbrevList, result.abbreviations || []);
-
-
-  // Workflow trace
-  if (state.resultPayload.workflow) {
-    renderWorkflowTrace(state.resultPayload.workflow);
-  }
-
-  // Raw JSON
-  els.rawJson.textContent = JSON.stringify(state.resultPayload, null, 2);
 }
 
 function bindScheduleEvents() {
-  // Add all to calendar button
-  const addAllBtn = document.querySelector("#addAllToCalendar");
-  if (addAllBtn) {
-    addAllBtn.addEventListener("click", () => {
+  // Add all to calendar button (inline in medications section)
+  const addAllBtnInline = document.querySelector("#addAllToCalendarInline");
+  if (addAllBtnInline) {
+    addAllBtnInline.addEventListener("click", () => {
       state.currentMedicationIndex = "all";
       openModal();
     });
   }
 
-  // Export ICS button
-  const exportBtn = document.querySelector("#exportScheduleICS");
-  if (exportBtn) {
-    exportBtn.addEventListener("click", () => {
+  // Export ICS button (inline in medications section)
+  const exportBtnInline = document.querySelector("#exportScheduleICSInline");
+  if (exportBtnInline) {
+    exportBtnInline.addEventListener("click", () => {
       const startDate = new Date();
       exportScheduleAsICS(state.currentSchedules, startDate);
       showToast("Schedule exported as ICS file");
     });
   }
-
-  // Individual medication calendar buttons from table
-  document.querySelectorAll(".add-to-calendar-btn-table").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      const index = parseInt(e.currentTarget.dataset.medIndex);
-      state.currentMedicationIndex = index;
-      openModal();
-    });
-  });
 }
 
 function openModal() {
@@ -304,30 +289,9 @@ async function confirmCalendarSetup() {
   }
 }
 
-function renderPatient(container, patient) {
-  const fields = [
-    ["Name", patient.name],
-    ["Age", patient.age],
-    ["Sex", patient.sex],
-    ["Weight", patient.weight],
-    ["Date", patient.date],
-    ["Doctor", patient.doctor],
-    ["Clinic", patient.clinic]
-  ];
-
-  container.replaceChildren(
-    ...fields.map(([label, value]) => {
-      const node = document.createElement("div");
-      node.className = "patient-item";
-      node.innerHTML = `<span class="label">${escapeHtml(label)}</span><strong>${escapeHtml(value || "Not read")}</strong>`;
-      return node;
-    })
-  );
-}
-
 function renderMedicationsTable(tbody, medications) {
   if (!medications.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--muted);">No medications extracted</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--muted);">No medications extracted</td></tr>`;
     return;
   }
 
@@ -335,6 +299,9 @@ function renderMedicationsTable(tbody, medications) {
     ...medications.map((med, index) => {
       const tr = document.createElement("tr");
       tr.style.animationDelay = `${index * 0.05}s`;
+      tr.classList.add("medication-row");
+      tr.dataset.medIndex = index;
+      tr.style.cursor = "pointer";
       
       const frequency = med.normalized_frequency?.expansion || med.frequency || "Not specified";
       const administration = med.administration_notes || med.timing || "Not specified";
@@ -342,8 +309,15 @@ function renderMedicationsTable(tbody, medications) {
       tr.innerHTML = `
         <td>
           <div class="med-name-cell">
-            <strong>${escapeHtml(med.medication_name || "Unknown")}</strong>
-            ${med.form ? `<span class="med-form">${escapeHtml(med.form)}</span>` : ''}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="med-icon">
+              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+              <rect x="9" y="3" width="6" height="4" rx="1"/>
+              <path d="M9 12h6M9 16h6"/>
+            </svg>
+            <div>
+              <strong>${escapeHtml(med.medication_name || "Unknown")}</strong>
+              ${med.form ? `<span class="med-form">${escapeHtml(med.form)}</span>` : ''}
+            </div>
           </div>
         </td>
         <td><strong>${escapeHtml(med.strength || "—")}</strong></td>
@@ -360,45 +334,16 @@ function renderMedicationsTable(tbody, medications) {
             ${escapeHtml(administration)}
           </div>
         </td>
-        <td>
-          <div class="table-actions">
-            <button class="btn small primary view-details-btn" data-med-index="${index}" title="View Details">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-                <rect x="9" y="3" width="6" height="4" rx="1"/>
-              </svg>
-              Details
-            </button>
-            <button class="btn small ghost add-to-calendar-btn-table" data-med-index="${index}" title="Add to Calendar">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2"/>
-                <path d="M16 2v4M8 2v4M3 10h18"/>
-              </svg>
-              Calendar
-            </button>
-          </div>
-        </td>
       `;
+      
+      // Make entire row clickable
+      tr.addEventListener("click", () => {
+        navigateToMedicationDetails(medications[index]);
+      });
       
       return tr;
     })
   );
-
-  // Bind events for table buttons
-  document.querySelectorAll('.view-details-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const index = parseInt(e.currentTarget.dataset.medIndex);
-      navigateToMedicationDetails(medications[index]);
-    });
-  });
-
-  document.querySelectorAll('.add-to-calendar-btn-table').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const index = parseInt(e.currentTarget.dataset.medIndex);
-      state.currentMedicationIndex = index;
-      openModal();
-    });
-  });
 }
 
 function navigateToMedicationDetails(medication) {
@@ -406,6 +351,24 @@ function navigateToMedicationDetails(medication) {
   sessionStorage.setItem("selectedMedication", JSON.stringify(medication));
   // Navigate to details page
   window.location.href = "/medication-details.html";
+}
+
+function renderRawText(container, rawTranscription) {
+  if (!rawTranscription || !rawTranscription.length) {
+    container.innerHTML = "<p class='no-data'>No raw transcription available.</p>";
+    return;
+  }
+
+  const lines = rawTranscription
+    .sort((a, b) => (a.line_number || 0) - (b.line_number || 0))
+    .map((item) => {
+      const lineNum = item.line_number ? `<span class="line-num">${item.line_number}</span>` : '';
+      const section = item.section ? `<span class="line-section">${escapeHtml(item.section)}</span>` : '';
+      return `<div class="raw-text-line">${lineNum}${section}<span class="line-text">${escapeHtml(item.text || '')}</span></div>`;
+    })
+    .join("");
+
+  container.innerHTML = lines;
 }
 
 function renderAbbreviations(container, abbreviations) {

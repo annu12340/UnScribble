@@ -63,8 +63,9 @@ const server = http.createServer(async (req, res) => {
     applySecurityHeaders(res);
     const requestUrl = new URL(req.url, `http://${req.headers.host}`);
 
+    // API routes
     if (req.method === "GET" && requestUrl.pathname === "/api/config") {
-      sendJson(res, 200, {
+      return sendJson(res, 200, {
         configured: Boolean(config.apiKey),
         model: config.model,
         provider: "nvidia-nim",
@@ -77,37 +78,37 @@ const server = http.createServer(async (req, res) => {
           clientId: process.env.GOOGLE_CLIENT_ID || ""
         }
       });
-      return;
     }
 
     if (req.method === "POST" && requestUrl.pathname === "/api/decode/stream") {
-      await handleDecodeStream(req, res);
-      return;
+      return await handleDecodeStream(req, res);
     }
 
     if (req.method === "POST" && requestUrl.pathname === "/api/decode") {
-      await handleDecodeBatch(req, res);
-      return;
+      return await handleDecodeBatch(req, res);
     }
 
     if (req.method === "POST" && requestUrl.pathname === "/api/protein-mechanism") {
-      await handleProteinMechanism(req, res);
-      return;
+      return await handleProteinMechanism(req, res);
     }
 
+    // Static file routes
     if (req.method === "GET" || req.method === "HEAD") {
-      // Redirect root to landing page
       if (requestUrl.pathname === "/") {
         res.writeHead(302, { Location: "/landing.html" });
         res.end();
         return;
       }
-      await serveStatic(req, res, requestUrl.pathname);
-      return;
+      return await serveStatic(req, res, requestUrl.pathname);
     }
 
     sendJson(res, 405, { error: "Method not allowed" });
   } catch (error) {
+    log.error("http", "request error", { 
+      method: req.method, 
+      url: req.url, 
+      message: error.message 
+    });
     const statusCode = error.statusCode || 500;
     sendJson(res, statusCode, {
       error: statusCode >= 500 ? "Server error" : error.message,
@@ -127,19 +128,18 @@ server.listen(PORT, "0.0.0.0", () => {
 
 async function handleDecodeStream(req, res) {
   if (!config.apiKey && !config.mock) {
-    sendJson(res, 500, {
+    return sendJson(res, 500, {
       error: "NVIDIA_API_KEY is not configured",
       detail: "Set NVIDIA_API_KEY in .env or WORKFLOW_MOCK=1 for local testing."
     });
-    return;
   }
 
-  const body = await readJson(req);
+  let body;
   try {
+    body = await readJson(req);
     validateDecodeBody(body);
   } catch (error) {
-    sendJson(res, error.statusCode || 400, { error: error.message });
-    return;
+    return sendJson(res, error.statusCode || 400, { error: error.message });
   }
 
   initSseResponse(res);
@@ -167,19 +167,18 @@ async function handleDecodeStream(req, res) {
 
 async function handleDecodeBatch(req, res) {
   if (!config.apiKey && !config.mock) {
-    sendJson(res, 500, {
+    return sendJson(res, 500, {
       error: "NVIDIA_API_KEY is not configured",
       detail: "Set NVIDIA_API_KEY in .env or WORKFLOW_MOCK=1 for local testing."
     });
-    return;
   }
 
-  const body = await readJson(req);
+  let body;
   try {
+    body = await readJson(req);
     validateDecodeBody(body);
   } catch (error) {
-    sendJson(res, error.statusCode || 400, { error: error.message });
-    return;
+    return sendJson(res, error.statusCode || 400, { error: error.message });
   }
 
   log.info("http", "POST /api/decode", {
@@ -194,7 +193,7 @@ async function handleDecodeBatch(req, res) {
       events.push({ event, data });
     });
     log.info("http", "batch decode complete", { totalMs: workflow?.totalMs });
-    sendJson(res, 200, {
+    return sendJson(res, 200, {
       result,
       workflow,
       events,
@@ -204,7 +203,7 @@ async function handleDecodeBatch(req, res) {
   } catch (error) {
     log.error("http", "batch decode failed", { message: error.message, agentId: error.agentId });
     const statusCode = error.statusCode || 500;
-    sendJson(res, statusCode, {
+    return sendJson(res, statusCode, {
       error: statusCode >= 500 ? "Decoding failed" : error.message,
       detail: error.detail || error.message,
       events,
@@ -214,25 +213,29 @@ async function handleDecodeBatch(req, res) {
 }
 
 async function handleProteinMechanism(req, res) {
-  const body = await readJson(req);
+  let body;
+  try {
+    body = await readJson(req);
+  } catch (error) {
+    return sendJson(res, error.statusCode || 400, { error: error.message });
+  }
+
   const medication = String(body.medication || "").trim();
-  
   if (!medication) {
-    sendJson(res, 400, { error: "Medication name is required" });
-    return;
+    return sendJson(res, 400, { error: "Medication name is required" });
   }
   
   log.info("http", "POST /api/protein-mechanism", { medication });
   
   try {
     const result = await predictProteinMechanism(medication);
-    sendJson(res, 200, result);
+    return sendJson(res, 200, result);
   } catch (error) {
     log.error("http", "protein mechanism failed", { 
       medication, 
       message: error.message 
     });
-    sendJson(res, error.statusCode || 500, {
+    return sendJson(res, error.statusCode || 500, {
       error: "Failed to predict protein mechanism",
       detail: error.message
     });

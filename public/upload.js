@@ -150,11 +150,8 @@ async function handleFile(file) {
   state.file = file;
   state.originalImage = await loadImage(file);
   
-  // Show image in dropzone
-  els.dropzoneImage.src = state.originalImage.src;
-  els.dropzoneContent.hidden = true;
-  els.dropzonePreview.hidden = false;
-  els.dropzone.classList.add("has-image");
+  // Hide the dropzone after upload
+  els.dropzone.style.display = "none";
   
   els.fileName.textContent = file.name;
   els.previewSection.hidden = false;
@@ -207,8 +204,6 @@ async function renderPreview() {
 
   if (mode === "original") {
     state.imageDataUrl = state.originalDataUrl;
-    // Update dropzone image to show original
-    els.dropzoneImage.src = state.originalDataUrl;
     return;
   }
 
@@ -221,9 +216,6 @@ async function renderPreview() {
   ctx.putImageData(imageData, 0, 0);
 
   state.imageDataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
-  
-  // Update dropzone image to show enhanced version
-  els.dropzoneImage.src = state.imageDataUrl;
 }
 
 async function processPrescription() {
@@ -401,11 +393,8 @@ function resetUpload() {
   els.previewSection.hidden = true;
   els.errorCard.hidden = true;
   
-  // Reset dropzone to initial state
-  els.dropzoneContent.hidden = false;
-  els.dropzonePreview.hidden = true;
-  els.dropzone.classList.remove("has-image");
-  els.dropzoneImage.src = "";
+  // Show the dropzone again
+  els.dropzone.style.display = "";
 }
 
 function syncSegmentedControls() {

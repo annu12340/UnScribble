@@ -28,15 +28,14 @@ Open `http://localhost:3000` (redirects to `/landing.html`).
 
 1. **Upload page** (`/upload.html`): Upload prescription image, choose enhancement mode, process
 2. **Results page** (`/results.html`): View extracted medications, patient info, and medication schedule
-3. **Calendar integration**: Click "Add to Google Calendar" to set medication reminders
+3. **Medication details** (`/medication-details.html`): View detailed information for individual medications
+4. **Calendar integration**: Click "Add to Google Calendar" to set medication reminders
 
 ### Google Calendar Setup
 
-To enable calendar integration, see [GOOGLE_CALENDAR_SETUP.md](./GOOGLE_CALENDAR_SETUP.md) for detailed instructions on:
-- Creating Google Cloud project
-- Enabling Calendar API
-- Getting OAuth credentials
-- Configuring API keys
+To enable calendar integration:
+- Set `GOOGLE_CLIENT_ID` in your `.env` file
+- See Google Cloud Console documentation for obtaining OAuth credentials
 
 **Quick alternative**: Use "Export as ICS" button to download and import into any calendar app without API setup.
 

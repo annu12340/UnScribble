@@ -89,6 +89,8 @@ async function runAgent(agent, ctx, emit, steps) {
       detail: error.detail || "",
       rawText: error.rawText ? error.rawText.slice(0, 500) : ""
     });
+    
+    // Attach agent context to error for better debugging
     error.agentId = agent.id;
     error.critical = agent.critical;
     throw error;
