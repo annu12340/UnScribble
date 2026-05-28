@@ -39,8 +39,8 @@ const SECURITY_HEADERS = {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://*.googleusercontent.com",
-    "connect-src 'self' https://accounts.google.com https://www.googleapis.com",
-    "frame-src https://accounts.google.com",
+    "connect-src 'self' https://accounts.google.com https://www.googleapis.com https://content.googleapis.com",
+    "frame-src https://accounts.google.com https://content.googleapis.com",
     "worker-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -91,9 +91,9 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "GET" || req.method === "HEAD") {
-      // Redirect root to upload page
+      // Redirect root to landing page
       if (requestUrl.pathname === "/") {
-        res.writeHead(302, { Location: "/upload.html" });
+        res.writeHead(302, { Location: "/landing.html" });
         res.end();
         return;
       }
