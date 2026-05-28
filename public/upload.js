@@ -262,23 +262,17 @@ function handleWorkflowEvent(event, payload) {
   switch (event) {
     case "workflow.start":
       state.completedAgents = 0;
+      if (payload.agents?.length) {
+        state.totalAgents = payload.agents.length;
+        syncStepLabels(payload.agents);
+      }
       updateProgressBar(0);
       initStepList();
-      setLoadingTitle("Analyzing Your Prescription");
-      setLoadingHint("Starting multi-agent analysis workflow...");
+      setLoadingTitle("Decoding prescription");
+      setLoadingHint("Running multi-agent pipeline…");
       break;
     case "agent.start":
-      const agentLabels = {
-        "image-quality": "Step 1: Checking image clarity and readability",
-        "raw-transcription": "Step 2: Reading handwritten text from prescription",
-        "patient-header": "Step 3: Extracting patient information",
-        "medications": "Step 4: Identifying medications and dosages",
-        "clinical-context": "Step 5: Understanding clinical context",
-        "safety-review": "Step 6: Performing safety checks",
-        "synthesis": "Step 7: Finalizing prescription details"
-      };
-      const stepLabel = agentLabels[payload.id] || payload.label || payload.id;
-      setLoadingHint(stepLabel);
+      setLoadingHint(payload.label || agentLabel(payload.id));
       updateStepStatus(payload.id, "active");
       break;
     case "agent.complete":
@@ -287,7 +281,7 @@ function handleWorkflowEvent(event, payload) {
       updateProgressBar(progress);
       updateStepStatus(payload.id, "completed");
       if (payload.summary) {
-        setLoadingHint(`✓ ${agentLabel(payload.id)} completed`);
+        setLoadingHint(`${agentLabel(payload.id)} done`);
       }
       break;
     case "agent.error":
@@ -300,53 +294,28 @@ function handleWorkflowEvent(event, payload) {
   }
 }
 
+function syncStepLabels(agents) {
+  for (const agent of agents) {
+    const step = document.querySelector(`.step-item[data-step="${agent.id}"]`);
+    const text = step?.querySelector(".step-text");
+    if (text && agent.label) text.textContent = agent.label;
+  }
+}
+
 function initStepList() {
-  // Reset all steps to pending state
-  const steps = document.querySelectorAll('.step-item');
-  steps.forEach(step => {
-    step.classList.remove('active', 'completed', 'error');
-    const icon = step.querySelector('.step-icon');
-    if (icon) {
-      icon.textContent = '○';
-    }
+  document.querySelectorAll(".step-item").forEach((step) => {
+    step.classList.remove("active", "completed", "error");
   });
 }
 
 function updateStepStatus(agentId, status) {
-  // Map agent IDs to step data attributes
-  const agentMap = {
-    "image_quality": "image_quality",
-    "raw_transcription": "raw_transcription",
-    "patient_header": "patient_header",
-    "medications": "medications",
-    "clinical_context": "clinical_context",
-    "safety_review": "safety_review",
-    "synthesis": "synthesis"
-  };
-  
-  const mappedId = agentMap[agentId] || agentId;
-  const step = document.querySelector(`.step-item[data-step="${mappedId}"]`);
-  
+  const step = document.querySelector(`.step-item[data-step="${agentId}"]`);
   if (!step) {
-    console.warn(`Step not found for agent: ${agentId} (mapped: ${mappedId})`);
+    console.warn(`Step not found for agent: ${agentId}`);
     return;
   }
-  
-  // Update step status
-  step.classList.remove('active', 'completed', 'error');
-  step.classList.add(status);
-  
-  // Update icon
-  const icon = step.querySelector('.step-icon');
-  if (icon) {
-    if (status === 'active') {
-      icon.textContent = '●';
-    } else if (status === 'completed') {
-      icon.textContent = '✓';
-    } else if (status === 'error') {
-      icon.textContent = '✗';
-    }
-  }
+  step.classList.remove("active", "completed", "error");
+  if (status) step.classList.add(status);
 }
 
 function updateProgressBar(percentage) {
@@ -388,8 +357,8 @@ function setLoading(isLoading) {
   els.processBtn.disabled = isLoading;
   if (isLoading) {
     els.previewSection.hidden = true;
-    setLoadingTitle("Analyzing Your Prescription");
-    setLoadingHint("Preparing to process your prescription image...");
+    setLoadingTitle("Decoding prescription");
+    setLoadingHint("Preparing image…");
     state.completedAgents = 0;
     updateProgressBar(0);
     // Set a random joke

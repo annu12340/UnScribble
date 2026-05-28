@@ -3,32 +3,32 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Medication Details - Prescription OCR</title>
+    <title>Medication Details - RxScan</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/rx-quirky.css" />
     <script src="https://apis.google.com/js/api.js"></script>
   </head>
-  <body class="results-page">
+  <body class="results-page rx-app">
     <div class="app-shell">
       <header class="topbar">
-        <div class="brand">
-          <div class="brand-mark" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
-              <rect x="9" y="3" width="6" height="4" rx="1" />
-              <path d="M9 12h6M9 16h4" />
+        <a href="/landing.html" class="brand brand-link">
+          <div class="brand-mark rx-logo" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+              <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="28" cy="26" r="3" fill="white"/>
             </svg>
           </div>
           <div>
-            <p class="eyebrow">Medical transcription workspace</p>
-            <h1>Prescription <em>OCR</em></h1>
+            <p class="eyebrow">RxScan</p>
+            <h1>Prescription <em>translator</em></h1>
           </div>
-        </div>
+        </a>
         <div class="result-header-actions">
           <a href="/results.html" class="btn ghost">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -53,7 +53,10 @@
           </div>
 
           <div class="medication-details-content" id="medicationDetailsContent" hidden>
-            
+            <p class="demo-banner" id="demoBanner" hidden></p>
+            <div class="medication-details-layout">
+              <div class="medication-details-main">
+            <span class="sticker sticker-tilt-left">deep dive</span>
             <div class="medication-header">
               <div class="medication-header-main">
                 <div class="medication-icon">💊</div>
@@ -76,6 +79,19 @@
             </div>
 
             <div class="medication-details-grid">
+
+              <section class="section-card body-effects-panel" id="bodyEffectsPanel">
+                <span class="sticker sticker-tilt-right">where it acts</span>
+                <h3>Body areas affected</h3>
+                <p class="body-effects-disclaimer">Educational illustration only — not medical advice.</p>
+                <div class="body-effects-layout">
+                  <div id="bodyEffectsMap" class="body-effects-map" aria-label="Body map of affected regions"></div>
+                  <div class="body-effects-copy">
+                    <p id="bodyEffectsSummary" class="body-effects-summary">—</p>
+                    <ul id="bodyEffectsOrgans" class="body-effects-organs"></ul>
+                  </div>
+                </div>
+              </section>
               
               <section class="section-card">
                 <h3>Dosage Information</h3>
@@ -162,6 +178,31 @@
    
 
             </div>
+              </div>
+
+              <aside class="mechanism-sidebar section-card" id="mechanismSidebar" hidden>
+                <span class="sticker sticker-tilt-right">3d mode</span>
+                <h3 class="mechanism-sidebar-title" id="mechanismSidebarTitle">How it works</h3>
+                <p class="mechanism-sidebar-target" id="mechanismTargetProtein">Loading…</p>
+                <p class="mechanism-sidebar-fallback" id="mechanismFallbackNote" hidden></p>
+
+                <div class="mechanism-sidebar-block mechanism-sidebar-block--binding">
+                  <h4>Binding site</h4>
+                  <p id="mechanismBindingSite">—</p>
+                </div>
+                <div class="mechanism-sidebar-block mechanism-sidebar-block--action">
+                  <h4>Mechanism</h4>
+                  <p id="mechanismAction">—</p>
+                </div>
+                <div class="mechanism-sidebar-block mechanism-sidebar-block--effect">
+                  <h4>Clinical effect</h4>
+                  <p id="mechanismEffect">—</p>
+                </div>
+
+                <div id="mechanismSidebarViewer" class="mechanism-sidebar-viewer" aria-label="3D protein structure preview"></div>
+                <p class="mechanism-sidebar-caption">Drag to rotate · scroll to zoom</p>
+              </aside>
+            </div>
 
           </div>
         </div>
@@ -212,6 +253,9 @@
       </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="/protein-viewer.js"></script>
     <script type="module" src="/medication-details.js"></script>
   </body>
 </html>

@@ -6,7 +6,7 @@
     <title>RxScan - Your Prescription Translator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Nothing+You+Could+Do&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/landing.css">
 </head>
 <body>
@@ -25,8 +25,8 @@
                     <circle cx="28" cy="26" r="3" fill="white"/>
                     <defs>
                         <linearGradient id="logo-gradient" x1="0" y1="0" x2="40" y2="40">
-                            <stop offset="0%" stop-color="#6366f1"/>
-                            <stop offset="100%" stop-color="#8b5cf6"/>
+                            <stop offset="0%" stop-color="#059669"/>
+                            <stop offset="100%" stop-color="#0d9488"/>
                         </linearGradient>
                     </defs>
                 </svg>
@@ -42,10 +42,11 @@
     <section class="chapter chapter-1" data-chapter="1">
         <div class="chapter-container">
             <div class="chapter-content">
+                <span class="sticker sticker-tilt-left">★ a tiny story</span>
                 <div class="chapter-label">Chapter 1</div>
                 <h1 class="chapter-title">
                     Picture this:<br/>
-                    You're holding a <span class="highlight">prescription</span>
+                    You're holding a <span class="highlight">prescription<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
                 </h1>
                 <p class="chapter-text">
                     The doctor handed it to you with a reassuring smile. "Take this twice daily," they said. 
@@ -65,22 +66,38 @@
                                 <div class="doctor-details">General Practitioner</div>
                             </div>
                         </div>
-                        <div class="prescription-body">
-                            <svg class="scribble" width="100%" height="200" viewBox="0 0 300 200">
-                                <path class="scribble-path" d="M20,40 Q40,20 60,40 T100,40 Q120,30 140,40" 
-                                      stroke="#1a1a2e" stroke-width="3" fill="none" stroke-linecap="round"/>
-                                <path class="scribble-path" d="M20,80 Q50,60 80,80 T140,80 Q160,70 180,80" 
-                                      stroke="#1a1a2e" stroke-width="3" fill="none" stroke-linecap="round" style="animation-delay: 0.3s"/>
-                                <path class="scribble-path" d="M20,120 Q35,100 50,120 T90,120" 
-                                      stroke="#1a1a2e" stroke-width="3" fill="none" stroke-linecap="round" style="animation-delay: 0.6s"/>
-                                <path class="scribble-path" d="M20,160 Q45,140 70,160 T130,160" 
-                                      stroke="#1a1a2e" stroke-width="3" fill="none" stroke-linecap="round" style="animation-delay: 0.9s"/>
-                            </svg>
-                        </div>
-                        <div class="confusion-overlay">
-                            <div class="confusion-mark">?</div>
-                            <div class="confusion-mark">?</div>
-                            <div class="confusion-mark">?</div>
+                        <div class="prescription-body prescription-hand" aria-label="Illegible handwritten prescription example">
+                            <div class="rx-pad-lines" aria-hidden="true"></div>
+                            <div class="handwriting-content" id="handwritingContent">
+                                <p class="hand-line hand-line-1">
+                                    <span class="rx-mark" style="--d:0">℞</span>
+                                    <span class="hand-scrawl scrawl-pos-a" style="--d:1">Amox</span>
+                                    <span class="hand-scrawl scrawl-pos-b" style="--d:2">ciln</span>
+                                    <span class="hand-scrawl scrawl-pos-c" style="--d:3">5O0</span>
+                                    <span class="hand-scrawl scrawl-pos-d" style="--d:4">mg</span>
+                                </p>
+                                <p class="hand-line hand-line-2">
+                                    <span class="hand-scrawl scrawl-pos-e" style="--d:5">iitab</span>
+                                    <span class="hand-scrawl scrawl-pos-f" style="--d:6">po</span>
+                                    <span class="hand-scrawl scrawl-pos-g" style="--d:7">tds</span>
+                                    <span class="hand-scrawl scrawl-pos-h" style="--d:8">×7d</span>
+                                </p>
+                                <p class="hand-line hand-line-3">
+                                    <span class="hand-scrawl scrawl-pos-i" style="--d:9">Ibupr</span>
+                                    <span class="hand-scrawl scrawl-pos-j" style="--d:10">ofin</span>
+                                    <span class="hand-scrawl scrawl-pos-k" style="--d:11">4OO</span>
+                                    <span class="hand-scrawl scrawl-pos-l" style="--d:12">PRN</span>
+                                </p>
+                                <p class="hand-line hand-line-4">
+                                    <span class="hand-scrawl scrawl-pos-m" style="--d:13">???</span>
+                                    <span class="hand-scrawl scrawl-pos-n" style="--d:14">w/</span>
+                                    <span class="hand-scrawl scrawl-pos-o" style="--d:15">meals</span>
+                                </p>
+                                <p class="hand-line hand-line-sig">
+                                    <span class="hand-scrawl hand-scrawl--sig scrawl-pos-p" style="--d:16">Dr</span>
+                                    <span class="hand-scrawl hand-scrawl--sig scrawl-pos-q" style="--d:17">Smith</span>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -97,49 +114,67 @@
     <!-- Chapter 2: The Struggle -->
     <section class="chapter chapter-2" data-chapter="2">
         <div class="chapter-container">
-            <div class="struggle-grid">
-                <div class="struggle-item" data-struggle="1">
-                    <div class="struggle-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="M21 21l-4.35-4.35"/>
-                        </svg>
-                    </div>
-                    <h3>You squint</h3>
-                    <p>Maybe if you hold it at a different angle? Nope. Still looks like abstract art.</p>
-                </div>
-                <div class="struggle-item" data-struggle="2">
-                    <div class="struggle-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="7" width="20" height="15" rx="2"/>
-                            <polyline points="17 2 12 7 7 2"/>
-                        </svg>
-                    </div>
-                    <h3>You Google</h3>
-                    <p>"What does BD mean in prescriptions?" "Is TDS a real thing or did my doctor invent it?"</p>
-                </div>
-                <div class="struggle-item" data-struggle="3">
-                    <div class="struggle-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                        </svg>
-                    </div>
-                    <h3>You call the pharmacy</h3>
-                    <p>"Hi, um, I can't read my prescription. Can you help?" They can't either. They suggest calling the doctor.</p>
-                </div>
-                <div class="struggle-item" data-struggle="4">
-                    <div class="struggle-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="8" x2="12" y2="12"/>
-                            <line x1="12" y1="16" x2="12.01" y2="16"/>
-                        </svg>
-                    </div>
-                    <h3>You guess</h3>
-                    <p>Is that 15mg or 150mg? Does it say "twice" or "thrice"? You're playing medical roulette.</p>
-                </div>
-            </div>
-            <div class="chapter-conclusion">
+            <header class="struggle-header">
+                <span class="sticker sticker-tilt-left">been there?</span>
+                <div class="chapter-label">Chapter 2</div>
+                <h2 class="chapter-title struggle-title">
+                    Then you try <span class="highlight">everything</span>
+                </h2>
+                <p class="struggle-intro">Three moves everyone makes—and none of them quite work.</p>
+            </header>
+
+            <ol class="struggle-grid" aria-label="Common ways people try to read a prescription">
+                <li class="struggle-item" data-struggle="1">
+                    <article class="struggle-card">
+                        <span class="struggle-step" aria-hidden="true">01</span>
+                        <div class="struggle-icon" aria-hidden="true">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="M21 21l-4.35-4.35"/>
+                            </svg>
+                        </div>
+                        <div class="struggle-content">
+                            <h3>You squint</h3>
+                            <p>Maybe if you hold it at a different angle? Nope. Still looks like abstract art.</p>
+                        </div>
+                    </article>
+                </li>
+                <li class="struggle-item" data-struggle="2">
+                    <article class="struggle-card">
+                        <span class="struggle-step" aria-hidden="true">02</span>
+                        <div class="struggle-icon" aria-hidden="true">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="7" width="20" height="15" rx="2"/>
+                                <polyline points="17 2 12 7 7 2"/>
+                            </svg>
+                        </div>
+                        <div class="struggle-content">
+                            <h3>You Google</h3>
+                            <p><q>What does BD mean in prescriptions?</q> <q>Is TDS a real thing or did my doctor invent it?</q></p>
+                        </div>
+                    </article>
+                </li>
+            
+                <li class="struggle-item" data-struggle="3">
+                    <article class="struggle-card">
+                        <span class="struggle-step" aria-hidden="true">03</span>
+                        <div class="struggle-icon" aria-hidden="true">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                        </div>
+                        <div class="struggle-content">
+                            <h3>You guess</h3>
+                            <p>Is that 15mg or 150mg? Does it say <q>twice</q> or <q>thrice</q>? You're playing medical roulette.</p>
+                        </div>
+                    </article>
+                </li>
+            </ol>
+
+            <div class="chapter-conclusion struggle-conclusion">
+                <span class="sticker sticker-tilt-right">oof</span>
                 <h2>Sound familiar?</h2>
                 <p>You're not alone. Millions of people face this every single day.</p>
             </div>
@@ -149,9 +184,10 @@
     <!-- Chapter 3: The Solution -->
     <section class="chapter chapter-3" data-chapter="3">
         <div class="chapter-container">
+            <span class="sticker sticker-tilt-left">enter the hero</span>
             <div class="chapter-label">Chapter 3</div>
             <h2 class="chapter-title">
-                What if there was a <span class="highlight">better way?</span>
+                What if there was a <span class="highlight">better way?<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
             </h2>
             <p class="chapter-intro">
                 Meet RxScan. We built an AI that actually understands doctor handwriting. 
@@ -191,6 +227,17 @@
                     
                     <div class="demo-content" data-content="process">
                         <div class="processing-view">
+                            <div class="processing-header">
+                                <p class="processing-title">Analyzing your prescription</p>
+                                <div class="processing-meta">
+                                    <span class="processing-pill">quirky mode</span>
+                                    <span class="processing-percent">78%</span>
+                                </div>
+                                <div class="processing-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="78" aria-label="Processing progress">
+                                    <span class="processing-bar-fill"></span>
+                                    <span class="processing-bar-glow"></span>
+                                </div>
+                            </div>
                             <div class="agent-work">
                                 <div class="agent-card">
                                     <div class="agent-avatar">
@@ -299,12 +346,77 @@
         </div>
     </section>
 
+    <!-- Intermission: Demo Video -->
+    <section class="chapter chapter-video" data-chapter="video">
+        <div class="chapter-container">
+            <div class="video-header">
+                <span class="sticker sticker-tilt-right">▶ live demo</span>
+                <div class="chapter-label">Intermission</div>
+                <h2 class="chapter-title">
+                    Or just <span class="highlight">watch it work<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
+                </h2>
+                <p class="chapter-intro">
+                    A 60-second tour. Real prescription. Real output. No edits.
+                </p>
+            </div>
+
+            <div class="video-frame" id="videoFrame">
+                <div class="video-corner video-corner--tl"></div>
+                <div class="video-corner video-corner--tr"></div>
+                <div class="video-corner video-corner--bl"></div>
+                <div class="video-corner video-corner--br"></div>
+                <div class="video-tag video-tag--rec">● REC</div>
+                <div class="video-tag video-tag--time" id="videoTimeTag">00:00</div>
+
+                <video
+                    class="demo-video"
+                    id="demoVideo"
+                    playsinline
+                    controls
+                    preload="metadata"
+                    poster="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ecfdf5'/%3E%3Cstop offset='1' stop-color='%23f0fdfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1600' height='900' fill='url(%23g)'/%3E%3Cg fill='none' stroke='%2399f6e4' stroke-width='2'%3E%3Ccircle cx='800' cy='450' r='110'/%3E%3Cpolygon points='775,400 775,500 860,450' fill='%23059669' stroke='none'/%3E%3C/g%3E%3C/svg%3E"
+                >
+                    <source src="/demo.mp4" type="video/mp4">
+                </video>
+
+                <div class="video-fallback" id="videoFallback" hidden>
+                    <div class="video-fallback-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <polygon points="23 7 16 12 23 17 23 7"/>
+                            <rect x="1" y="5" width="15" height="14" rx="2"/>
+                        </svg>
+                    </div>
+                    <h3>Demo reel: coming soon</h3>
+                    <p>Drop a <code>demo.mp4</code> in <code>/public</code> and it'll show up here.</p>
+                </div>
+            </div>
+
+            <div class="video-stats">
+                <div class="video-stat">
+                    <span class="video-stat-num">~3s</span>
+                    <span class="video-stat-label">scan to summary</span>
+                </div>
+                <div class="video-stat-dot"></div>
+                <div class="video-stat">
+                    <span class="video-stat-num">4</span>
+                    <span class="video-stat-label">AI agents on screen</span>
+                </div>
+                <div class="video-stat-dot"></div>
+                <div class="video-stat">
+                    <span class="video-stat-num">0</span>
+                    <span class="video-stat-label">cuts or edits</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Chapter 4: The Magic -->
     <section class="chapter chapter-4" data-chapter="4">
         <div class="chapter-container">
+            <span class="sticker sticker-tilt-left">peek behind the curtain</span>
             <div class="chapter-label">Chapter 4</div>
             <h2 class="chapter-title">
-                How does it <span class="highlight">actually work?</span>
+                How does it <span class="highlight">actually work?<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
             </h2>
             
             <div class="magic-reveal">
@@ -321,12 +433,12 @@
                             <div class="network-node"></div>
                             <div class="network-node"></div>
                             <svg class="network-lines" width="200" height="200" viewBox="0 0 200 200">
-                                <line x1="50" y1="50" x2="150" y2="50" stroke="#6366f1" stroke-width="2"/>
-                                <line x1="50" y1="50" x2="50" y2="150" stroke="#6366f1" stroke-width="2"/>
-                                <line x1="150" y1="50" x2="150" y2="150" stroke="#6366f1" stroke-width="2"/>
-                                <line x1="50" y1="150" x2="150" y2="150" stroke="#6366f1" stroke-width="2"/>
-                                <line x1="50" y1="50" x2="150" y2="150" stroke="#6366f1" stroke-width="2"/>
-                                <line x1="150" y1="50" x2="50" y2="150" stroke="#6366f1" stroke-width="2"/>
+                                <line x1="50" y1="50" x2="150" y2="50" stroke="#059669" stroke-width="2"/>
+                                <line x1="50" y1="50" x2="50" y2="150" stroke="#059669" stroke-width="2"/>
+                                <line x1="150" y1="50" x2="150" y2="150" stroke="#059669" stroke-width="2"/>
+                                <line x1="50" y1="150" x2="150" y2="150" stroke="#059669" stroke-width="2"/>
+                                <line x1="50" y1="50" x2="150" y2="150" stroke="#059669" stroke-width="2"/>
+                                <line x1="150" y1="50" x2="50" y2="150" stroke="#059669" stroke-width="2"/>
                             </svg>
                         </div>
                     </div>
@@ -386,7 +498,7 @@
                 </p>
                 
                 <div class="ending-cta">
-                    <a href="/upload.html" class="btn-ending">
+                    <a href="/upload.html" class="btn-ending" id="ctaBtn">
                         <span>Try RxScan now</span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -423,8 +535,8 @@
                     <circle cx="28" cy="26" r="3" fill="white"/>
                     <defs>
                         <linearGradient id="footer-gradient" x1="0" y1="0" x2="40" y2="40">
-                            <stop offset="0%" stop-color="#6366f1"/>
-                            <stop offset="100%" stop-color="#8b5cf6"/>
+                            <stop offset="0%" stop-color="#059669"/>
+                            <stop offset="100%" stop-color="#0d9488"/>
                         </linearGradient>
                     </defs>
                 </svg>

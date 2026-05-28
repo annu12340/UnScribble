@@ -22,7 +22,7 @@ npm install
 npm start
 ```
 
-Open `http://localhost:3000` (redirects to `/upload.html`).
+Open `http://localhost:3000` (redirects to `/landing.html`).
 
 ### Workflow
 

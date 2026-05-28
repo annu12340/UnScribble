@@ -1,0 +1,656 @@
+/**
+ * RxScan quirky theme — shared with landing (green palette, stickers).
+ * Load after styles.css on upload, results, and detail pages.
+ */
+
+:root {
+  --rx-primary: #059669;
+  --rx-primary-light: #34d399;
+  --rx-primary-dark: #047857;
+  --rx-secondary: #0d9488;
+  --rx-ink-border: #1a1a2e;
+
+  --accent: var(--rx-primary);
+  --accent-hover: var(--rx-primary-dark);
+  --accent-glow: rgba(5, 150, 105, 0.22);
+  --accent-soft: #ecfdf5;
+  --violet: var(--rx-secondary);
+  --violet-bg: #f0fdfa;
+  --green: var(--rx-primary-dark);
+  --green-bg: #ecfdf5;
+  --canvas: #f0fdf4;
+  --bg: #ffffff;
+  --text: #0f172a;
+  --border: #e2e8f0;
+  --bg-subtle: #f0fdf4;
+  --font-sans: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Outfit", system-ui, sans-serif;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --page-inline: clamp(32px, 7vw, 112px);
+  --content-max: 880px;
+}
+
+html {
+  font-size: 14px;
+}
+
+/* Background */
+body.rx-app {
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -10%, rgba(16, 185, 129, 0.12), transparent 55%),
+    linear-gradient(180deg, #f0fdf4 0%, #f8fafc 40%, #edf7f3 100%);
+}
+
+body.rx-app::before {
+  background:
+    linear-gradient(90deg, rgba(5, 150, 105, 0.06), transparent 30%, transparent 70%, rgba(13, 148, 136, 0.05)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.85), transparent 50%);
+}
+
+/* Stickers */
+.sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fef3c7;
+  color: #78350f;
+  border: 2px solid var(--rx-ink-border);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  box-shadow: 3px 3px 0 var(--rx-ink-border);
+  transform: rotate(-2deg);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sticker:hover {
+  transform: rotate(0deg) scale(1.04);
+}
+
+.sticker-tilt-left { transform: rotate(-3deg); }
+.sticker-tilt-right { transform: rotate(2.5deg); background: #bbf7d0; color: #14532d; }
+
+/* Shell & header */
+.rx-app .app-shell {
+  position: relative;
+  z-index: 2;
+}
+
+.rx-app .topbar {
+  padding: 14px 20px;
+  margin-bottom: 28px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(5, 150, 105, 0.12);
+  box-shadow: 0 4px 20px rgba(5, 150, 105, 0.06);
+  backdrop-filter: blur(16px) saturate(160%);
+}
+
+.brand-link {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.brand-link:hover {
+  transform: scale(1.01);
+}
+
+.rx-app .brand-mark,
+.rx-logo {
+  background: linear-gradient(145deg, var(--rx-primary), var(--rx-secondary)) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.25) !important;
+}
+
+.rx-app h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.rx-app h1 em {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--rx-primary), var(--rx-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.rx-app .eyebrow {
+  color: var(--rx-primary-dark);
+  letter-spacing: 0.14em;
+}
+
+.rx-app h2,
+.rx-app h3,
+.rx-app .upload-hero h2,
+.rx-app .results-header h2 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Buttons */
+.rx-app .btn.primary {
+  background: linear-gradient(145deg, var(--rx-primary), var(--rx-primary-dark));
+  border: 2px solid var(--rx-ink-border);
+  box-shadow: 4px 4px 0 var(--rx-ink-border);
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+
+.rx-app .btn.primary:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--rx-ink-border);
+  background: linear-gradient(145deg, var(--rx-primary-light), var(--rx-primary));
+}
+
+.rx-app .btn.ghost {
+  border-radius: 10px;
+  border: 1.5px solid rgba(5, 150, 105, 0.2);
+  font-weight: 600;
+}
+
+.rx-app .btn.ghost:hover:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--rx-primary);
+  color: var(--rx-primary-dark);
+}
+
+/* Quirky cards (left accent bar) */
+.rx-app .upload-card,
+.rx-app .panel,
+.rx-app .section-card,
+.rx-app .info-card,
+.rx-app .loading-content,
+.rx-app .error-card,
+.rx-app .no-data-state,
+.rx-app .modal-content,
+.rx-app .med-detail-hero {
+  position: relative;
+  border-radius: 20px !important;
+  border: 1px solid rgba(5, 150, 105, 0.14) !important;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(5, 150, 105, 0.08) !important;
+  overflow: hidden;
+}
+
+.rx-app .upload-card::before,
+.rx-app .panel::before,
+.rx-app .section-card::before,
+.rx-app .info-card::before,
+.rx-app .loading-content::before,
+.rx-app .error-card::before,
+.rx-app .no-data-state::before,
+.rx-app .modal-content::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--rx-primary), var(--rx-secondary));
+  border-radius: 20px 0 0 20px;
+  z-index: 1;
+}
+
+.rx-app .upload-card > *,
+.rx-app .panel > *,
+.rx-app .section-card > *,
+.rx-app .info-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Upload page */
+.rx-app .app-shell {
+  width: min(var(--content-max), 100%);
+  max-width: calc(100% - 2 * var(--page-inline));
+  padding-inline: var(--page-inline);
+}
+
+.rx-app.upload-page .upload-workspace,
+.rx-app.results-page .results-workspace {
+  max-width: 100%;
+  padding: 0 0 2.5rem;
+}
+
+.rx-app .upload-hero {
+  margin-bottom: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rx-app .upload-hero .sticker {
+  margin-bottom: 14px;
+}
+
+.rx-app .results-header > div:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.rx-app .medication-details-main > .sticker {
+  margin-bottom: 16px;
+}
+
+.rx-app .demo-banner {
+  margin: 0 0 1rem;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fffbeb;
+  border: 1px dashed #f59e0b;
+  color: #92400e;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+/* Medication details — main + mechanism sidebar */
+.rx-app .results-container {
+  max-width: min(1180px, 100%);
+}
+
+.rx-app .medication-details-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.rx-app .medication-details-main {
+  min-width: 0;
+}
+
+.rx-app .mechanism-sidebar {
+  position: sticky;
+  top: 1rem;
+  padding: 1rem 1rem 0.85rem;
+  margin: 0;
+  background: linear-gradient(160deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1px solid rgba(5, 150, 105, 0.18);
+  box-shadow: 0 10px 28px rgba(5, 150, 105, 0.1);
+}
+
+.rx-app .mechanism-sidebar > .sticker {
+  margin-bottom: 10px;
+  font-size: 0.72rem;
+}
+
+.rx-app .mechanism-sidebar-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+  color: var(--text);
+}
+
+.rx-app .mechanism-sidebar-target {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--rx-primary-dark);
+  margin: 0 0 10px;
+}
+
+.rx-app .mechanism-sidebar-fallback {
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: var(--muted);
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fffbeb;
+  border: 1px dashed #fbbf24;
+}
+
+.rx-app .mechanism-sidebar-block {
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.rx-app .mechanism-sidebar-block h4 {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 4px;
+  color: var(--rx-primary-dark);
+}
+
+.rx-app .mechanism-sidebar-block p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.rx-app .mechanism-sidebar-block--binding {
+  background: #ecfdf5;
+  border-left: 3px solid var(--rx-primary);
+}
+
+.rx-app .mechanism-sidebar-block--action {
+  background: #f0fdfa;
+  border-left: 3px solid var(--rx-secondary);
+}
+
+.rx-app .mechanism-sidebar-block--effect {
+  background: #f8fafc;
+  border-left: 3px solid #94a3b8;
+}
+
+.rx-app .mechanism-sidebar-viewer {
+  width: 100%;
+  height: 220px;
+  margin-top: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #f0fdf4, #ecfdf5);
+  border: 1px solid rgba(5, 150, 105, 0.14);
+}
+
+.rx-app .mechanism-sidebar-loading,
+.rx-app .mechanism-sidebar-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  margin: 0;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  font-family: var(--font-display);
+}
+
+.rx-app .mechanism-sidebar-caption {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.rx-app .mechanism-sidebar.is-loading .mechanism-sidebar-viewer {
+  opacity: 0.7;
+}
+
+/* Body areas affected — main column */
+.rx-app .body-effects-panel .sticker {
+  margin-bottom: 10px;
+}
+
+.rx-app .body-effects-disclaimer {
+  margin: -0.25rem 0 1rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.rx-app .body-effects-layout {
+  display: grid;
+  grid-template-columns: minmax(140px, 200px) 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.rx-app .body-effects-map {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: linear-gradient(160deg, #f0fdf4, #ecfdf5);
+  border-radius: 16px;
+  border: 1px solid rgba(5, 150, 105, 0.16);
+}
+
+.rx-app .body-map-canvas {
+  width: 100%;
+  max-width: 190px;
+  height: 250px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(5, 150, 105, 0.16);
+  background: radial-gradient(circle at 50% 30%, #f2fff8 0%, #e8f5ef 65%, #dfeee7 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.rx-app .body-map-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.rx-app .body-map-legend {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  justify-content: center;
+  width: 100%;
+}
+
+.rx-app .body-map-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rx-app .body-map-legend li.is-active {
+  color: var(--rx-primary-dark);
+}
+
+.rx-app .body-map-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+
+.rx-app .body-map-legend li.is-active .body-map-dot {
+  background: var(--rx-primary);
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.25);
+}
+
+.rx-app .body-effects-summary {
+  margin: 0 0 12px;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.rx-app .body-effects-summary.is-uncertain {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.rx-app .body-effects-organs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rx-app .body-effects-organ {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  border: 1px solid rgba(5, 150, 105, 0.25);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--rx-primary-dark);
+  font-family: var(--font-display);
+}
+
+.rx-app .body-effects-loading {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .rx-app .body-effects-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .rx-app .medication-details-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .rx-app .mechanism-sidebar {
+    position: static;
+    order: -1;
+  }
+}
+
+.rx-app .dropzone.large {
+  border: 2px dashed rgba(5, 150, 105, 0.35);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.rx-app .dropzone.large:hover,
+.rx-app .dropzone.large.dragging {
+  border-color: var(--rx-primary);
+  background: linear-gradient(145deg, #ecfdf5, #f0fdf4);
+  transform: scale(1.01);
+}
+
+.rx-app .dropzone.large .dropzone-icon {
+  background: linear-gradient(145deg, var(--rx-primary), var(--rx-secondary));
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+}
+
+.rx-app .segmented label.is-selected {
+  color: var(--rx-primary-dark);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.12);
+}
+
+/* Results */
+.rx-app .results-header .sticker {
+  margin-bottom: 12px;
+}
+
+.rx-app .summary-grid .info-card:hover,
+.rx-app .section-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(5, 150, 105, 0.28) !important;
+}
+
+.rx-app .medications-table thead {
+  background: linear-gradient(180deg, #ecfdf5, #f0fdf4);
+}
+
+.rx-app .medications-table th {
+  color: var(--rx-primary-dark);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.rx-app .subhead-icon {
+  background: linear-gradient(145deg, var(--rx-primary), var(--rx-secondary));
+  color: white;
+  border: 2px solid var(--rx-ink-border);
+  box-shadow: 2px 2px 0 var(--rx-ink-border);
+}
+
+/* Loading overlay */
+.rx-app .loading-overlay {
+  background: rgba(240, 253, 244, 0.92);
+  backdrop-filter: blur(8px);
+}
+
+.rx-app .rx-loader .rx-body {
+  background: linear-gradient(145deg, var(--rx-primary), var(--rx-secondary));
+}
+
+.rx-app .progress-bar-fill {
+  background: linear-gradient(90deg, var(--rx-primary), var(--rx-secondary));
+}
+
+.rx-app .loading-content .step-item.active .step-icon {
+  border-color: var(--rx-primary);
+  background: var(--rx-primary);
+}
+
+.rx-app .loading-content .step-item.completed .step-icon {
+  border-color: var(--rx-primary);
+  background: var(--rx-primary);
+}
+
+/* Model status pill */
+.rx-app .model-status {
+  border-color: rgba(5, 150, 105, 0.2);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.rx-app .model-status.is-ready .status-dot {
+  background: var(--rx-primary);
+}
+
+/* Mechanism page inline styles override */
+body.rx-app.mechanism-page {
+  min-height: 100vh;
+}
+
+.rx-app .mechanism-container {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 1.5rem var(--page-inline) 2.5rem;
+}
+
+.rx-app .mechanism-info,
+.rx-app .protein-viewer-container {
+  border-radius: 20px !important;
+  border: 1px solid rgba(5, 150, 105, 0.14) !important;
+  box-shadow: 0 10px 28px rgba(5, 150, 105, 0.08) !important;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --page-inline: clamp(20px, 5vw, 32px);
+  }
+
+  .rx-app .topbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}

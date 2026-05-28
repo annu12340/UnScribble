@@ -1,0 +1,67 @@
+{
+  "lisinopril": {
+    "regions": ["chest", "kidneys"],
+    "organs": ["Heart", "Blood vessels", "Kidneys"],
+    "summary": "Acts on the cardiovascular system — relaxes blood vessels and lowers blood pressure, with effects on kidney-related hormone pathways."
+  },
+  "atorvastatin": {
+    "regions": ["abdomen", "chest"],
+    "organs": ["Liver", "Blood vessels", "Heart"],
+    "summary": "Works mainly in the liver to reduce cholesterol production, which lowers LDL in the bloodstream and supports heart health."
+  },
+  "metformin": {
+    "regions": ["abdomen", "limbs"],
+    "organs": ["Liver", "Pancreas", "Muscles"],
+    "summary": "Lowers blood sugar by reducing glucose release from the liver and improving how muscle cells respond to insulin."
+  },
+  "omeprazole": {
+    "regions": ["abdomen"],
+    "organs": ["Stomach"],
+    "summary": "Reduces acid production in the stomach lining, easing heartburn and helping acid-related irritation heal."
+  },
+  "amoxicillin": {
+    "regions": ["head", "chest", "abdomen"],
+    "organs": ["Sinuses", "Lungs", "Ears", "Urinary tract"],
+    "summary": "Fights bacterial infections — commonly used for respiratory, ear/sinus, and urinary infections depending on the prescription."
+  },
+  "amox": {
+    "regions": ["head", "chest", "abdomen"],
+    "organs": ["Sinuses", "Lungs", "Ears", "Urinary tract"],
+    "summary": "Fights bacterial infections — commonly used for respiratory, ear/sinus, and urinary infections depending on the prescription."
+  },
+  "ibuprofen": {
+    "regions": ["limbs", "head", "abdomen"],
+    "organs": ["Joints", "Muscles", "Stomach lining"],
+    "summary": "Reduces pain, fever, and inflammation body-wide; can irritate the stomach lining if taken without food or for long periods."
+  },
+  "aspirin": {
+    "regions": ["chest", "limbs", "head"],
+    "organs": ["Blood platelets", "Heart", "Joints"],
+    "summary": "Affects blood clotting and inflammation — used for pain, fever, and in some patients for heart protection at low doses."
+  },
+  "acetaminophen": {
+    "regions": ["head", "limbs"],
+    "organs": ["Brain (pain/fever centers)", "Liver (metabolism)"],
+    "summary": "Relieves pain and fever; processed mainly by the liver, so dose limits matter."
+  },
+  "paracetamol": {
+    "regions": ["head", "limbs"],
+    "organs": ["Brain (pain/fever centers)", "Liver (metabolism)"],
+    "summary": "Same class as acetaminophen — eases pain and fever with primary liver metabolism."
+  },
+  "levothyroxine": {
+    "regions": ["neck", "chest"],
+    "organs": ["Thyroid", "Metabolism (body-wide)"],
+    "summary": "Replaces thyroid hormone, regulating metabolism, energy, and many body-wide functions."
+  },
+  "albuterol": {
+    "regions": ["chest"],
+    "organs": ["Lungs", "Airways"],
+    "summary": "Opens airways in the lungs quickly, making breathing easier during asthma or wheezing."
+  },
+  "prednisone": {
+    "regions": ["chest", "limbs", "abdomen"],
+    "organs": ["Immune system", "Lungs", "Joints", "Skin"],
+    "summary": "Broad anti-inflammatory steroid — can calm immune overreactions in lungs, joints, skin, and elsewhere."
+  }
+}

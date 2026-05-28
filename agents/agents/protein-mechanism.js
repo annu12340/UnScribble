@@ -3,6 +3,7 @@
 const config = require("../config");
 const { callResponses, visionContent } = require("../nim-client");
 const log = require("../logger");
+const { getBodyEffects, medicationLookupKeys } = require("../drug-body-effects");
 
 // Drug target protein database (simplified example)
 const DRUG_TARGETS = {
@@ -10,7 +11,8 @@ const DRUG_TARGETS = {
   "atorvastatin": { protein: "HMG-CoA reductase", sequence: "MGSSHHHHHH..." },
   "metformin": { protein: "AMPK", sequence: "MADEEKLPPG..." },
   "omeprazole": { protein: "H+/K+ ATPase", sequence: "MGDKKKKKKK..." },
-  // Add more drug-protein mappings
+  "amoxicillin": { protein: "Penicillin-binding protein", sequence: "MKLKHLVPAS..." },
+  "ibuprofen": { protein: "COX-2", sequence: "MADEEKLPPG..." },
 };
 
 /**
@@ -18,15 +20,25 @@ const DRUG_TARGETS = {
  * and provide mechanism of action explanation
  */
 async function predictProteinMechanism(medicationName) {
-  const drugKey = medicationName.toLowerCase().trim();
-  const target = DRUG_TARGETS[drugKey];
-  
+  const bodyEffects = getBodyEffects(medicationName);
+  let target = null;
+  let matchedKey = null;
+
+  for (const key of medicationLookupKeys(medicationName)) {
+    if (DRUG_TARGETS[key]) {
+      target = DRUG_TARGETS[key];
+      matchedKey = key;
+      break;
+    }
+  }
+
   if (!target) {
     log.info("protein-mechanism", "no target protein found", { medication: medicationName });
     return {
       medication: medicationName,
       hasProteinData: false,
-      message: "Protein target data not available for this medication"
+      bodyEffects,
+      message: "Protein target data not available for this medication",
     };
   }
 
@@ -35,15 +47,16 @@ async function predictProteinMechanism(medicationName) {
     const proteinStructure = await predictProteinStructure(target.sequence);
     
     // Get mechanism explanation
-    const mechanism = await explainMechanism(medicationName, target.protein);
-    
+    const mechanism = await explainMechanism(matchedKey || medicationName, target.protein);
+
     return {
       medication: medicationName,
       hasProteinData: true,
       targetProtein: target.protein,
       proteinStructure: proteinStructure,
       mechanism: mechanism,
-      visualizationReady: true
+      bodyEffects,
+      visualizationReady: true,
     };
   } catch (error) {
     log.error("protein-mechanism", "prediction failed", {
@@ -53,7 +66,8 @@ async function predictProteinMechanism(medicationName) {
     return {
       medication: medicationName,
       hasProteinData: false,
-      error: error.message
+      bodyEffects,
+      error: error.message,
     };
   }
 }
@@ -158,6 +172,16 @@ function getMockMechanism(medication, targetProtein) {
       mechanism: "Omeprazole irreversibly blocks the H+/K+ ATPase pump in stomach cells. This pump is responsible for secreting acid into the stomach. By blocking it, acid production is significantly reduced.",
       bindingSite: "Cysteine residues on the H+/K+ ATPase pump",
       effect: "Stomach acid production decreases, allowing ulcers to heal and reducing heartburn symptoms"
+    },
+    "amoxicillin": {
+      mechanism: "Amoxicillin binds to penicillin-binding proteins in bacterial cell walls, blocking cross-linking of peptidoglycan. The cell wall weakens and the bacterium lyses.",
+      bindingSite: "Penicillin-binding protein active site",
+      effect: "Bacterial cell wall synthesis is inhibited, stopping infection spread"
+    },
+    "ibuprofen": {
+      mechanism: "Ibuprofen inhibits cyclooxygenase (COX) enzymes, reducing production of prostaglandins that cause pain, fever, and inflammation.",
+      bindingSite: "COX enzyme active site",
+      effect: "Pain and inflammation decrease as prostaglandin levels fall"
     }
   };
   

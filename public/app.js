@@ -3,8 +3,6 @@ import { buildDecodeRequestBody, decodePrescriptionStream } from "./decode-clien
 import { createResultRenderer } from "./render-result.js";
 import { 
   renderScheduleView, 
-  addMedicationToGoogleCalendar, 
-  exportScheduleAsICS 
 } from "./medication-schedule.js";
 
 const state = {

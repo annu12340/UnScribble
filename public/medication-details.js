@@ -5,6 +5,36 @@ import {
   signOutGoogle,
   getGoogleUserInfo
 } from "./medication-schedule.js";
+import {
+  loadMechanismSidebar,
+  mechanismSidebarElements,
+} from "./mechanism-sidebar.js";
+import {
+  renderBodyEffectsForMedication,
+  bodyEffectsPanelElements,
+} from "./body-effects-panel.js";
+
+/** Change this to test another drug in the demo database (e.g. lisinopril, metformin, ibuprofen). */
+const DEMO_MEDICATION_NAME = "Amoxicillin";
+
+const DEMO_MEDICATION = {
+  medication_name: DEMO_MEDICATION_NAME,
+  strength: "500 mg",
+  form: "Capsule",
+  dose: "1 capsule",
+  frequency: "Three times daily",
+  duration: "7 days",
+  route: "Oral",
+  quantity: "21",
+  refills: "0",
+  timing: "With or without food",
+  confidence: 0.88,
+  sig: "Take 1 capsule by mouth three times daily for 7 days",
+  administration_notes: "Complete the full course even if you feel better.",
+  raw_text: "Amox 500mg cap i tab po tds x7d",
+  safety_flags: [],
+  alternatives: [],
+};
 
 const state = {
   medication: null,
@@ -46,7 +76,10 @@ const els = {
   modalCancel: document.querySelector("#modalCancel"),
   modalConfirm: document.querySelector("#modalConfirm"),
   modalBody: document.querySelector("#calendarModal .modal-body"),
-  startDateInput: document.querySelector("#startDateInput")
+  startDateInput: document.querySelector("#startDateInput"),
+  mechanism: mechanismSidebarElements(),
+  bodyEffects: bodyEffectsPanelElements(),
+  demoBanner: document.querySelector("#demoBanner"),
 };
 
 let toastTimer = null;
@@ -124,12 +157,28 @@ function setTodayAsDefault() {
   if (els.startDateInput) els.startDateInput.value = today;
 }
 
+function buildDemoMedication(overrideName) {
+  const name = String(overrideName || DEMO_MEDICATION_NAME).trim() || DEMO_MEDICATION_NAME;
+  return { ...DEMO_MEDICATION, medication_name: name };
+}
+
 function loadMedicationData() {
+  const params = new URLSearchParams(window.location.search);
+  const medOverride = params.get("med");
+  const forceDemo = params.get("demo") === "1";
   const storedData = sessionStorage.getItem("selectedMedication");
-  
-  if (!storedData) {
-    els.noDataState.hidden = false;
-    els.medicationDetailsContent.hidden = true;
+
+  if (!storedData || forceDemo) {
+    state.medication = buildDemoMedication(medOverride);
+    els.noDataState.hidden = true;
+    els.medicationDetailsContent.hidden = false;
+    if (els.demoBanner) {
+      els.demoBanner.hidden = false;
+      els.demoBanner.textContent = forceDemo
+        ? `Demo mode — showing hardcoded data for “${state.medication.medication_name}”. Remove ?demo=1 to use results from session.`
+        : `Demo mode — no medication in session. Showing “${state.medication.medication_name}”. Pick one from Results, or use ?med=ibuprofen`;
+    }
+    renderMedicationDetails();
     return;
   }
 
@@ -137,6 +186,7 @@ function loadMedicationData() {
     state.medication = JSON.parse(storedData);
     els.noDataState.hidden = true;
     els.medicationDetailsContent.hidden = false;
+    if (els.demoBanner) els.demoBanner.hidden = true;
     renderMedicationDetails();
   } catch (error) {
     console.error("Error loading medication data:", error);
@@ -218,6 +268,9 @@ function renderMedicationDetails() {
   if (med.raw_text) {
     els.medRawText.innerHTML = `<p>${escapeHtml(med.raw_text)}</p>`;
   }
+
+  renderBodyEffectsForMedication(med.medication_name || "", els.bodyEffects);
+  loadMechanismSidebar(med.medication_name || "", els.mechanism);
 }
 
 function renderSchedule(schedule) {

@@ -129,22 +129,21 @@ const autoAdvanceDemo = () => {
     }
 };
 
-// Prescription Demo Interaction
+// Prescription demo — replay messy handwriting on hover
 const setupPrescriptionDemo = () => {
     const demo = document.getElementById('prescriptionDemo');
-    if (!demo) return;
-    
-    demo.addEventListener('mouseenter', () => {
-        const confusionMarks = demo.querySelectorAll('.confusion-mark');
-        confusionMarks.forEach((mark, index) => {
-            setTimeout(() => {
-                mark.style.animation = 'none';
-                setTimeout(() => {
-                    mark.style.animation = 'fadeInBounce 0.6s ease forwards';
-                }, 10);
-            }, index * 200);
-        });
-    });
+    const handwriting = document.getElementById('handwritingContent');
+    if (!demo || !handwriting) return;
+
+    const replayHandwriting = () => {
+        handwriting.classList.remove('is-rewriting');
+        void handwriting.offsetWidth;
+        handwriting.classList.add('is-rewriting');
+        window.setTimeout(() => handwriting.classList.remove('is-rewriting'), 900);
+    };
+
+    demo.addEventListener('mouseenter', replayHandwriting);
+    demo.addEventListener('focusin', replayHandwriting);
 };
 
 // Smooth Scroll for Scroll Hint
@@ -261,6 +260,91 @@ const setupEasterEgg = () => {
     document.head.appendChild(style);
 };
 
+// Demo video: fallback if /demo.mp4 is missing, plus a tiny time tag
+const setupDemoVideo = () => {
+    const video = document.getElementById('demoVideo');
+    const fallback = document.getElementById('videoFallback');
+    const timeTag = document.getElementById('videoTimeTag');
+    if (!video) return;
+
+    const showFallback = () => {
+        if (!fallback) return;
+        fallback.hidden = false;
+        video.style.visibility = 'hidden';
+    };
+
+    // <source> error fires on the child element, not video itself
+    const source = video.querySelector('source');
+    if (source) source.addEventListener('error', showFallback);
+    video.addEventListener('error', showFallback);
+
+    // If metadata never loads in a reasonable window, assume missing
+    let metaLoaded = false;
+    video.addEventListener('loadedmetadata', () => { metaLoaded = true; });
+    setTimeout(() => {
+        if (!metaLoaded && (video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE || video.readyState === 0)) {
+            showFallback();
+        }
+    }, 2500);
+
+    if (timeTag) {
+        const fmt = (s) => {
+            const m = Math.floor(s / 60).toString().padStart(2, '0');
+            const sec = Math.floor(s % 60).toString().padStart(2, '0');
+            return `${m}:${sec}`;
+        };
+        video.addEventListener('timeupdate', () => {
+            timeTag.textContent = fmt(video.currentTime || 0);
+        });
+    }
+};
+
+// Pill-shaped confetti burst from the CTA
+const setupConfetti = () => {
+    const btn = document.getElementById('ctaBtn');
+    if (!btn) return;
+
+    const colors = [
+        ['#059669', '#6ee7b7'],
+        ['#0d9488', '#5eead4'],
+        ['#10b981', '#a7f3d0'],
+        ['#f59e0b', '#fde68a'],
+        ['#ef4444', '#fecaca']
+    ];
+
+    btn.addEventListener('click', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const originX = rect.left + rect.width / 2;
+        const originY = rect.top + rect.height / 2;
+
+        for (let i = 0; i < 28; i++) {
+            const piece = document.createElement('span');
+            piece.className = 'confetti-piece';
+            const [a, b] = colors[i % colors.length];
+            piece.style.background = `linear-gradient(90deg, ${a} 50%, ${b} 50%)`;
+            piece.style.left = `${originX}px`;
+            piece.style.top = `${originY}px`;
+            piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+            document.body.appendChild(piece);
+
+            const angle = (Math.PI * 2 * i) / 28 + (Math.random() - 0.5) * 0.4;
+            const distance = 140 + Math.random() * 180;
+            const dx = Math.cos(angle) * distance;
+            const dy = Math.sin(angle) * distance - 60; // bias slightly upward
+            const rot = (Math.random() - 0.5) * 720;
+
+            piece.animate(
+                [
+                    { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg)`, opacity: 0 }
+                ],
+                { duration: 900 + Math.random() * 400, easing: 'cubic-bezier(0.2, 0.7, 0.3, 1)', fill: 'forwards' }
+            );
+            setTimeout(() => piece.remove(), 1400);
+        }
+    });
+};
+
 // Initialize everything
 const init = () => {
     observeChapters();
@@ -274,6 +358,8 @@ const init = () => {
     setupResultActions();
     addRippleAnimation();
     setupEasterEgg();
+    setupDemoVideo();
+    setupConfetti();
     
     // Initial updates
     updateProgress();
