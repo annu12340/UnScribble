@@ -12,7 +12,6 @@ const state = {
   currentSchedules: [],
   googleCalendarConfig: {
     clientId: "",
-    apiKey: "",
     enabled: false
   },
   currentMedicationIndex: null
@@ -66,15 +65,12 @@ async function loadGoogleConfig() {
     if (config.googleCalendar && config.googleCalendar.enabled) {
       state.googleCalendarConfig = {
         clientId: config.googleCalendar.clientId,
-        apiKey: config.googleCalendar.apiKey,
         enabled: true
       };
       
       console.log('[Config] Google Calendar enabled:', {
         hasClientId: !!state.googleCalendarConfig.clientId,
-        hasApiKey: !!state.googleCalendarConfig.apiKey,
-        clientIdLength: state.googleCalendarConfig.clientId?.length,
-        apiKeyLength: state.googleCalendarConfig.apiKey?.length
+        clientIdLength: state.googleCalendarConfig.clientId?.length
       });
       
       // Check if user is already signed in
@@ -258,9 +254,7 @@ async function confirmCalendarSetup() {
 
   console.log('[Calendar Setup] Starting calendar setup with config:', {
     hasClientId: !!state.googleCalendarConfig.clientId,
-    hasApiKey: !!state.googleCalendarConfig.apiKey,
-    clientId: state.googleCalendarConfig.clientId,
-    apiKey: state.googleCalendarConfig.apiKey ? `${state.googleCalendarConfig.apiKey.substring(0, 10)}...` : 'undefined'
+    clientId: state.googleCalendarConfig.clientId
   });
 
   const startDate = new Date(els.startDateInput.value);
@@ -278,7 +272,7 @@ async function confirmCalendarSetup() {
         const schedule = state.currentSchedules[i];
         try {
           console.log(`[Calendar Setup] Adding medication ${i + 1}/${state.currentSchedules.length}: ${schedule.medication}`);
-          await addMedicationToGoogleCalendar(schedule, startDate, state.googleCalendarConfig.clientId, state.googleCalendarConfig.apiKey);
+          await addMedicationToGoogleCalendar(schedule, startDate, state.googleCalendarConfig.clientId);
           successCount++;
           console.log(`[Calendar Setup] Successfully added ${schedule.medication}`);
         } catch (error) {
@@ -299,7 +293,7 @@ async function confirmCalendarSetup() {
       }
     } else {
       const schedule = state.currentSchedules[state.currentMedicationIndex];
-      await addMedicationToGoogleCalendar(schedule, startDate, state.googleCalendarConfig.clientId, state.googleCalendarConfig.apiKey);
+      await addMedicationToGoogleCalendar(schedule, startDate, state.googleCalendarConfig.clientId);
       showToast(`✓ Added ${schedule.medication} to Google Calendar`);
     }
     

@@ -12,6 +12,7 @@ const log = require("./agents/logger");
 const { AGENT_MANIFEST, runWorkflow } = require("./agents/orchestrator");
 const { initSseResponse, writeSse } = require("./agents/sse");
 const { formularySize } = require("./agents/formulary");
+const { predictProteinMechanism } = require("./agents/agents/protein-mechanism");
 
 const PUBLIC_DIR = path.join(ROOT, "public");
 const MAX_BODY_BYTES = 32 * 1024 * 1024;
@@ -35,7 +36,7 @@ const mimeTypes = {
 const SECURITY_HEADERS = {
   "Content-Security-Policy": [
     "default-src 'self'",
-    "script-src 'self' https://apis.google.com https://accounts.google.com",
+    "script-src 'self' 'unsafe-inline' https://apis.google.com https://accounts.google.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://*.googleusercontent.com",
@@ -72,9 +73,8 @@ const server = http.createServer(async (req, res) => {
         agents: AGENT_MANIFEST,
         mock: config.mock,
         googleCalendar: {
-          enabled: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_API_KEY),
-          clientId: process.env.GOOGLE_CLIENT_ID || "",
-          apiKey: process.env.GOOGLE_API_KEY || ""
+          enabled: Boolean(process.env.GOOGLE_CLIENT_ID),
+          clientId: process.env.GOOGLE_CLIENT_ID || ""
         }
       });
       return;
@@ -87,6 +87,11 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && requestUrl.pathname === "/api/decode") {
       await handleDecodeBatch(req, res);
+      return;
+    }
+
+    if (req.method === "POST" && requestUrl.pathname === "/api/protein-mechanism") {
+      await handleProteinMechanism(req, res);
       return;
     }
 
@@ -204,6 +209,32 @@ async function handleDecodeBatch(req, res) {
       detail: error.detail || error.message,
       events,
       agentId: error.agentId || null
+    });
+  }
+}
+
+async function handleProteinMechanism(req, res) {
+  const body = await readJson(req);
+  const medication = String(body.medication || "").trim();
+  
+  if (!medication) {
+    sendJson(res, 400, { error: "Medication name is required" });
+    return;
+  }
+  
+  log.info("http", "POST /api/protein-mechanism", { medication });
+  
+  try {
+    const result = await predictProteinMechanism(medication);
+    sendJson(res, 200, result);
+  } catch (error) {
+    log.error("http", "protein mechanism failed", { 
+      medication, 
+      message: error.message 
+    });
+    sendJson(res, error.statusCode || 500, {
+      error: "Failed to predict protein mechanism",
+      detail: error.message
     });
   }
 }

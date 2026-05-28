@@ -1,4 +1,6 @@
 let config = null;
+let tokenClient = null;
+let accessToken = null;
 
 function log(message, type = 'info') {
     const logDiv = document.getElementById('log');
@@ -40,11 +42,12 @@ async function initGapi() {
     }
 
     try {
-        log('Loading Google API script...', 'info');
+        log('Loading Google API client script...', 'info');
         
+        // Load the Google API client library
         await new Promise((resolve, reject) => {
             if (window.gapi) {
-                log('Google API already loaded', 'info');
+                log('Google API client already loaded', 'info');
                 resolve();
                 return;
             }
@@ -52,28 +55,64 @@ async function initGapi() {
             const script = document.createElement('script');
             script.src = 'https://apis.google.com/js/api.js';
             script.onload = () => {
-                log('Google API script loaded', 'success');
+                log('Google API client script loaded', 'success');
                 resolve();
             };
             script.onerror = reject;
             document.head.appendChild(script);
         });
 
-        log('Loading client:auth2...', 'info');
+        // Load the Google Identity Services library
+        log('Loading Google Identity Services...', 'info');
         await new Promise((resolve, reject) => {
-            window.gapi.load('client:auth2', {
+            if (window.google?.accounts) {
+                log('Google Identity Services already loaded', 'info');
+                resolve();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = 'https://accounts.google.com/gsi/client';
+            script.onload = () => {
+                log('Google Identity Services loaded', 'success');
+                resolve();
+            };
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+
+        log('Loading gapi.client...', 'info');
+        await new Promise((resolve, reject) => {
+            window.gapi.load('client', {
                 callback: resolve,
                 onerror: reject
             });
         });
-        log('client:auth2 loaded successfully', 'success');
+        log('gapi.client loaded successfully', 'success');
 
-        log('Initializing gapi.client...', 'info');
-        await window.gapi.client.init({
-            apiKey: config.googleCalendar.apiKey,
-            clientId: config.googleCalendar.clientId,
-            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
-            scope: 'https://www.googleapis.com/auth/calendar.events'
+        log('Loading Calendar API discovery document...', 'info');
+        await window.gapi.client.load('calendar', 'v3');
+        
+        log('Initializing OAuth2 token client...', 'info');
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: config.googleCalendar.clientId,
+            scope: 'https://www.googleapis.com/auth/calendar.events',
+            callback: (response) => {
+                if (response.error !== undefined) {
+                    log(`OAuth error: ${response.error}`, 'error');
+                    throw response;
+                }
+                accessToken = response.access_token;
+                log('Access token received', 'success');
+                
+                // Set the access token for API calls
+                window.gapi.client.setToken({ access_token: accessToken });
+                
+                document.getElementById('authResult').innerHTML = `
+                    <p style="color: green;">✓ Signed in successfully</p>
+                    <p>Access token obtained</p>
+                `;
+            },
         });
         
         log('Google API initialized successfully!', 'success');
@@ -91,52 +130,48 @@ async function testApiKey() {
         return;
     }
 
+    if (!accessToken) {
+        log('Please sign in first! Calendar API requires OAuth authentication.', 'error');
+        document.getElementById('apiKeyResult').innerHTML = '<p style="color: orange;">⚠ Please sign in first to test API access</p>';
+        return;
+    }
+
     try {
-        log('Testing API Key by fetching calendar list...', 'info');
-        const url = `https://www.googleapis.com/calendar/v3/users/me/calendarList?key=${config.googleCalendar.apiKey}`;
+        log('Testing API access by fetching calendar list...', 'info');
         
-        const response = await fetch(url);
-        const data = await response.json();
+        const response = await window.gapi.client.calendar.calendarList.list();
         
-        if (response.ok) {
-            log('API Key is valid!', 'success');
-            document.getElementById('apiKeyResult').innerHTML = '<p style="color: green;">✓ API Key is valid</p>';
-        } else {
-            log(`API Key test failed: ${data.error?.message}`, 'error');
-            log(`Error code: ${data.error?.code}`, 'error');
-            log(`Error details: ${JSON.stringify(data.error)}`, 'error');
+        if (response.result) {
+            log('API access successful!', 'success');
+            log(`Found ${response.result.items?.length || 0} calendars`, 'info');
             document.getElementById('apiKeyResult').innerHTML = `
-                <p style="color: red;">✗ API Key Error</p>
-                <pre>${JSON.stringify(data.error, null, 2)}</pre>
+                <p style="color: green;">✓ API access is working</p>
+                <p>Found ${response.result.items?.length || 0} calendars</p>
             `;
         }
     } catch (error) {
-        log(`Error testing API Key: ${error.message}`, 'error');
-        document.getElementById('apiKeyResult').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        log(`API test failed: ${error.result?.error?.message || error.message}`, 'error');
+        log(`Error code: ${error.status}`, 'error');
+        log(`Error details: ${JSON.stringify(error.result?.error)}`, 'error');
+        document.getElementById('apiKeyResult').innerHTML = `
+            <p style="color: red;">✗ API Error</p>
+            <pre>${JSON.stringify(error.result?.error, null, 2)}</pre>
+        `;
     }
 }
 
 async function signIn() {
-    if (!window.gapi || !window.gapi.auth2) {
+    if (!tokenClient) {
         log('Please initialize Google API first!', 'error');
         return;
     }
 
     try {
         log('Starting sign-in flow...', 'info');
-        const authInstance = window.gapi.auth2.getAuthInstance();
-        await authInstance.signIn({ prompt: 'select_account' });
         
-        const user = authInstance.currentUser.get();
-        const profile = user.getBasicProfile();
+        // Request an access token
+        tokenClient.requestAccessToken({ prompt: 'consent' });
         
-        log('Sign-in successful!', 'success');
-        log(`Signed in as: ${profile.getName()} (${profile.getEmail()})`, 'info');
-        
-        document.getElementById('authResult').innerHTML = `
-            <p style="color: green;">✓ Signed in as ${profile.getName()}</p>
-            <p>Email: ${profile.getEmail()}</p>
-        `;
     } catch (error) {
         log(`Sign-in error: ${error.error || error.message}`, 'error');
         document.getElementById('authResult').innerHTML = `<p style="color: red;">Error: ${error.error || error.message}</p>`;
@@ -144,18 +179,21 @@ async function signIn() {
 }
 
 async function signOut() {
-    if (!window.gapi || !window.gapi.auth2) {
-        log('Google API not initialized', 'error');
-        return;
-    }
-
-    try {
-        const authInstance = window.gapi.auth2.getAuthInstance();
-        await authInstance.signOut();
-        log('Signed out successfully', 'success');
-        document.getElementById('authResult').innerHTML = '<p>Signed out</p>';
-    } catch (error) {
-        log(`Sign-out error: ${error.message}`, 'error');
+    if (accessToken) {
+        try {
+            // Revoke the token
+            google.accounts.oauth2.revoke(accessToken, () => {
+                log('Access token revoked', 'success');
+            });
+            accessToken = null;
+            log('Signed out successfully', 'success');
+            document.getElementById('authResult').innerHTML = '<p>Signed out</p>';
+        } catch (error) {
+            log(`Sign-out error: ${error.message}`, 'error');
+        }
+    } else {
+        log('No active session to sign out from', 'info');
+        document.getElementById('authResult').innerHTML = '<p>Not signed in</p>';
     }
 }
 

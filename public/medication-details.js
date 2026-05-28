@@ -11,7 +11,6 @@ const state = {
   schedule: null,
   googleCalendarConfig: {
     clientId: "",
-    apiKey: "",
     enabled: false
   }
 };
@@ -69,7 +68,6 @@ async function loadGoogleConfig() {
     if (config.googleCalendar && config.googleCalendar.enabled) {
       state.googleCalendarConfig = {
         clientId: config.googleCalendar.clientId,
-        apiKey: config.googleCalendar.apiKey,
         enabled: true
       };
       
@@ -284,8 +282,7 @@ async function confirmCalendarSetup() {
     await addMedicationToGoogleCalendar(
       state.schedule,
       startDate,
-      state.googleCalendarConfig.clientId,
-      state.googleCalendarConfig.apiKey
+      state.googleCalendarConfig.clientId
     );
     
     showToast(`✓ Added ${state.schedule.medication} to Google Calendar`);

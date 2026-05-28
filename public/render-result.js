@@ -159,6 +159,13 @@ function renderMedications(container, medications, escapeHtml) {
         </div>
         ${alternatives ? `<ul class="alt-list">${alternatives}</ul>` : ""}
         ${warnings ? `<ul class="warning-list">${warnings}</ul>` : ""}
+        <div style="margin-top: 1rem;">
+          <a href="/medication-mechanism.html?medication=${encodeURIComponent(med.medication_name || '')}" 
+             class="mechanism-btn" 
+             style="display: inline-block; padding: 0.5rem 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+            🧬 View 3D Protein Mechanism
+          </a>
+        </div>
       `;
       return card;
     })

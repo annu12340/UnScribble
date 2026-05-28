@@ -22,17 +22,23 @@
         <div id="gapiResult"></div>
     </div>
 
-    <div class="test-section">
-        <h2>Step 3: Test API Key</h2>
-        <button id="testApiKeyBtn">Test API Key</button>
-        <div id="apiKeyResult"></div>
+    <div id="g_id_onload"
+         data-client_id=""
+         data-callback="handleCredentialResponse"
+         style="display: none;">
     </div>
 
     <div class="test-section">
-        <h2>Step 4: Sign In</h2>
+        <h2>Step 3: Sign In</h2>
         <button id="signInBtn">Sign In with Google</button>
         <button id="signOutBtn">Sign Out</button>
         <div id="authResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 4: Test API Access</h2>
+        <button id="testApiKeyBtn">Test API Access</button>
+        <div id="apiKeyResult"></div>
     </div>
 
     <div class="test-section">

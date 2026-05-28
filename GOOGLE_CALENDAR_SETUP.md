@@ -2,6 +2,8 @@
 
 The app now supports **simple Google Sign-In** for adding medication reminders to your calendar. Users just click a button and sign in - no manual credential entry needed!
 
+**Note:** This integration uses Google Identity Services (GIS), the latest authentication library from Google. The deprecated `gapi.auth2` library has been replaced with the modern OAuth 2.0 token client.
+
 ## Quick Setup (5 minutes)
 
 ### 1. Create a Google Cloud Project
@@ -39,24 +41,15 @@ The app now supports **simple Google Sign-In** for adding medication reminders t
 5. Click "Create"
 6. **Copy the Client ID** (looks like: `xxxxx.apps.googleusercontent.com`)
 
-### 4. Create API Key
+### 4. Configure Your App
 
-1. Go to "APIs & Services" → "Credentials"
-2. Click "Create Credentials" → "API key"
-3. **Copy the API Key**
-4. Click "Restrict Key" (recommended):
-   - Under "API restrictions", select "Restrict key"
-   - Choose "Google Calendar API"
-   - Save
-
-### 5. Configure Your App
-
-Add these to your `.env` file:
+Add this to your `.env` file:
 
 ```bash
 GOOGLE_CLIENT_ID=your_client_id_here.apps.googleusercontent.com
-GOOGLE_API_KEY=your_api_key_here
 ```
+
+**Note:** The API key is no longer required. Google Calendar API now uses OAuth 2.0 tokens exclusively for authentication.
 
 Restart your server:
 ```bash
@@ -102,7 +95,7 @@ npm start
 - Include the full path: `http://localhost:3000/results.html`
 
 ### Calendar buttons not showing
-- Verify `.env` has both `GOOGLE_CLIENT_ID` and `GOOGLE_API_KEY`
+- Verify `.env` has `GOOGLE_CLIENT_ID`
 - Restart the server after adding credentials
 - Check browser console for errors
 

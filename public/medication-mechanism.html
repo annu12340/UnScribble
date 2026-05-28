@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medication Mechanism - 3D Protein View</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .mechanism-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 2rem;
+    }
+    
+    .protein-viewer-container {
+      width: 100%;
+      height: 600px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      margin: 2rem 0;
+      position: relative;
+    }
+    
+    .mechanism-info {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    
+    .mechanism-info h2 {
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+    
+    .mechanism-info p {
+      line-height: 1.6;
+      color: #555;
+    }
+    
+    .binding-site-info {
+      background: #e8f4f8;
+      padding: 1rem;
+      border-left: 4px solid #3498db;
+      margin: 1rem 0;
+    }
+    
+    .effect-info {
+      background: #e8f8e8;
+      padding: 1rem;
+      border-left: 4px solid #27ae60;
+      margin: 1rem 0;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+    
+    .back-button {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: #3498db;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    
+    .back-button:hover {
+      background: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <div class="mechanism-container">
+    <a href="/results.html" class="back-button">← Back to Results</a>
+    
+    <div class="mechanism-info">
+      <h1 id="medication-name">Loading...</h1>
+      <p id="target-protein"></p>
+      
+      <div class="binding-site-info">
+        <h3>Binding Site</h3>
+        <p id="binding-site">Loading...</p>
+      </div>
+      
+      <div class="effect-info">
+        <h3>Mechanism of Action</h3>
+        <p id="mechanism">Loading...</p>
+      </div>
+      
+      <div>
+        <h3>Clinical Effect</h3>
+        <p id="effect">Loading...</p>
+      </div>
+    </div>
+    
+    <h2>3D Protein Structure</h2>
+    <div id="protein-viewer" class="protein-viewer-container">
+      <div class="loading">Loading 3D protein structure...</div>
+    </div>
+    
+    <div class="mechanism-info">
+      <h3>About This Visualization</h3>
+      <p>
+        This 3D model shows the predicted structure of the protein that 
+        <span id="med-name-2"></span> interacts with in your body. 
+        The structure was predicted using ESMFold, an AI model that predicts 
+        protein folding from amino acid sequences.
+      </p>
+      <p>
+        The green highlighted area shows where the medication binds to the protein, 
+        blocking or activating its function to produce the therapeutic effect.
+      </p>
+    </div>
+  </div>
+  
+  <!-- Three.js for 3D visualization -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  
+  <script src="/protein-viewer.js"></script>
+  <script>
+    // Get medication name from URL params
+    const params = new URLSearchParams(window.location.search);
+    const medicationName = params.get('medication');
+    
+    if (!medicationName) {
+      document.querySelector('.mechanism-info').innerHTML = 
+        '<p>No medication specified. Please return to results page.</p>';
+    } else {
+      loadMechanismData(medicationName);
+    }
+    
+    async function loadMechanismData(medication) {
+      try {
+        console.log('Fetching mechanism data for:', medication);
+        
+        // Call backend to get protein mechanism data
+        const response = await fetch('/api/protein-mechanism', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ medication })
+        });
+        
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Received data:', data);
+        
+        if (!data.hasProteinData) {
+          document.querySelector('.mechanism-info').innerHTML = 
+            `<h1>${medication}</h1><p>${data.message || 'Protein data not available for this medication.'}</p>`;
+          document.getElementById('protein-viewer').innerHTML = 
+            '<div class="loading">Protein structure data not available for this medication.</div>';
+          return;
+        }
+        
+        // Update UI with mechanism data
+        document.getElementById('medication-name').textContent = 
+          `How ${medication} Works`;
+        document.getElementById('target-protein').textContent = 
+          `Target Protein: ${data.targetProtein}`;
+        document.getElementById('binding-site').textContent = 
+          data.mechanism.bindingSite;
+        document.getElementById('mechanism').textContent = 
+          data.mechanism.mechanism;
+        document.getElementById('effect').textContent = 
+          data.mechanism.effect;
+        document.getElementById('med-name-2').textContent = medication;
+        
+        // Initialize 3D viewer
+        try {
+          const viewer = new ProteinViewer('protein-viewer');
+          await viewer.loadProteinStructure(data.proteinStructure.pdbData, medication);
+        } catch (viewerError) {
+          console.error('3D viewer error:', viewerError);
+          document.getElementById('protein-viewer').innerHTML = 
+            '<div class="loading">3D visualization temporarily unavailable. Mechanism information shown above.</div>';
+        }
+        
+      } catch (error) {
+        console.error('Failed to load mechanism data:', error);
+        document.querySelector('.mechanism-info').innerHTML = 
+          `<h1>Error Loading Data</h1><p>Failed to load protein mechanism data: ${error.message}</p><p>Please try again or return to results page.</p>`;
+        document.getElementById('protein-viewer').innerHTML = 
+          '<div class="loading">Failed to load 3D structure.</div>';
+      }
+    }
+  </script>
+</body>
+</html>
