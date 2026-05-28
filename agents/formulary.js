@@ -2,6 +2,7 @@
 
 const fs = require("node:fs");
 const config = require("./config");
+const log = require("./logger");
 
 const { distance: levenshteinDistance } = loadLevenshtein();
 const FORMULARY = loadFormulary(config.formularyPath);
@@ -35,26 +36,27 @@ function levenshteinFallback(a, b) {
 function loadFormulary(filePath) {
   const empty = { set: new Set(), byLength: {} };
   try {
-    console.log(`Loading formulary from: ${filePath}`);
     const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
     if (!Array.isArray(parsed)) {
-      console.error("Formulary file is not an array");
+      log.warn("formulary", "formulary file is not an array", { filePath });
       return empty;
     }
     const set = new Set();
     const byLength = {};
     for (const item of parsed) {
-      const term = String(item || "").trim().toLowerCase();
+      const term = String(item || "")
+        .trim()
+        .toLowerCase();
       if (!term) continue;
       set.add(term);
       const length = term.length;
       if (!byLength[length]) byLength[length] = [];
       byLength[length].push(term);
     }
-    console.log(`Loaded ${set.size} formulary entries`);
+    log.info("formulary", "loaded", { entries: set.size });
     return { set, byLength };
   } catch (error) {
-    console.error(`Failed to load formulary: ${error.message}`);
+    log.warn("formulary", "failed to load", { filePath, message: error.message });
     return empty;
   }
 }
@@ -89,9 +91,15 @@ function dedupMedications(medications) {
   const byKey = new Map();
   for (const med of medications) {
     const key = [
-      String(med.medication_name || "").trim().toLowerCase(),
-      String(med.strength || "").trim().toLowerCase(),
-      String(med.form || "").trim().toLowerCase()
+      String(med.medication_name || "")
+        .trim()
+        .toLowerCase(),
+      String(med.strength || "")
+        .trim()
+        .toLowerCase(),
+      String(med.form || "")
+        .trim()
+        .toLowerCase()
     ].join("|");
     if (!key.replaceAll("|", "")) {
       byKey.set(Symbol(), med);
@@ -139,7 +147,9 @@ function unionAlternatives(a, b) {
   for (const list of [a, b]) {
     if (!Array.isArray(list)) continue;
     for (const item of list) {
-      const key = String(item?.text || "").trim().toLowerCase();
+      const key = String(item?.text || "")
+        .trim()
+        .toLowerCase();
       if (!key || seen.has(key)) continue;
       seen.add(key);
       out.push(item);
@@ -218,7 +228,9 @@ async function validateAgainstFormulary(result) {
 }
 
 function isInFormulary(name) {
-  const lowered = String(name || "").trim().toLowerCase();
+  const lowered = String(name || "")
+    .trim()
+    .toLowerCase();
   if (!lowered) return false;
   return FORMULARY.set.has(lowered);
 }

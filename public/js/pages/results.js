@@ -1,11 +1,11 @@
-import { 
+import {
   addMedicationToGoogleCalendar,
   exportScheduleAsICS,
   parseMedicationSchedule,
   isGoogleSignedIn,
   signOutGoogle,
   getGoogleUserInfo
-} from "./medication-schedule.js";
+} from "../medication/medication-schedule.js";
 
 const state = {
   resultPayload: null,
@@ -30,10 +30,6 @@ const els = {
   medicationsTable: document.querySelector("#medicationsTable"),
   medicationsTableBody: document.querySelector("#medicationsTableBody"),
   abbrevList: document.querySelector("#abbrevList"),
-  otherTextList: document.querySelector("#otherTextList"),
-  workflowTraceWrap: document.querySelector("#workflowTraceWrap"),
-  workflowTrace: document.querySelector("#workflowTrace"),
-  rawJson: document.querySelector("#rawJson"),
   toast: document.querySelector("#toast"),
   calendarModal: document.querySelector("#calendarModal"),
   modalClose: document.querySelector("#modalClose"),
@@ -58,29 +54,19 @@ async function loadGoogleConfig() {
   try {
     const response = await fetch("/api/config");
     const config = await response.json();
-    
-    console.log('[Config] Loaded config:', config.googleCalendar);
-    
+
     if (config.googleCalendar && config.googleCalendar.enabled) {
       state.googleCalendarConfig = {
         clientId: config.googleCalendar.clientId,
         enabled: true
       };
-      
-      console.log('[Config] Google Calendar enabled:', {
-        hasClientId: !!state.googleCalendarConfig.clientId,
-        clientIdLength: state.googleCalendarConfig.clientId?.length
-      });
-      
-      // Check if user is already signed in
+
       if (isGoogleSignedIn()) {
         updateGoogleSignInUI();
       }
     } else {
-      console.log('[Config] Google Calendar not enabled, hiding buttons');
-      // Hide Google Calendar buttons if not configured
-      document.querySelectorAll('.add-to-calendar-btn, #addAllToCalendar').forEach(btn => {
-        btn.style.display = 'none';
+      document.querySelectorAll(".add-to-calendar-btn, #addAllToCalendarInline").forEach((btn) => {
+        btn.style.display = "none";
       });
     }
   } catch (error) {
@@ -92,11 +78,11 @@ function bindEvents() {
   els.copyBtn.addEventListener("click", copyResult);
   els.downloadBtn.addEventListener("click", downloadResult);
   els.printBtn.addEventListener("click", () => window.print());
-  
+
   els.modalClose.addEventListener("click", closeModal);
   els.modalCancel.addEventListener("click", closeModal);
   els.modalConfirm.addEventListener("click", confirmCalendarSetup);
-  
+
   // Toggle raw text
   const toggleBtn = document.querySelector("#toggleRawText");
   if (toggleBtn) {
@@ -113,29 +99,31 @@ function bindEvents() {
 function updateGoogleSignInUI() {
   const userInfo = getGoogleUserInfo();
   if (userInfo && els.modalBody) {
-    const signedInHTML = `
-      <div class="google-signed-in">
-        <div class="google-user-info">
-          <img src="${escapeHtml(userInfo.imageUrl)}" alt="${escapeHtml(userInfo.name)}" class="google-avatar" />
-          <div>
-            <div class="google-user-name">${escapeHtml(userInfo.name)}</div>
-            <div class="google-user-email">${escapeHtml(userInfo.email)}</div>
-          </div>
-        </div>
-        <button class="btn ghost small" id="signOutBtn">Sign Out</button>
-      </div>
-    `;
-    
-    const container = els.modalBody.querySelector('.google-auth-container');
+    const container = els.modalBody.querySelector(".google-auth-container");
     if (container) {
-      container.innerHTML = signedInHTML;
-      const signOutBtn = container.querySelector('#signOutBtn');
-      if (signOutBtn) {
-        signOutBtn.addEventListener('click', async () => {
-          await signOutGoogle();
-          location.reload();
-        });
-      }
+      const wrapper = createElement("div", "google-signed-in");
+      const user = createElement("div", "google-user-info");
+      const avatar = createElement("img", "google-avatar");
+      avatar.src = userInfo.imageUrl || "";
+      avatar.alt = userInfo.name || "Google user";
+
+      const textWrap = document.createElement("div");
+      textWrap.append(
+        createElement("div", "google-user-name", userInfo.name || ""),
+        createElement("div", "google-user-email", userInfo.email || "")
+      );
+      user.append(avatar, textWrap);
+
+      const signOutBtn = createElement("button", "btn ghost small", "Sign Out");
+      signOutBtn.id = "signOutBtn";
+      signOutBtn.type = "button";
+      signOutBtn.addEventListener("click", async () => {
+        await signOutGoogle();
+        location.reload();
+      });
+
+      wrapper.append(user, signOutBtn);
+      container.replaceChildren(wrapper);
     }
   }
 }
@@ -147,7 +135,7 @@ function setTodayAsDefault() {
 
 function loadResultData() {
   const storedData = sessionStorage.getItem("prescriptionResult");
-  
+
   if (!storedData) {
     els.noDataState.hidden = false;
     els.resultsContent.hidden = true;
@@ -168,7 +156,7 @@ function loadResultData() {
 
 function renderResults() {
   const result = state.resultPayload.result;
-  
+
   // Set processed date
   if (els.processedDate && state.resultPayload.decodedAt) {
     const date = new Date(state.resultPayload.decodedAt);
@@ -237,11 +225,6 @@ async function confirmCalendarSetup() {
     return;
   }
 
-  console.log('[Calendar Setup] Starting calendar setup with config:', {
-    hasClientId: !!state.googleCalendarConfig.clientId,
-    clientId: state.googleCalendarConfig.clientId
-  });
-
   const startDate = new Date(els.startDateInput.value);
 
   closeModal();
@@ -252,36 +235,37 @@ async function confirmCalendarSetup() {
       let successCount = 0;
       let failCount = 0;
       const errors = [];
-      
+
       for (let i = 0; i < state.currentSchedules.length; i++) {
         const schedule = state.currentSchedules[i];
         try {
-          console.log(`[Calendar Setup] Adding medication ${i + 1}/${state.currentSchedules.length}: ${schedule.medication}`);
-          await addMedicationToGoogleCalendar(schedule, startDate, state.googleCalendarConfig.clientId);
+          await addMedicationToGoogleCalendar(
+            schedule,
+            startDate,
+            state.googleCalendarConfig.clientId
+          );
           successCount++;
-          console.log(`[Calendar Setup] Successfully added ${schedule.medication}`);
         } catch (error) {
           failCount++;
-          console.error(`[Calendar Setup] Failed to add ${schedule.medication}:`, error);
           errors.push({ medication: schedule.medication, error: error.message });
         }
       }
-      
+
       if (successCount > 0 && failCount === 0) {
         showToast(`✓ Added all ${successCount} medication(s) to Google Calendar`);
       } else if (successCount > 0 && failCount > 0) {
         showToast(`⚠️ Added ${successCount} medication(s), ${failCount} failed`);
-        console.error('[Calendar Setup] Failed medications:', errors);
+        console.error("[Calendar Setup] Failed medications:", errors);
       } else {
         showToast(`❌ Failed to add medications. Check console for details.`);
-        console.error('[Calendar Setup] All medications failed:', errors);
+        console.error("[Calendar Setup] All medications failed:", errors);
       }
     } else {
       const schedule = state.currentSchedules[state.currentMedicationIndex];
       await addMedicationToGoogleCalendar(schedule, startDate, state.googleCalendarConfig.clientId);
       showToast(`✓ Added ${schedule.medication} to Google Calendar`);
     }
-    
+
     updateGoogleSignInUI();
   } catch (error) {
     console.error("Calendar error:", error);
@@ -291,7 +275,14 @@ async function confirmCalendarSetup() {
 
 function renderMedicationsTable(tbody, medications) {
   if (!medications.length) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--muted);">No medications extracted</td></tr>`;
+    const tr = document.createElement("tr");
+    const td = createElement("td", "", "No medications extracted");
+    td.colSpan = 6;
+    td.style.textAlign = "center";
+    td.style.padding = "2rem";
+    td.style.color = "var(--muted)";
+    tr.append(td);
+    tbody.replaceChildren(tr);
     return;
   }
 
@@ -302,45 +293,44 @@ function renderMedicationsTable(tbody, medications) {
       tr.classList.add("medication-row");
       tr.dataset.medIndex = index;
       tr.style.cursor = "pointer";
-      
+
       const frequency = med.normalized_frequency?.expansion || med.frequency || "Not specified";
       const administration = med.administration_notes || med.timing || "Not specified";
-      
-      tr.innerHTML = `
-        <td>
-          <div class="med-name-cell">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="med-icon">
-              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-              <rect x="9" y="3" width="6" height="4" rx="1"/>
-              <path d="M9 12h6M9 16h6"/>
-            </svg>
-            <div>
-              <strong>${escapeHtml(med.medication_name || "Unknown")}</strong>
-              ${med.form ? `<span class="med-form">${escapeHtml(med.form)}</span>` : ''}
-            </div>
-          </div>
-        </td>
-        <td><strong>${escapeHtml(med.strength || "—")}</strong></td>
-        <td>${escapeHtml(med.dose || "—")}</td>
-        <td>
-          <div class="frequency-cell">
-            <span>${escapeHtml(frequency)}</span>
-            ${med.normalized_frequency?.abbreviation ? `<span class="freq-abbrev">${escapeHtml(med.normalized_frequency.abbreviation)}</span>` : ''}
-          </div>
-        </td>
-        <td>${escapeHtml(med.duration || "—")}</td>
-        <td>
-          <div class="admin-cell">
-            ${escapeHtml(administration)}
-          </div>
-        </td>
-      `;
-      
+
+      const nameCell = document.createElement("td");
+      const nameWrap = createElement("div", "med-name-cell");
+      nameWrap.append(createMedicationIcon());
+      const nameText = document.createElement("div");
+      nameText.append(createElement("strong", "", med.medication_name || "Unknown"));
+      if (med.form) nameText.append(createElement("span", "med-form", med.form));
+      nameWrap.append(nameText);
+      nameCell.append(nameWrap);
+
+      const strengthCell = document.createElement("td");
+      strengthCell.append(createElement("strong", "", med.strength || "—"));
+
+      const doseCell = createElement("td", "", med.dose || "—");
+
+      const frequencyCell = document.createElement("td");
+      const frequencyWrap = createElement("div", "frequency-cell");
+      frequencyWrap.append(createElement("span", "", frequency));
+      if (med.normalized_frequency?.abbreviation) {
+        frequencyWrap.append(
+          createElement("span", "freq-abbrev", med.normalized_frequency.abbreviation)
+        );
+      }
+      frequencyCell.append(frequencyWrap);
+
+      const durationCell = createElement("td", "", med.duration || "—");
+      const adminCell = document.createElement("td");
+      adminCell.append(createElement("div", "admin-cell", administration));
+      tr.append(nameCell, strengthCell, doseCell, frequencyCell, durationCell, adminCell);
+
       // Make entire row clickable
       tr.addEventListener("click", () => {
         navigateToMedicationDetails(medications[index]);
       });
-      
+
       return tr;
     })
   );
@@ -355,109 +345,44 @@ function navigateToMedicationDetails(medication) {
 
 function renderRawText(container, rawTranscription) {
   if (!rawTranscription || !rawTranscription.length) {
-    container.innerHTML = "<p class='no-data'>No raw transcription available.</p>";
+    container.replaceChildren(createElement("p", "no-data", "No raw transcription available."));
     return;
   }
 
   const lines = rawTranscription
+    .slice()
     .sort((a, b) => (a.line_number || 0) - (b.line_number || 0))
     .map((item) => {
-      const lineNum = item.line_number ? `<span class="line-num">${item.line_number}</span>` : '';
-      const section = item.section ? `<span class="line-section">${escapeHtml(item.section)}</span>` : '';
-      return `<div class="raw-text-line">${lineNum}${section}<span class="line-text">${escapeHtml(item.text || '')}</span></div>`;
-    })
-    .join("");
+      const line = createElement("div", "raw-text-line");
+      if (item.line_number) {
+        line.append(createElement("span", "line-num", String(item.line_number)));
+      }
+      if (item.section) line.append(createElement("span", "line-section", item.section));
+      line.append(createElement("span", "line-text", item.text || ""));
+      return line;
+    });
 
-  container.innerHTML = lines;
+  container.replaceChildren(...lines);
 }
 
 function renderAbbreviations(container, abbreviations) {
   if (!abbreviations.length) {
-    container.innerHTML = "<p>No abbreviations extracted.</p>";
+    container.replaceChildren(createElement("p", "", "No abbreviations extracted."));
     return;
   }
 
-  container.innerHTML = abbreviations
-    .map((item) => {
+  container.replaceChildren(
+    ...abbreviations.map((item) => {
       const confidence = Math.round(Number(item.confidence || 0) * 100);
-      return `<p><strong>${escapeHtml(item.abbreviation)}</strong>: ${escapeHtml(item.likely_expansion)} <span class="muted">${confidence}%</span></p>`;
-    })
-    .join("");
-}
-
-function renderOtherText(container, otherText, followUp, warnings, allergies, clinicalContext, rawTranscription) {
-  const rows = [
-    ...allergies.map((item) => {
-      const substance = item.substance || "not read";
-      const reaction = item.reaction ? ` (${item.reaction})` : "";
-      return `Allergy: ${substance}${reaction}`;
-    }),
-    ...contextRows(clinicalContext),
-    ...otherText.map((item) => `${item.label}: ${item.text}`),
-    ...followUp.map((item) => `Follow-up: ${item}`),
-    ...warnings.map((item) => `Warning: ${item}`),
-    ...rawTranscription
-      .filter((item) => item.section !== "medication")
-      .slice(0, 8)
-      .map((item) => `Line ${item.line_number}: ${item.text}`)
-  ].filter(Boolean);
-
-  container.innerHTML = rows.length
-    ? rows.map((row) => `<p>${escapeHtml(row)}</p>`).join("")
-    : "<p>No other prescription text extracted.</p>";
-}
-
-function contextRows(context) {
-  if (!context || typeof context !== "object") return [];
-  const labels = [
-    ["Diagnosis", context.diagnoses],
-    ["Symptom", context.symptoms],
-    ["Vital", context.vitals],
-    ["Investigation", context.investigations],
-    ["Advice", context.advice],
-    ["Referral", context.referrals]
-  ];
-  return labels.flatMap(([label, values]) =>
-    Array.isArray(values) ? values.map((value) => `${label}: ${value}`) : []
-  );
-}
-
-function renderWorkflowTrace(workflow) {
-  if (!els.workflowTrace || !els.workflowTraceWrap) return;
-  if (workflow?.cached) {
-    els.workflowTraceWrap.hidden = false;
-    const li = document.createElement("li");
-    li.className = "trace-total";
-    const ms = workflow.totalMs != null ? ` · ${workflow.totalMs} ms` : "";
-    li.textContent = `Served from cache${ms}`;
-    els.workflowTrace.replaceChildren(li);
-    return;
-  }
-  if (!workflow?.steps?.length) return;
-  els.workflowTraceWrap.hidden = false;
-  els.workflowTrace.replaceChildren(
-    ...workflow.steps.map((step) => {
-      const li = document.createElement("li");
-      const ms = step.durationMs != null ? `${step.durationMs} ms` : "";
-      const detail = step.message || step.summary || "";
-      li.textContent = [step.label, step.status, ms, detail].filter(Boolean).join(" · ");
-      if (step.status === "error") li.classList.add("trace-error");
-      return li;
+      const row = document.createElement("p");
+      row.append(
+        createElement("strong", "", item.abbreviation || ""),
+        document.createTextNode(`: ${item.likely_expansion || ""} `),
+        createElement("span", "muted", `${confidence}%`)
+      );
+      return row;
     })
   );
-  if (workflow.totalMs != null) {
-    const footer = document.createElement("li");
-    footer.className = "trace-total";
-    footer.textContent = `Total: ${workflow.totalMs} ms`;
-    els.workflowTrace.appendChild(footer);
-  }
-}
-
-function formatNormalizedFrequency(frequency) {
-  if (!frequency || typeof frequency !== "object") return "";
-  return [frequency.abbreviation, frequency.expansion, frequency.timing]
-    .filter(Boolean)
-    .join(" · ");
 }
 
 async function copyResult() {
@@ -470,7 +395,9 @@ async function copyResult() {
 
 function downloadResult() {
   if (!state.resultPayload) return;
-  const blob = new Blob([JSON.stringify(state.resultPayload, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(state.resultPayload, null, 2)], {
+    type: "application/json"
+  });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
@@ -488,11 +415,36 @@ function showToast(message) {
   toastTimer = setTimeout(() => els.toast.classList.remove("is-visible"), 2400);
 }
 
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+function createElement(tagName, className = "", text = "") {
+  const element = document.createElement(tagName);
+  if (className) element.className = className;
+  if (text !== "") element.textContent = String(text);
+  return element;
+}
+
+function createMedicationIcon() {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", "16");
+  svg.setAttribute("height", "16");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "2");
+  svg.classList.add("med-icon");
+
+  const clipboardPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  clipboardPath.setAttribute(
+    "d",
+    "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
+  );
+  const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  rect.setAttribute("x", "9");
+  rect.setAttribute("y", "3");
+  rect.setAttribute("width", "6");
+  rect.setAttribute("height", "4");
+  rect.setAttribute("rx", "1");
+  const lines = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  lines.setAttribute("d", "M9 12h6M9 16h6");
+  svg.append(clipboardPath, rect, lines);
+  return svg;
 }

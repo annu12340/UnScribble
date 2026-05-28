@@ -33,8 +33,12 @@ function mergeMedicationRuns(first, second) {
     }
     secondByLine.delete(a.line_number);
 
-    const aName = String(a.medication_name || "").trim().toLowerCase();
-    const bName = String(b.medication_name || "").trim().toLowerCase();
+    const aName = String(a.medication_name || "")
+      .trim()
+      .toLowerCase();
+    const bName = String(b.medication_name || "")
+      .trim()
+      .toLowerCase();
     const aConf = Number(a.medication_name_confidence ?? 0);
     const bConf = Number(b.medication_name_confidence ?? 0);
 

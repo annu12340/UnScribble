@@ -18,12 +18,21 @@ describe("orchestrator mock workflow", () => {
       fileName: "test.png"
     };
 
-    const { result, workflow } = await runWorkflow(body, (event, data) => {
-      if (event === "agent.complete") steps.push(data.id);
-    });
+    const requestId = "test-request-123";
+    const events = [];
+    const { result, workflow } = await runWorkflow(
+      body,
+      (event, data) => {
+        events.push({ event, data });
+        if (event === "agent.complete") steps.push(data.id);
+      },
+      { requestId }
+    );
 
     assert.ok(result.summary);
     assert.ok(Array.isArray(result.medications));
+    assert.equal(workflow.requestId, requestId);
+    assert.ok(events.every(({ data }) => data.requestId === requestId));
     assert.ok(steps.includes("image_quality"));
     assert.ok(steps.includes("raw_transcription"));
     assert.ok(steps.includes("patient_header"));

@@ -78,7 +78,13 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(5, 150, 105, 0.08), transparent 28%, transparent 72%, rgba(13, 148, 136, 0.06)),
+    linear-gradient(
+      90deg,
+      rgba(5, 150, 105, 0.08),
+      transparent 28%,
+      transparent 72%,
+      rgba(13, 148, 136, 0.06)
+    ),
     linear-gradient(180deg, rgba(255, 255, 255, 0.8), transparent 44%);
   mask-image: linear-gradient(180deg, #000 0%, transparent 70%);
 }
@@ -154,7 +160,9 @@ button:disabled {
     linear-gradient(145deg, var(--accent) 0%, #075f62 100%);
   color: #fff;
   box-shadow: 0 12px 28px var(--accent-glow);
-  transition: transform 0.35s var(--ease-spring), box-shadow 0.35s var(--ease-out);
+  transition:
+    transform 0.35s var(--ease-spring),
+    box-shadow 0.35s var(--ease-out);
 }
 
 .brand-mark svg {
@@ -223,7 +231,11 @@ h3 {
   color: var(--muted);
   white-space: nowrap;
   backdrop-filter: blur(12px);
-  transition: border-color 0.3s, background 0.3s, color 0.3s, transform 0.3s var(--ease-spring);
+  transition:
+    border-color 0.3s,
+    background 0.3s,
+    color 0.3s,
+    transform 0.3s var(--ease-spring);
 }
 
 .status-dot {
@@ -232,7 +244,9 @@ h3 {
   border-radius: 50%;
   background: var(--muted);
   opacity: 0.5;
-  transition: background 0.3s, box-shadow 0.3s;
+  transition:
+    background 0.3s,
+    box-shadow 0.3s;
 }
 
 .model-status.ready {
@@ -303,7 +317,11 @@ h3 {
   border: 1.5px solid var(--line-strong);
   background: var(--panel-solid);
   font-size: 0.75rem;
-  transition: border-color 0.3s, background 0.3s, color 0.3s, transform 0.35s var(--ease-spring);
+  transition:
+    border-color 0.3s,
+    background 0.3s,
+    color 0.3s,
+    transform 0.35s var(--ease-spring);
 }
 
 .step.is-active {
@@ -391,7 +409,10 @@ h3 {
   box-shadow: var(--shadow-md);
   padding: 20px;
   backdrop-filter: blur(20px);
-  transition: box-shadow 0.35s var(--ease-out), transform 0.35s var(--ease-out), border-color 0.25s;
+  transition:
+    box-shadow 0.35s var(--ease-out),
+    transform 0.35s var(--ease-out),
+    border-color 0.25s;
 }
 
 .panel:hover {
@@ -430,7 +451,11 @@ body.is-decoding .results-panel {
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 600;
-  transition: background 0.3s, color 0.3s, transform 0.3s var(--ease-spring), box-shadow 0.3s;
+  transition:
+    background 0.3s,
+    color 0.3s,
+    transform 0.3s var(--ease-spring),
+    box-shadow 0.3s;
 }
 
 .file-chip.has-file {
@@ -488,14 +513,23 @@ body.is-decoding .results-panel {
   padding: 24px 20px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.25s, background 0.25s, transform 0.35s var(--ease-spring), box-shadow 0.25s;
+  transition:
+    border-color 0.25s,
+    background 0.25s,
+    transform 0.35s var(--ease-spring),
+    box-shadow 0.25s;
 }
 
 .dropzone::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(8, 127, 123, 0.12) 50%, transparent 70%);
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(8, 127, 123, 0.12) 50%,
+    transparent 70%
+  );
   opacity: 0;
   transform: translateX(-120%);
   pointer-events: none;
@@ -509,7 +543,9 @@ body.is-decoding .results-panel {
   border-radius: 6px;
   opacity: 0;
   transform: scale(0.985);
-  transition: opacity 0.25s, transform 0.35s var(--ease-out);
+  transition:
+    opacity 0.25s,
+    transform 0.35s var(--ease-out);
   pointer-events: none;
 }
 
@@ -594,7 +630,9 @@ body.is-decoding .results-panel {
   background: var(--panel-solid);
   color: var(--accent);
   box-shadow: var(--shadow-sm);
-  transition: transform 0.35s var(--ease-spring), color 0.25s;
+  transition:
+    transform 0.35s var(--ease-spring),
+    color 0.25s;
 }
 
 .dropzone-icon svg {
@@ -725,7 +763,9 @@ body.is-decoding .results-panel {
   background: var(--accent-soft);
   color: var(--accent);
   font-size: 0.72rem;
-  transition: background 0.25s, transform 0.25s var(--ease-spring);
+  transition:
+    background 0.25s,
+    transform 0.25s var(--ease-spring);
 }
 
 .preview-badge.is-updating {
@@ -737,7 +777,9 @@ body.is-decoding .results-panel {
   width: 100%;
   max-height: 48vh;
   object-fit: contain;
-  transition: filter 0.25s var(--ease-out), opacity 0.25s var(--ease-out);
+  transition:
+    filter 0.25s var(--ease-out),
+    opacity 0.25s var(--ease-out);
 }
 
 /* Form fields */
@@ -778,7 +820,10 @@ textarea {
   border-radius: var(--radius-sm);
   background-color: var(--panel-solid);
   color: var(--ink);
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
 }
 
 select {
@@ -792,7 +837,9 @@ select {
   background-position:
     calc(100% - 17px) 18px,
     calc(100% - 12px) 18px;
-  background-size: 5px 5px, 5px 5px;
+  background-size:
+    5px 5px,
+    5px 5px;
   background-repeat: no-repeat;
 }
 
@@ -843,7 +890,9 @@ fieldset.field {
   min-height: 36px;
   border-radius: 8px;
   cursor: pointer;
-  transition: color 0.2s, transform 0.2s var(--ease-out);
+  transition:
+    color 0.2s,
+    transform 0.2s var(--ease-out);
 }
 
 .segmented label:hover {
@@ -908,7 +957,12 @@ fieldset.field {
   font-size: 0.9rem;
   overflow: hidden;
   isolation: isolate;
-  transition: transform 0.2s var(--ease-spring), box-shadow 0.2s, border-color 0.2s, background 0.2s, color 0.2s;
+  transition:
+    transform 0.2s var(--ease-spring),
+    box-shadow 0.2s,
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s;
 }
 
 .btn::before {
@@ -916,7 +970,12 @@ fieldset.field {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(105deg, transparent 25%, rgba(255, 255, 255, 0.34) 50%, transparent 75%);
+  background: linear-gradient(
+    105deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.34) 50%,
+    transparent 75%
+  );
   opacity: 0;
   transform: translateX(-100%);
   pointer-events: none;
@@ -1235,7 +1294,8 @@ fieldset.field {
 }
 
 @keyframes cap-bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) rotate(-3deg);
   }
   25% {
@@ -1250,7 +1310,8 @@ fieldset.field {
 }
 
 @keyframes bottle-shake {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1) rotate(0deg);
   }
   25% {
@@ -1265,7 +1326,8 @@ fieldset.field {
 }
 
 @keyframes rx-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.7;
     transform: scale(1);
   }
@@ -1534,7 +1596,7 @@ fieldset.field {
   border: 1px solid var(--line);
   max-height: 400px;
   overflow-y: auto;
-  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-family: "Monaco", "Menlo", "Courier New", monospace;
   font-size: 0.85rem;
   line-height: 1.6;
 }
@@ -1555,7 +1617,10 @@ fieldset.field {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--panel-solid);
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s var(--ease-out);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s var(--ease-out);
 }
 
 .info-card:hover,
@@ -1604,7 +1669,9 @@ fieldset.field {
   padding: 10px 14px;
   border-right: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .patient-item:hover {
@@ -1723,7 +1790,9 @@ fieldset.field {
   border-radius: 8px;
   overflow-wrap: anywhere;
   background: #fcfdfd;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 }
 
 .med-field:hover {
@@ -1779,7 +1848,9 @@ fieldset.field {
   background: var(--panel-solid);
   padding: 1rem 1.25rem;
   margin-bottom: 2rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .raw-text-section[open] {
@@ -1810,7 +1881,7 @@ fieldset.field {
   border: 1px solid var(--line);
   max-height: 400px;
   overflow-y: auto;
-  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-family: "Monaco", "Menlo", "Courier New", monospace;
   font-size: 0.85rem;
   line-height: 1.6;
 }
@@ -1924,7 +1995,9 @@ pre {
   pointer-events: none;
   opacity: 0;
   transform: translate(-50%, 16px);
-  transition: opacity 0.3s, transform 0.35s var(--ease-spring);
+  transition:
+    opacity 0.3s,
+    transform 0.35s var(--ease-spring);
 }
 
 .toast.is-visible {
@@ -1935,7 +2008,6 @@ pre {
 [hidden] {
   display: none !important;
 }
-
 
 @media (max-width: 980px) {
   .intake-panel {
@@ -2001,7 +2073,6 @@ pre {
     transition-duration: 0.01ms !important;
   }
 }
-
 
 /* Upload Page Styles */
 .upload-page,
@@ -2122,17 +2193,17 @@ pre {
   .progress-steps {
     max-width: 300px;
   }
-  
+
   .step-circle {
     width: 20px;
     height: 20px;
     font-size: 0.65rem;
   }
-  
+
   .step-label {
     font-size: 0.65rem;
   }
-  
+
   .progress-line {
     top: 10px;
   }
@@ -2650,7 +2721,8 @@ pre {
 }
 
 @keyframes pulse-icon {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -2817,7 +2889,8 @@ pre {
 }
 
 @keyframes pill-rotate {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(-50%, -50%) rotate(-15deg);
   }
   50% {
@@ -3431,7 +3504,8 @@ pre {
 }
 
 @keyframes highlight-pulse {
-  0%, 100% {
+  0%,
+  100% {
     background: #fff7e6;
   }
   50% {
@@ -3676,14 +3750,30 @@ pre {
   }
 }
 
-.medication-details-grid .section-card:nth-child(1) { animation-delay: 0.05s; }
-.medication-details-grid .section-card:nth-child(2) { animation-delay: 0.1s; }
-.medication-details-grid .section-card:nth-child(3) { animation-delay: 0.15s; }
-.medication-details-grid .section-card:nth-child(4) { animation-delay: 0.2s; }
-.medication-details-grid .section-card:nth-child(5) { animation-delay: 0.25s; }
-.medication-details-grid .section-card:nth-child(6) { animation-delay: 0.3s; }
-.medication-details-grid .section-card:nth-child(7) { animation-delay: 0.35s; }
-.medication-details-grid .section-card:nth-child(8) { animation-delay: 0.4s; }
+.medication-details-grid .section-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.medication-details-grid .section-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.medication-details-grid .section-card:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.medication-details-grid .section-card:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.medication-details-grid .section-card:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.medication-details-grid .section-card:nth-child(6) {
+  animation-delay: 0.3s;
+}
+.medication-details-grid .section-card:nth-child(7) {
+  animation-delay: 0.35s;
+}
+.medication-details-grid .section-card:nth-child(8) {
+  animation-delay: 0.4s;
+}
 
 @media (max-width: 768px) {
   .medication-header {
@@ -3750,7 +3840,7 @@ pre {
   background: #f4f7f5;
   border-radius: 8px;
   border: 1px solid var(--border);
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 0.9rem;
   line-height: 1.6;
 }
@@ -3842,21 +3932,21 @@ pre {
   .loading-content .step-item--full {
     /* No longer needed */
   }
-  
+
   .progress-bar-container {
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
   }
-  
+
   .progress-text {
     text-align: center;
   }
-  
+
   .step-list {
     gap: 0.5rem;
   }
-  
+
   .step-item {
     padding: 0.75rem 1rem;
   }

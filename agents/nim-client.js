@@ -58,7 +58,14 @@ function buildRequestBody({
   return requestBody;
 }
 
-async function callResponses({ instructions, content, schemaName, schema, maxTokens, temperatureNudge }) {
+async function callResponses({
+  instructions,
+  content,
+  schemaName,
+  schema,
+  maxTokens,
+  temperatureNudge
+}) {
   if (!config.apiKey) {
     const error = new Error("NVIDIA_API_KEY is not configured");
     error.statusCode = 500;
@@ -103,7 +110,15 @@ async function callResponses({ instructions, content, schemaName, schema, maxTok
   throw unreachable;
 }
 
-async function callResponsesOnce({ instructions, content, schemaName, schema, maxTokens, temperatureNudge, attempt }) {
+async function callResponsesOnce({
+  instructions,
+  content,
+  schemaName,
+  schema,
+  maxTokens,
+  temperatureNudge,
+  attempt
+}) {
   const requestBody = buildRequestBody({
     instructions,
     content,
@@ -113,6 +128,12 @@ async function callResponsesOnce({ instructions, content, schemaName, schema, ma
     temperatureNudge
   });
   const started = Date.now();
+  const controller = new AbortController();
+  const timeoutMs = Math.max(
+    1000,
+    Number(config.nimRequestTimeoutMs || config.agentTimeoutMs || 90000)
+  );
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   log.info("nim", "request", {
     schema: schemaName,
     model: config.model,
@@ -120,16 +141,77 @@ async function callResponsesOnce({ instructions, content, schemaName, schema, ma
     attempt,
     images: content.filter((part) => part.type === "input_image").length
   });
-  const apiResponse = await fetch(`${config.baseUrl}/responses`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${config.apiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(requestBody)
-  });
+  let apiResponse;
+  try {
+    apiResponse = await fetch(`${config.baseUrl}/responses`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${config.apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(requestBody),
+      signal: controller.signal
+    });
+  } catch (error) {
+    clearTimeout(timeout);
+    const durationMs = Date.now() - started;
+    if (controller.signal.aborted) {
+      log.error("nim", "request timed out", {
+        schema: schemaName,
+        durationMs,
+        timeoutMs
+      });
+      return {
+        ok: false,
+        retryable: false,
+        statusCode: 504,
+        errorMessage: "NVIDIA NIM request timed out",
+        detail: `No response after ${timeoutMs}ms`
+      };
+    }
+    log.error("nim", "request failed before response", {
+      schema: schemaName,
+      durationMs,
+      message: error.message
+    });
+    return {
+      ok: false,
+      retryable: false,
+      statusCode: 502,
+      errorMessage: "NVIDIA NIM request failed",
+      detail: error.message
+    };
+  }
 
-  const responseText = await apiResponse.text();
+  let responseText;
+  try {
+    responseText = await apiResponse.text();
+  } catch (error) {
+    const durationMs = Date.now() - started;
+    if (controller.signal.aborted) {
+      log.error("nim", "response body timed out", {
+        schema: schemaName,
+        durationMs,
+        timeoutMs
+      });
+      return {
+        ok: false,
+        retryable: false,
+        statusCode: 504,
+        errorMessage: "NVIDIA NIM response timed out",
+        detail: `No complete response after ${timeoutMs}ms`
+      };
+    }
+    return {
+      ok: false,
+      retryable: false,
+      statusCode: 502,
+      errorMessage: "NVIDIA NIM response failed",
+      detail: error.message
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
   let apiPayload;
   try {
     apiPayload = JSON.parse(responseText);

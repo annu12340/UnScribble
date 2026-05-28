@@ -1,18 +1,15 @@
-import { 
+import {
   addMedicationToGoogleCalendar,
   parseMedicationSchedule,
   isGoogleSignedIn,
   signOutGoogle,
   getGoogleUserInfo
-} from "./medication-schedule.js";
-import {
-  loadMechanismSidebar,
-  mechanismSidebarElements,
-} from "./mechanism-sidebar.js";
+} from "../medication/medication-schedule.js";
+import { loadMechanismSidebar, mechanismSidebarElements } from "../medication/mechanism-sidebar.js";
 import {
   renderBodyEffectsForMedication,
-  bodyEffectsPanelElements,
-} from "./body-effects-panel.js";
+  bodyEffectsPanelElements
+} from "../medication/body-effects-panel.js";
 
 /** Change this to test another drug in the demo database (e.g. lisinopril, metformin, ibuprofen). */
 const DEMO_MEDICATION_NAME = "Amoxicillin";
@@ -33,7 +30,7 @@ const DEMO_MEDICATION = {
   administration_notes: "Complete the full course even if you feel better.",
   raw_text: "Amox 500mg cap i tab po tds x7d",
   safety_flags: [],
-  alternatives: [],
+  alternatives: []
 };
 
 const state = {
@@ -83,7 +80,7 @@ const els = {
   startDateInput: document.querySelector("#startDateInput"),
   mechanism: mechanismSidebarElements(),
   bodyEffects: bodyEffectsPanelElements(),
-  demoBanner: document.querySelector("#demoBanner"),
+  demoBanner: document.querySelector("#demoBanner")
 };
 
 let toastTimer = null;
@@ -140,18 +137,18 @@ async function loadGoogleConfig() {
   try {
     const response = await fetch("/api/config");
     const config = await response.json();
-    
+
     if (config.googleCalendar && config.googleCalendar.enabled) {
       state.googleCalendarConfig = {
         clientId: config.googleCalendar.clientId,
         enabled: true
       };
-      
+
       if (isGoogleSignedIn()) {
         updateGoogleSignInUI();
       }
     } else {
-      els.addToCalendarBtn.style.display = 'none';
+      els.addToCalendarBtn.style.display = "none";
     }
   } catch (error) {
     console.error("Error loading Google config:", error);
@@ -168,29 +165,30 @@ function bindEvents() {
 function updateGoogleSignInUI() {
   const userInfo = getGoogleUserInfo();
   if (userInfo && els.modalBody) {
-    const signedInHTML = `
-      <div class="google-signed-in">
-        <div class="google-user-info">
-          <img src="${escapeHtml(userInfo.imageUrl)}" alt="${escapeHtml(userInfo.name)}" class="google-avatar" />
-          <div>
-            <div class="google-user-name">${escapeHtml(userInfo.name)}</div>
-            <div class="google-user-email">${escapeHtml(userInfo.email)}</div>
-          </div>
-        </div>
-        <button class="btn ghost small" id="signOutBtn">Sign Out</button>
-      </div>
-    `;
-    
-    const container = els.modalBody.querySelector('.google-auth-container');
+    const container = els.modalBody.querySelector(".google-auth-container");
     if (container) {
-      container.innerHTML = signedInHTML;
-      const signOutBtn = container.querySelector('#signOutBtn');
-      if (signOutBtn) {
-        signOutBtn.addEventListener('click', async () => {
-          await signOutGoogle();
-          location.reload();
-        });
-      }
+      const wrapper = createElement("div", "google-signed-in");
+      const user = createElement("div", "google-user-info");
+      const avatar = createElement("img", "google-avatar");
+      avatar.src = userInfo.imageUrl || "";
+      avatar.alt = userInfo.name || "Google user";
+      const textWrap = document.createElement("div");
+      textWrap.append(
+        createElement("div", "google-user-name", userInfo.name || ""),
+        createElement("div", "google-user-email", userInfo.email || "")
+      );
+      user.append(avatar, textWrap);
+
+      const signOutBtn = createElement("button", "btn ghost small", "Sign Out");
+      signOutBtn.id = "signOutBtn";
+      signOutBtn.type = "button";
+      signOutBtn.addEventListener("click", async () => {
+        await signOutGoogle();
+        location.reload();
+      });
+
+      wrapper.append(user, signOutBtn);
+      container.replaceChildren(wrapper);
     }
   }
 }
@@ -211,17 +209,22 @@ function loadMedicationData() {
   const forceDemo = params.get("demo") === "1";
   const storedData = sessionStorage.getItem("selectedMedication");
 
-  if (!storedData || forceDemo) {
+  if (forceDemo) {
     state.medication = buildDemoMedication(medOverride);
     els.noDataState.hidden = true;
     els.medicationDetailsContent.hidden = false;
     if (els.demoBanner) {
       els.demoBanner.hidden = false;
-      els.demoBanner.textContent = forceDemo
-        ? `Demo mode — showing hardcoded data for “${state.medication.medication_name}”. Remove ?demo=1 to use results from session.`
-        : `Demo mode — no medication in session. Showing “${state.medication.medication_name}”. Pick one from Results, or use ?med=ibuprofen`;
+      els.demoBanner.textContent = `Demo mode — showing hardcoded data for "${state.medication.medication_name}". Remove ?demo=1 to use results from session.`;
     }
     renderMedicationDetails();
+    return;
+  }
+
+  if (!storedData) {
+    state.medication = null;
+    els.noDataState.hidden = false;
+    els.medicationDetailsContent.hidden = true;
     return;
   }
 
@@ -264,67 +267,77 @@ function renderMedicationDetails() {
   els.medFrequency.textContent = frequency || "—";
   els.medDuration.textContent = med.duration || "—";
   els.medRoute.textContent = route || "—";
-  
+
   // Administration
   const adminText = [med.administration_notes, med.instructions].filter(Boolean).join(". ");
   if (adminText) {
-    els.medAdministration.innerHTML = `<p>${escapeHtml(adminText)}</p>`;
+    els.medAdministration.replaceChildren(createElement("p", "", adminText));
   }
-  
+
   // Schedule
   const schedules = parseMedicationSchedule([med]);
   if (schedules.length > 0) {
     state.schedule = schedules[0];
     renderSchedule(state.schedule);
   }
-  
+
   // Additional Information
   els.medQuantity.textContent = med.quantity || "—";
   els.medRefills.textContent = med.refills || "—";
   els.medTiming.textContent = med.timing || "—";
-  
+
   const confidence = Math.round(Number(med.confidence || 0) * 100);
   els.medConfidence.textContent = med.confidence != null ? `${confidence}%` : "—";
   if (els.medConfidenceWrap) {
     els.medConfidenceWrap.classList.toggle("is-low", confidence > 0 && confidence < 75);
     els.medConfidenceWrap.classList.toggle("is-high", confidence >= 75);
   }
-  
+
   // Sig
   if (med.sig) {
-    els.medSig.innerHTML = `<p>${escapeHtml(med.sig)}</p>`;
+    els.medSig.replaceChildren(createElement("p", "", med.sig));
     els.sigSection.hidden = false;
   } else {
     els.sigSection.hidden = true;
   }
-  
+
   // Warnings
   const warnings = (med.safety_flags || [])
     .concat((med.critical_uncertainties || []).map((item) => `Uncertain: ${item}`))
     .concat((med.uncertain_tokens || []).map((item) => `Token to verify: ${item}`))
     .concat(med.requires_verification ? ["Human verification required for this medication."] : []);
-  
+
   if (warnings.length > 0) {
-    els.medWarnings.innerHTML = warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("");
+    els.medWarnings.replaceChildren(...warnings.map((warning) => createElement("li", "", warning)));
     els.warningsSection.hidden = false;
   } else {
+    els.medWarnings.replaceChildren();
     els.warningsSection.hidden = true;
   }
-  
+
   // Alternatives
-  const alternatives = (med.alternatives || []);
+  const alternatives = med.alternatives || [];
   if (alternatives.length > 0) {
-    els.medAlternatives.innerHTML = alternatives
-      .map((alt) => `<li>${escapeHtml(alt.text)} (${Math.round(Number(alt.confidence || 0) * 100)}%) — ${escapeHtml(alt.reason)}</li>`)
-      .join("");
+    els.medAlternatives.replaceChildren(
+      ...alternatives.map((alt) =>
+        createElement(
+          "li",
+          "",
+          `${alt.text || ""} (${Math.round(Number(alt.confidence || 0) * 100)}%) - ${
+            alt.reason || ""
+          }`
+        )
+      )
+    );
     els.alternativesSection.hidden = false;
   } else {
+    els.medAlternatives.replaceChildren();
     els.alternativesSection.hidden = true;
   }
-  
+
   const rawDetails = document.querySelector(".med-details-raw");
   if (med.raw_text) {
-    els.medRawText.innerHTML = `<p>${escapeHtml(med.raw_text)}</p>`;
+    els.medRawText.replaceChildren(createElement("p", "", med.raw_text));
     if (rawDetails) rawDetails.hidden = false;
   } else if (rawDetails) {
     rawDetails.hidden = true;
@@ -341,50 +354,57 @@ function renderHeroChips({ dose, frequency, route, duration }) {
     { label: "Dose", value: dose },
     { label: "Frequency", value: frequency },
     { label: "Route", value: route },
-    { label: "Duration", value: duration },
+    { label: "Duration", value: duration }
   ].filter((chip) => chip.value);
 
   if (chips.length === 0) {
-    els.medHeroChips.innerHTML = "";
+    els.medHeroChips.replaceChildren();
     els.medHeroChips.hidden = true;
     return;
   }
 
   els.medHeroChips.hidden = false;
-  els.medHeroChips.innerHTML = chips
-    .map(
-      (chip) => `<span class="med-hero-chip">
-        <span class="med-hero-chip-label">${escapeHtml(chip.label)}</span>
-        <span class="med-hero-chip-value">${escapeHtml(chip.value)}</span>
-      </span>`
-    )
-    .join("");
+  els.medHeroChips.replaceChildren(
+    ...chips.map((chip) => {
+      const item = createElement("span", "med-hero-chip");
+      item.append(
+        createElement("span", "med-hero-chip-label", chip.label),
+        createElement("span", "med-hero-chip-value", chip.value)
+      );
+      return item;
+    })
+  );
 }
 
 function renderSchedule(schedule) {
   if (!schedule.schedule.times || schedule.schedule.times.length === 0) {
-    els.medScheduleTimes.innerHTML =
-      '<p class="schedule-empty">No schedule times parsed — check frequency on the prescription.</p>';
+    els.medScheduleTimes.replaceChildren(
+      createElement(
+        "p",
+        "schedule-empty",
+        "No schedule times parsed - check frequency on the prescription."
+      )
+    );
     return;
   }
-  
-  const timesHtml = schedule.schedule.times
-    .map((t) => {
+
+  els.medScheduleTimes.replaceChildren(
+    ...schedule.schedule.times.map((t) => {
       const timeDisplay = t.time || t.label;
-      return `<div class="schedule-time">
-        <span class="time-badge">${escapeHtml(timeDisplay)}</span>
-        <span class="time-label">${escapeHtml(t.label)}</span>
-      </div>`;
+      const item = createElement("div", "schedule-time");
+      item.append(
+        createElement("span", "time-badge", timeDisplay),
+        createElement("span", "time-label", t.label)
+      );
+      return item;
     })
-    .join("");
-  
-  els.medScheduleTimes.innerHTML = timesHtml;
-  
+  );
+
   if (schedule.duration) {
     els.medScheduleDuration.textContent = `Duration: ${schedule.duration}`;
-    els.medScheduleDuration.style.display = 'block';
+    els.medScheduleDuration.style.display = "block";
   } else {
-    els.medScheduleDuration.style.display = 'none';
+    els.medScheduleDuration.style.display = "none";
   }
 }
 
@@ -426,7 +446,7 @@ async function confirmCalendarSetup() {
       startDate,
       state.googleCalendarConfig.clientId
     );
-    
+
     showToast(`✓ Added ${state.schedule.medication} to Google Calendar`);
     updateGoogleSignInUI();
   } catch (error) {
@@ -443,11 +463,9 @@ function showToast(message) {
   toastTimer = setTimeout(() => els.toast.classList.remove("is-visible"), 2400);
 }
 
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+function createElement(tagName, className = "", text = "") {
+  const element = document.createElement(tagName);
+  if (className) element.className = className;
+  if (text !== "") element.textContent = String(text);
+  return element;
 }

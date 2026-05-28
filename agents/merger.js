@@ -130,7 +130,10 @@ function formatMedicationBullet(med) {
   if (!med) return "";
   const name = String(med.medication_name || "").trim();
   if (!name) return "";
-  const head = [name, med.strength, med.form].map((s) => String(s || "").trim()).filter(Boolean).join(" ");
+  const head = [name, med.strength, med.form]
+    .map((s) => String(s || "").trim())
+    .filter(Boolean)
+    .join(" ");
   const timing =
     (med.normalized_frequency && med.normalized_frequency.timing) ||
     med.timing ||
@@ -138,7 +141,10 @@ function formatMedicationBullet(med) {
     "";
   const sig = String(med.sig || "").trim();
   const duration = String(med.duration || "").trim();
-  const tail = [timing, sig, duration].map((s) => String(s || "").trim()).filter(Boolean).join(", ");
+  const tail = [timing, sig, duration]
+    .map((s) => String(s || "").trim())
+    .filter(Boolean)
+    .join(", ");
   return tail ? `${head}: ${tail}` : head;
 }
 

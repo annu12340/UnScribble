@@ -10,10 +10,15 @@
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css" />
-    <link rel="stylesheet" href="/rx-quirky.css" />
-    <link rel="stylesheet" href="/medication-details.css" />
-    <script src="https://apis.google.com/js/api.js"></script>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/rx-quirky.css" />
+    <link rel="stylesheet" href="/css/medication-details.css" />
+    <link
+      rel="preload"
+      href="https://prod.spline.design/0eI7JO23zWEe8FiA/scene.splinecode"
+      as="fetch"
+      crossorigin
+    />
   </head>
   <body class="results-page rx-app medication-details-page">
     <div class="app-shell med-shell">
@@ -21,8 +26,13 @@
         <a href="/landing.html" class="brand brand-link">
           <div class="brand-mark rx-logo" aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-              <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="28" cy="26" r="3" fill="white"/>
+              <path
+                d="M12 14h16M12 20h16M12 26h10"
+                stroke="white"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+              <circle cx="28" cy="26" r="3" fill="white" />
             </svg>
           </div>
           <div>
@@ -32,8 +42,15 @@
         </a>
         <div class="result-header-actions">
           <a href="/results.html" class="btn ghost">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
             Back to Results
           </a>
@@ -42,24 +59,37 @@
 
       <main class="med-main">
         <div class="med-main-inner">
-
           <nav class="med-progress" aria-label="Workflow progress">
             <div class="progress-steps">
               <div class="progress-line">
-                <div class="progress-line-fill" style="width: 100%;"></div>
+                <div class="progress-line-fill" style="width: 100%"></div>
               </div>
               <div class="progress-step completed">
                 <div class="step-circle">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12"/>
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </div>
                 <span class="step-label">Upload</span>
               </div>
               <div class="progress-step completed">
                 <div class="step-circle">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12"/>
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </div>
                 <span class="step-label">Process</span>
@@ -94,7 +124,9 @@
                   <p class="med-hero-eyebrow">Medication profile</p>
                   <h2 class="med-hero-title" id="medName">Medication Name</h2>
                   <p class="medication-meta" id="medMeta">
-                    <span id="medStrength"></span><span class="meta-sep" id="medMetaSep" aria-hidden="true"> · </span><span id="medForm"></span>
+                    <span id="medStrength"></span
+                    ><span class="meta-sep" id="medMetaSep" aria-hidden="true"> · </span
+                    ><span id="medForm"></span>
                   </p>
                 </div>
                 <div class="med-hero-aside">
@@ -103,9 +135,16 @@
                     <span class="med-confidence-value" id="medConfidence">—</span>
                   </div>
                   <button class="btn primary" id="addToCalendarBtn" type="button">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2"/>
-                      <path d="M16 2v4M8 2v4M3 10h18"/>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <rect x="3" y="4" width="18" height="18" rx="2" />
+                      <path d="M16 2v4M8 2v4M3 10h18" />
                     </svg>
                     Add to Calendar
                   </button>
@@ -141,93 +180,117 @@
 
               <div class="med-page-main">
                 <div class="med-dashboard">
-
-                  <section class="med-page-section" id="section-overview" aria-labelledby="overview-heading">
+                  <section
+                    class="med-page-section"
+                    id="section-overview"
+                    aria-labelledby="overview-heading"
+                  >
                     <h2 id="overview-heading" class="med-section-title">Overview</h2>
 
                     <div class="med-overview-stack">
-                      <div class="med-stats-band" id="section-dosage" aria-labelledby="dosage-heading">
+                      <div
+                        class="med-stats-band"
+                        id="section-dosage"
+                        aria-labelledby="dosage-heading"
+                      >
                         <h3 id="dosage-heading" class="med-subsection-title">Dosage at a glance</h3>
                         <div class="med-stats-grid">
-                  <div class="med-stat">
-                    <span class="med-stat-label">Dose</span>
-                    <span class="med-stat-value" id="medDose">—</span>
-                  </div>
-                  <div class="med-stat">
-                    <span class="med-stat-label">Frequency</span>
-                    <span class="med-stat-value" id="medFrequency">—</span>
-                  </div>
-                  <div class="med-stat">
-                    <span class="med-stat-label">Duration</span>
-                    <span class="med-stat-value" id="medDuration">—</span>
-                  </div>
-                  <div class="med-stat">
-                    <span class="med-stat-label">Route</span>
-                    <span class="med-stat-value" id="medRoute">—</span>
-                  </div>
+                          <div class="med-stat">
+                            <span class="med-stat-label">Dose</span>
+                            <span class="med-stat-value" id="medDose">—</span>
+                          </div>
+                          <div class="med-stat">
+                            <span class="med-stat-label">Frequency</span>
+                            <span class="med-stat-value" id="medFrequency">—</span>
+                          </div>
+                          <div class="med-stat">
+                            <span class="med-stat-label">Duration</span>
+                            <span class="med-stat-value" id="medDuration">—</span>
+                          </div>
+                          <div class="med-stat">
+                            <span class="med-stat-label">Route</span>
+                            <span class="med-stat-value" id="medRoute">—</span>
+                          </div>
                         </div>
                       </div>
 
                       <div class="med-content-grid">
-                        <section class="med-content-col section-card" id="section-schedule" aria-labelledby="schedule-heading">
-                  <h3 id="schedule-heading" class="med-panel-title">
-                    <span class="subhead-icon" aria-hidden="true">⏱</span>
-                    Daily schedule
-                  </h3>
-                  <div class="schedule-times" id="medScheduleTimes"></div>
-                  <div class="schedule-duration" id="medScheduleDuration"></div>
-                </section>
+                        <section
+                          class="med-content-col section-card"
+                          id="section-schedule"
+                          aria-labelledby="schedule-heading"
+                        >
+                          <h3 id="schedule-heading" class="med-panel-title">
+                            <span class="subhead-icon" aria-hidden="true">⏱</span>
+                            Daily schedule
+                          </h3>
+                          <div class="schedule-times" id="medScheduleTimes"></div>
+                          <div class="schedule-duration" id="medScheduleDuration"></div>
+                        </section>
 
-                <section class="med-content-col section-card" id="section-instructions" aria-labelledby="instructions-heading">
-                  <h3 id="instructions-heading" class="med-panel-title">
-                    <span class="subhead-icon" aria-hidden="true">✓</span>
-                    How to take it
-                  </h3>
-                  <div class="instruction-box" id="medAdministration">
-                    <p>No specific instructions provided.</p>
-                  </div>
+                        <section
+                          class="med-content-col section-card"
+                          id="section-instructions"
+                          aria-labelledby="instructions-heading"
+                        >
+                          <h3 id="instructions-heading" class="med-panel-title">
+                            <span class="subhead-icon" aria-hidden="true">✓</span>
+                            How to take it
+                          </h3>
+                          <div class="instruction-box" id="medAdministration">
+                            <p>No specific instructions provided.</p>
+                          </div>
 
-                  <div class="med-subblock" id="sigSection">
-                    <h4 class="med-subblock-title">Prescription instructions (sig)</h4>
-                    <div class="instruction-box instruction-box--sig" id="medSig">
-                      <p>No sig provided.</p>
-                    </div>
-                  </div>
-                </section>
+                          <div class="med-subblock" id="sigSection">
+                            <h4 class="med-subblock-title">Prescription instructions (sig)</h4>
+                            <div class="instruction-box instruction-box--sig" id="medSig">
+                              <p>No sig provided.</p>
+                            </div>
+                          </div>
+                        </section>
 
-                <section class="med-content-col section-card med-content-col--wide" id="section-details" aria-labelledby="details-heading">
-                  <h3 id="details-heading" class="med-panel-title">
-                    <span class="subhead-icon" aria-hidden="true">+</span>
-                    Prescription details
-                  </h3>
-                  <div class="med-details-mini-grid">
-                    <div class="med-detail-pill">
-                      <span class="med-detail-pill-label">Quantity</span>
-                      <span class="med-detail-pill-value" id="medQuantity">—</span>
-                    </div>
-                    <div class="med-detail-pill">
-                      <span class="med-detail-pill-label">Refills</span>
-                      <span class="med-detail-pill-value" id="medRefills">—</span>
-                    </div>
-                    <div class="med-detail-pill">
-                      <span class="med-detail-pill-label">Timing</span>
-                      <span class="med-detail-pill-value" id="medTiming">—</span>
-                    </div>
-                  </div>
+                        <section
+                          class="med-content-col section-card med-content-col--wide"
+                          id="section-details"
+                          aria-labelledby="details-heading"
+                        >
+                          <h3 id="details-heading" class="med-panel-title">
+                            <span class="subhead-icon" aria-hidden="true">+</span>
+                            Prescription details
+                          </h3>
+                          <div class="med-details-mini-grid">
+                            <div class="med-detail-pill">
+                              <span class="med-detail-pill-label">Quantity</span>
+                              <span class="med-detail-pill-value" id="medQuantity">—</span>
+                            </div>
+                            <div class="med-detail-pill">
+                              <span class="med-detail-pill-label">Refills</span>
+                              <span class="med-detail-pill-value" id="medRefills">—</span>
+                            </div>
+                            <div class="med-detail-pill">
+                              <span class="med-detail-pill-label">Timing</span>
+                              <span class="med-detail-pill-value" id="medTiming">—</span>
+                            </div>
+                          </div>
 
-                  <details class="med-details-raw">
-                    <summary class="med-details-raw-summary">
-                      <span class="subhead-icon" aria-hidden="true">¶</span>
-                      View raw prescription text
-                    </summary>
-                    <div class="raw-text-box" id="medRawText">
-                      <p>No raw text available.</p>
-                    </div>
-                  </details>
+                          <details class="med-details-raw">
+                            <summary class="med-details-raw-summary">
+                              <span class="subhead-icon" aria-hidden="true">¶</span>
+                              View raw prescription text
+                            </summary>
+                            <div class="raw-text-box" id="medRawText">
+                              <p>No raw text available.</p>
+                            </div>
+                          </details>
                         </section>
                       </div>
 
-                      <section class="med-alert section-card med-card--alert" id="warningsSection" hidden aria-labelledby="warnings-heading">
+                      <section
+                        class="med-alert section-card med-card--alert"
+                        id="warningsSection"
+                        hidden
+                        aria-labelledby="warnings-heading"
+                      >
                         <h3 id="warnings-heading" class="med-panel-title">
                           <span class="subhead-icon" aria-hidden="true">!</span>
                           Safety warnings
@@ -235,7 +298,12 @@
                         <ul class="warning-list" id="medWarnings"></ul>
                       </section>
 
-                      <section class="med-alert section-card" id="alternativesSection" hidden aria-labelledby="alternatives-heading">
+                      <section
+                        class="med-alert section-card"
+                        id="alternativesSection"
+                        hidden
+                        aria-labelledby="alternatives-heading"
+                      >
                         <h3 id="alternatives-heading" class="med-panel-title">
                           <span class="subhead-icon" aria-hidden="true">?</span>
                           Alternative readings
@@ -245,64 +313,91 @@
                     </div>
                   </section>
 
-                  <section class="med-page-section" id="section-body" aria-labelledby="body-heading">
+                  <section
+                    class="med-page-section"
+                    id="section-body"
+                    aria-labelledby="body-heading"
+                  >
                     <h2 id="body-heading" class="med-section-title">Where it acts</h2>
-                    <article class="med-panel med-panel--body section-card body-effects-panel" id="bodyEffectsPanel">
-                  <header class="med-panel-head">
-                    <span class="sticker sticker-tilt-right">body map</span>
-                    <h3 class="med-panel-title">
-                      <span class="subhead-icon" aria-hidden="true">◎</span>
-                      Body areas affected
-                    </h3>
-                  </header>
-                  <p class="body-effects-disclaimer">Educational illustration only — not medical advice.</p>
-                  <div class="body-effects-layout body-effects-layout--wide">
-                    <div id="bodyEffectsMap" class="body-effects-map" aria-label="Body map of affected regions"></div>
-                    <div class="body-effects-copy">
-                      <p id="bodyEffectsSummary" class="body-effects-summary">—</p>
-                      <ul id="bodyEffectsOrgans" class="body-effects-organs"></ul>
-                    </div>
-                  </div>
+                    <article
+                      class="med-panel med-panel--body section-card body-effects-panel"
+                      id="bodyEffectsPanel"
+                    >
+                      <header class="med-panel-head">
+                        <span class="sticker sticker-tilt-right">3d scan</span>
+                        <h3 class="med-panel-title">
+                          <span class="subhead-icon" aria-hidden="true">◎</span>
+                          Body areas affected
+                        </h3>
+                      </header>
+                      <p class="body-effects-disclaimer">
+                        Educational illustration only — not medical advice.
+                      </p>
+                      <div class="body-effects-layout body-effects-layout--wide">
+                        <div
+                          id="bodyEffectsMap"
+                          class="body-effects-map body-effects-map--spline"
+                          aria-label="Interactive 3D human body scan with affected region legend"
+                        ></div>
+                        <div class="body-effects-copy">
+                          <p id="bodyEffectsSummary" class="body-effects-summary">—</p>
+                          <ul id="bodyEffectsOrgans" class="body-effects-organs"></ul>
+                        </div>
+                      </div>
                     </article>
                   </section>
 
-                  <section class="med-page-section" id="section-mechanism" aria-labelledby="mechanism-heading">
+                  <section
+                    class="med-page-section"
+                    id="section-mechanism"
+                    aria-labelledby="mechanism-heading"
+                  >
                     <h2 id="mechanism-heading" class="med-section-title">How it works</h2>
-                    <article class="med-panel med-panel--mechanism section-card mechanism-sidebar" id="mechanismSidebar" hidden>
-                  <header class="med-panel-head">
-                    <span class="sticker sticker-tilt-right">3d mode</span>
-                    <h3 class="med-panel-title mechanism-sidebar-title">
-                      <span class="subhead-icon" aria-hidden="true">⬡</span>
-                      <span id="mechanismSidebarTitle">Molecular mechanism</span>
-                    </h3>
-                  </header>
-                  <p class="mechanism-sidebar-target" id="mechanismTargetProtein">Loading…</p>
-                  <div class="mechanism-layout">
-                    <div id="mechanismSidebarViewer" class="mechanism-sidebar-viewer" aria-label="3D protein structure preview"></div>
-                    <div class="mechanism-blocks">
-                      <div class="mechanism-sidebar-block mechanism-sidebar-block--binding">
-                        <h4>Binding site</h4>
-                        <p id="mechanismBindingSite">—</p>
+                    <article
+                      class="med-panel med-panel--mechanism section-card mechanism-sidebar"
+                      id="mechanismSidebar"
+                      hidden
+                    >
+                      <header class="med-panel-head">
+                        <span class="sticker sticker-tilt-right">3d mode</span>
+                        <h3 class="med-panel-title mechanism-sidebar-title">
+                          <span class="subhead-icon" aria-hidden="true">⬡</span>
+                          <span id="mechanismSidebarTitle">Molecular mechanism</span>
+                        </h3>
+                      </header>
+                      <p class="mechanism-sidebar-target" id="mechanismTargetProtein">Loading…</p>
+                      <div class="mechanism-layout">
+                        <div
+                          id="mechanismSidebarViewer"
+                          class="mechanism-sidebar-viewer"
+                          aria-label="3D protein structure preview"
+                        ></div>
+                        <div class="mechanism-blocks">
+                          <div class="mechanism-sidebar-block mechanism-sidebar-block--binding">
+                            <h4>Binding site</h4>
+                            <p id="mechanismBindingSite">—</p>
+                          </div>
+                          <div class="mechanism-sidebar-block mechanism-sidebar-block--action">
+                            <h4>Mechanism</h4>
+                            <p id="mechanismAction">—</p>
+                          </div>
+                          <div class="mechanism-sidebar-block mechanism-sidebar-block--effect">
+                            <h4>Clinical effect</h4>
+                            <p id="mechanismEffect">—</p>
+                          </div>
+                        </div>
                       </div>
-                      <div class="mechanism-sidebar-block mechanism-sidebar-block--action">
-                        <h4>Mechanism</h4>
-                        <p id="mechanismAction">—</p>
-                      </div>
-                      <div class="mechanism-sidebar-block mechanism-sidebar-block--effect">
-                        <h4>Clinical effect</h4>
-                        <p id="mechanismEffect">—</p>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mechanism-sidebar-caption">Drag to rotate · scroll to zoom</p>
-                  <p class="mechanism-sidebar-fallback" id="mechanismFallbackNote" hidden></p>
+                      <p class="mechanism-sidebar-caption">Drag to rotate · scroll to zoom</p>
+                      <p class="mechanism-sidebar-fallback" id="mechanismFallbackNote" hidden></p>
                     </article>
                   </section>
-
                 </div>
 
                 <footer class="med-page-footer">
-                  <p>Educational transcription aid only — not for clinical decisions. Verify with your pharmacist or prescriber.</p>
+                  <p>
+                    Educational transcription aid only — not for clinical decisions. Verify with
+                    your pharmacist or prescriber.
+                  </p>
                 </footer>
               </div>
             </div>
@@ -319,8 +414,15 @@
         <div class="modal-header">
           <h3>Add to Google Calendar</h3>
           <button class="modal-close" id="modalClose" aria-label="Close">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 6L6 18M6 6l12 12"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
         </div>
@@ -328,9 +430,16 @@
           <div class="google-auth-container">
             <p>Sign in with your Google account to add medication reminders to your calendar.</p>
             <div class="google-sign-in-info">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4M12 8h.01"/>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4M12 8h.01" />
               </svg>
               <span>You'll be asked to grant calendar access permissions</span>
             </div>
@@ -344,9 +453,16 @@
         <div class="modal-footer">
           <button class="btn ghost" id="modalCancel">Cancel</button>
           <button class="btn primary" id="modalConfirm">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              <path d="M9 10h.01M15 10h.01M9.5 15a3.5 3.5 0 005 0"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path d="M9 10h.01M15 10h.01M9.5 15a3.5 3.5 0 005 0" />
             </svg>
             Sign in & Add to Calendar
           </button>
@@ -354,9 +470,6 @@
       </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="/protein-viewer.js"></script>
-    <script type="module" src="/medication-details.js"></script>
+    <script type="module" src="/js/pages/medication-details.js"></script>
   </body>
 </html>

@@ -1,456 +1,637 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UnScribble - Your Prescription Translator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Nothing+You+Could+Do&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/landing.css">
-</head>
-<body>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Nothing+You+Could+Do&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/landing.css" />
+  </head>
+  <body>
     <!-- Progress Indicator -->
     <div class="story-progress">
-        <div class="progress-bar"></div>
+      <div class="progress-bar"></div>
     </div>
 
     <!-- Navigation -->
     <nav class="nav">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
-                    <rect width="40" height="40" rx="10" fill="url(#logo-gradient)"/>
-                    <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                    <circle cx="28" cy="26" r="3" fill="white"/>
-                    <defs>
-                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="40" y2="40">
-                            <stop offset="0%" stop-color="#059669"/>
-                            <stop offset="100%" stop-color="#0d9488"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-                <span>UnScribble</span>
-            </div>
-            <div class="nav-links">
-                <a href="/upload.html" class="btn-nav">Try it now</a>
-            </div>
+      <div class="nav-container">
+        <div class="nav-logo">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="10" fill="url(#logo-gradient)" />
+            <path
+              d="M12 14h16M12 20h16M12 26h10"
+              stroke="white"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+            <circle cx="28" cy="26" r="3" fill="white" />
+            <defs>
+              <linearGradient id="logo-gradient" x1="0" y1="0" x2="40" y2="40">
+                <stop offset="0%" stop-color="#059669" />
+                <stop offset="100%" stop-color="#0d9488" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <span>UnScribble</span>
         </div>
+        <div class="nav-links">
+          <a href="/upload.html" class="btn-nav">Try it now</a>
+        </div>
+      </div>
     </nav>
 
     <!-- Chapter 1: The Problem -->
     <section class="chapter chapter-1" data-chapter="1">
-        <div class="chapter-container">
-            <div class="chapter-content">
-                <span class="sticker sticker-tilt-left">★ a tiny story</span>
-                <div class="chapter-label">Chapter 1</div>
-                <h1 class="chapter-title">
-                    Picture this:<br/>
-                    You're holding a <span class="highlight">prescription<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
-                </h1>
-                <p class="chapter-text">
-                    The doctor handed it to you with a reassuring smile. "Take this twice daily," they said. 
-                    Simple enough, right?
-                </p>
-                <p class="chapter-text">
-                    You look down at the paper. The handwriting looks like it was written during an earthquake. 
-                    By a chicken. Wearing mittens.
-                </p>
-            </div>
-            <div class="chapter-visual">
-                <div class="prescription-demo" id="prescriptionDemo">
-                    <div class="prescription-paper">
-                        <div class="prescription-header">
-                            <div class="doctor-info">
-                                <div class="doctor-name">Dr. Smith</div>
-                                <div class="doctor-details">General Practitioner</div>
-                            </div>
-                        </div>
-                        <div class="prescription-body prescription-hand" aria-label="Illegible handwritten prescription example">
-                            <div class="rx-pad-lines" aria-hidden="true"></div>
-                            <div class="handwriting-content" id="handwritingContent">
-                                <p class="hand-line hand-line-1">
-                                    <span class="rx-mark" style="--d:0">℞</span>
-                                    <span class="hand-scrawl scrawl-pos-a" style="--d:1">Amox</span>
-                                    <span class="hand-scrawl scrawl-pos-b" style="--d:2">ciln</span>
-                                    <span class="hand-scrawl scrawl-pos-c" style="--d:3">5O0</span>
-                                    <span class="hand-scrawl scrawl-pos-d" style="--d:4">mg</span>
-                                </p>
-                                <p class="hand-line hand-line-2">
-                                    <span class="hand-scrawl scrawl-pos-e" style="--d:5">iitab</span>
-                                    <span class="hand-scrawl scrawl-pos-f" style="--d:6">po</span>
-                                    <span class="hand-scrawl scrawl-pos-g" style="--d:7">tds</span>
-                                    <span class="hand-scrawl scrawl-pos-h" style="--d:8">×7d</span>
-                                </p>
-                                <p class="hand-line hand-line-3">
-                                    <span class="hand-scrawl scrawl-pos-i" style="--d:9">Ibupr</span>
-                                    <span class="hand-scrawl scrawl-pos-j" style="--d:10">ofin</span>
-                                    <span class="hand-scrawl scrawl-pos-k" style="--d:11">4OO</span>
-                                    <span class="hand-scrawl scrawl-pos-l" style="--d:12">PRN</span>
-                                </p>
-                                <p class="hand-line hand-line-4">
-                                    <span class="hand-scrawl scrawl-pos-m" style="--d:13">???</span>
-                                    <span class="hand-scrawl scrawl-pos-n" style="--d:14">w/</span>
-                                    <span class="hand-scrawl scrawl-pos-o" style="--d:15">meals</span>
-                                </p>
-                                <p class="hand-line hand-line-sig">
-                                    <span class="hand-scrawl hand-scrawl--sig scrawl-pos-p" style="--d:16">Dr</span>
-                                    <span class="hand-scrawl hand-scrawl--sig scrawl-pos-q" style="--d:17">Smith</span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+      <div class="chapter-container">
+        <div class="chapter-content">
+          <span class="sticker sticker-tilt-left">★ a tiny story</span>
+          <div class="chapter-label">Chapter 1</div>
+          <h1 class="chapter-title">
+            Picture this:<br />
+            You're holding a
+            <span class="highlight"
+              >prescription<svg
+                class="squiggle-underline"
+                viewBox="0 0 220 12"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                /></svg
+            ></span>
+          </h1>
+          <p class="chapter-text">
+            The doctor handed it to you with a reassuring smile. "Take this twice daily," they said.
+            Simple enough, right?
+          </p>
+          <p class="chapter-text">
+            You look down at the paper. The handwriting looks like it was written during an
+            earthquake. By a chicken. Wearing mittens.
+          </p>
+        </div>
+        <div class="chapter-visual">
+          <div class="prescription-demo" id="prescriptionDemo">
+            <div class="prescription-paper">
+              <div class="prescription-header">
+                <div class="doctor-info">
+                  <div class="doctor-name">Dr. Smith</div>
+                  <div class="doctor-details">General Practitioner</div>
                 </div>
+              </div>
+              <div
+                class="prescription-body prescription-hand"
+                aria-label="Illegible handwritten prescription example"
+              >
+                <div class="rx-pad-lines" aria-hidden="true"></div>
+                <div class="handwriting-content" id="handwritingContent">
+                  <p class="hand-line hand-line-1">
+                    <span class="rx-mark" style="--d: 0">℞</span>
+                    <span class="hand-scrawl scrawl-pos-a" style="--d: 1">Amox</span>
+                    <span class="hand-scrawl scrawl-pos-b" style="--d: 2">ciln</span>
+                    <span class="hand-scrawl scrawl-pos-c" style="--d: 3">5O0</span>
+                    <span class="hand-scrawl scrawl-pos-d" style="--d: 4">mg</span>
+                  </p>
+                  <p class="hand-line hand-line-2">
+                    <span class="hand-scrawl scrawl-pos-e" style="--d: 5">iitab</span>
+                    <span class="hand-scrawl scrawl-pos-f" style="--d: 6">po</span>
+                    <span class="hand-scrawl scrawl-pos-g" style="--d: 7">tds</span>
+                    <span class="hand-scrawl scrawl-pos-h" style="--d: 8">×7d</span>
+                  </p>
+                  <p class="hand-line hand-line-3">
+                    <span class="hand-scrawl scrawl-pos-i" style="--d: 9">Ibupr</span>
+                    <span class="hand-scrawl scrawl-pos-j" style="--d: 10">ofin</span>
+                    <span class="hand-scrawl scrawl-pos-k" style="--d: 11">4OO</span>
+                    <span class="hand-scrawl scrawl-pos-l" style="--d: 12">PRN</span>
+                  </p>
+                  <p class="hand-line hand-line-4">
+                    <span class="hand-scrawl scrawl-pos-m" style="--d: 13">???</span>
+                    <span class="hand-scrawl scrawl-pos-n" style="--d: 14">w/</span>
+                    <span class="hand-scrawl scrawl-pos-o" style="--d: 15">meals</span>
+                  </p>
+                  <p class="hand-line hand-line-sig">
+                    <span class="hand-scrawl hand-scrawl--sig scrawl-pos-p" style="--d: 16"
+                      >Dr</span
+                    >
+                    <span class="hand-scrawl hand-scrawl--sig scrawl-pos-q" style="--d: 17"
+                      >Smith</span
+                    >
+                  </p>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
-        <div class="scroll-hint">
-            <span>Scroll to continue the story</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 5v14M5 12l7 7 7-7"/>
-            </svg>
-        </div>
+      </div>
+      <div class="scroll-hint">
+        <span>Scroll to continue the story</span>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 5v14M5 12l7 7 7-7" />
+        </svg>
+      </div>
     </section>
 
     <!-- Chapter 2: The Struggle -->
     <section class="chapter chapter-2" data-chapter="2">
-        <div class="chapter-container">
-            <header class="struggle-header">
-                <span class="sticker sticker-tilt-left">been there?</span>
-                <div class="chapter-label">Chapter 2</div>
-                <h2 class="chapter-title struggle-title">
-                    Then you try <span class="highlight">everything</span>
-                </h2>
-                <p class="struggle-intro">Three moves everyone makes—and none of them quite work.</p>
-            </header>
+      <div class="chapter-container">
+        <header class="struggle-header">
+          <span class="sticker sticker-tilt-left">been there?</span>
+          <div class="chapter-label">Chapter 2</div>
+          <h2 class="chapter-title struggle-title">
+            Then you try <span class="highlight">everything</span>
+          </h2>
+          <p class="struggle-intro">Three moves everyone makes—and none of them quite work.</p>
+        </header>
 
-            <ol class="struggle-grid" aria-label="Common ways people try to read a prescription">
-                <li class="struggle-item" data-struggle="1">
-                    <article class="struggle-card">
-                        <span class="struggle-step" aria-hidden="true">01</span>
-                        <div class="struggle-icon" aria-hidden="true">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"/>
-                                <path d="M21 21l-4.35-4.35"/>
-                            </svg>
-                        </div>
-                        <div class="struggle-content">
-                            <h3>You squint</h3>
-                            <p>Maybe if you hold it at a different angle? Nope. Still looks like abstract art.</p>
-                        </div>
-                    </article>
-                </li>
-                <li class="struggle-item" data-struggle="2">
-                    <article class="struggle-card">
-                        <span class="struggle-step" aria-hidden="true">02</span>
-                        <div class="struggle-icon" aria-hidden="true">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="7" width="20" height="15" rx="2"/>
-                                <polyline points="17 2 12 7 7 2"/>
-                            </svg>
-                        </div>
-                        <div class="struggle-content">
-                            <h3>You Google</h3>
-                            <p><q>What does BD mean in prescriptions?</q> <q>Is TDS a real thing or did my doctor invent it?</q></p>
-                        </div>
-                    </article>
-                </li>
-            
-                <li class="struggle-item" data-struggle="3">
-                    <article class="struggle-card">
-                        <span class="struggle-step" aria-hidden="true">03</span>
-                        <div class="struggle-icon" aria-hidden="true">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="12" y1="8" x2="12" y2="12"/>
-                                <line x1="12" y1="16" x2="12.01" y2="16"/>
-                            </svg>
-                        </div>
-                        <div class="struggle-content">
-                            <h3>You guess</h3>
-                            <p>Is that 15mg or 150mg? Does it say <q>twice</q> or <q>thrice</q>? You're playing medical roulette.</p>
-                        </div>
-                    </article>
-                </li>
-            </ol>
+        <ol class="struggle-grid" aria-label="Common ways people try to read a prescription">
+          <li class="struggle-item" data-struggle="1">
+            <article class="struggle-card">
+              <span class="struggle-step" aria-hidden="true">01</span>
+              <div class="struggle-icon" aria-hidden="true">
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" />
+                </svg>
+              </div>
+              <div class="struggle-content">
+                <h3>You squint</h3>
+                <p>
+                  Maybe if you hold it at a different angle? Nope. Still looks like abstract art.
+                </p>
+              </div>
+            </article>
+          </li>
+          <li class="struggle-item" data-struggle="2">
+            <article class="struggle-card">
+              <span class="struggle-step" aria-hidden="true">02</span>
+              <div class="struggle-icon" aria-hidden="true">
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="2" y="7" width="20" height="15" rx="2" />
+                  <polyline points="17 2 12 7 7 2" />
+                </svg>
+              </div>
+              <div class="struggle-content">
+                <h3>You Google</h3>
+                <p>
+                  <q>What does BD mean in prescriptions?</q>
+                  <q>Is TDS a real thing or did my doctor invent it?</q>
+                </p>
+              </div>
+            </article>
+          </li>
 
-            <div class="chapter-conclusion struggle-conclusion">
-                <span class="sticker sticker-tilt-right">oof</span>
-                <h2>Sound familiar?</h2>
-                <p>You're not alone. Millions of people face this every single day.</p>
-            </div>
+          <li class="struggle-item" data-struggle="3">
+            <article class="struggle-card">
+              <span class="struggle-step" aria-hidden="true">03</span>
+              <div class="struggle-icon" aria-hidden="true">
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+              </div>
+              <div class="struggle-content">
+                <h3>You guess</h3>
+                <p>
+                  Is that 15mg or 150mg? Does it say <q>twice</q> or <q>thrice</q>? You're playing
+                  medical roulette.
+                </p>
+              </div>
+            </article>
+          </li>
+        </ol>
+
+        <div class="chapter-conclusion struggle-conclusion">
+          <span class="sticker sticker-tilt-right">oof</span>
+          <h2>Sound familiar?</h2>
+          <p>You're not alone. Millions of people face this every single day.</p>
         </div>
+      </div>
     </section>
 
     <!-- Chapter 3: The Solution -->
     <section class="chapter chapter-3" data-chapter="3">
-        <div class="chapter-container">
-            <span class="sticker sticker-tilt-left">enter the hero</span>
-            <div class="chapter-label">Chapter 3</div>
-            <h2 class="chapter-title">
-                What if there was a <span class="highlight">better way?<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
-            </h2>
-            <p class="chapter-intro">
-                Meet UnScribble. We built an AI that actually understands doctor handwriting. 
-                Not just reads it—understands it.
-            </p>
-           
-            </div>
-       
-        </div>
+      <div class="chapter-container">
+        <span class="sticker sticker-tilt-left">enter the hero</span>
+        <div class="chapter-label">Chapter 3</div>
+        <h2 class="chapter-title">
+          What if there was a
+          <span class="highlight"
+            >better way?<svg
+              class="squiggle-underline"
+              viewBox="0 0 220 12"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+              /></svg
+          ></span>
+        </h2>
+        <p class="chapter-intro">
+          Meet UnScribble. We built an AI that actually understands doctor handwriting. Not just
+          reads it—understands it.
+        </p>
+      </div>
     </section>
 
     <!-- Intermission: Demo Video -->
     <section class="chapter chapter-video" data-chapter="video">
-        <div class="chapter-container">
-         
-            <div class="video-frame" id="videoFrame">
-            
-                <div class="video-corner video-corner--tl"></div>
-                <div class="video-corner video-corner--tr"></div>
-                <div class="video-corner video-corner--bl"></div>
-                <div class="video-corner video-corner--br"></div>
-                <div class="video-tag video-tag--rec">● REC</div>
-                <div class="video-tag video-tag--time" id="videoTimeTag">00:00</div>
+      <div class="chapter-container">
+        <div class="video-frame" id="videoFrame">
+          <div class="video-corner video-corner--tl"></div>
+          <div class="video-corner video-corner--tr"></div>
+          <div class="video-corner video-corner--bl"></div>
+          <div class="video-corner video-corner--br"></div>
+          <div class="video-tag video-tag--rec">● REC</div>
+          <div class="video-tag video-tag--time" id="videoTimeTag">00:00</div>
 
-                <video
-                    class="demo-video"
-                    id="demoVideo"
-                    playsinline
-                    controls
-                    preload="metadata"
-                    poster="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ecfdf5'/%3E%3Cstop offset='1' stop-color='%23f0fdfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1600' height='900' fill='url(%23g)'/%3E%3Cg fill='none' stroke='%2399f6e4' stroke-width='2'%3E%3Ccircle cx='800' cy='450' r='110'/%3E%3Cpolygon points='775,400 775,500 860,450' fill='%23059669' stroke='none'/%3E%3C/g%3E%3C/svg%3E"
-                >
-                    <source src="/demo.mp4" type="video/mp4">
-                </video>
+          <video
+            class="demo-video"
+            id="demoVideo"
+            playsinline
+            controls
+            preload="metadata"
+            poster="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ecfdf5'/%3E%3Cstop offset='1' stop-color='%23f0fdfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1600' height='900' fill='url(%23g)'/%3E%3Cg fill='none' stroke='%2399f6e4' stroke-width='2'%3E%3Ccircle cx='800' cy='450' r='110'/%3E%3Cpolygon points='775,400 775,500 860,450' fill='%23059669' stroke='none'/%3E%3C/g%3E%3C/svg%3E"
+          >
+            <source src="/demo.mp4" type="video/mp4" />
+          </video>
 
-                <div class="video-fallback" id="videoFallback" hidden>
-                    <div class="video-fallback-icon">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <polygon points="23 7 16 12 23 17 23 7"/>
-                            <rect x="1" y="5" width="15" height="14" rx="2"/>
-                        </svg>
-                    </div>
-                    <h3>Demo reel: coming soon</h3>
-                    <p>Drop a <code>demo.mp4</code> in <code>/public</code> and it'll show up here.</p>
-                </div>
+          <div class="video-fallback" id="videoFallback" hidden>
+            <div class="video-fallback-icon">
+              <svg
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <polygon points="23 7 16 12 23 17 23 7" />
+                <rect x="1" y="5" width="15" height="14" rx="2" />
+              </svg>
             </div>
-
-         
+            <h3>Demo reel: coming soon</h3>
+            <p>Drop a <code>demo.mp4</code> in <code>/public</code> and it'll show up here.</p>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Chapter 4: The Magic -->
     <section class="chapter chapter-4" data-chapter="4">
-        <div class="chapter-container">
-            <span class="sticker sticker-tilt-left">peek behind the curtain</span>
-            <div class="chapter-label">Chapter 4</div>
-            <h2 class="chapter-title">
-                How does it <span class="highlight">actually work?<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
-            </h2>
-            
-            <div class="magic-reveal">
-                <div class="magic-item" data-reveal="1">
-                    <div class="magic-number">01</div>
-                    <div class="magic-content">
-                        <h3>Multiple AI agents</h3>
-                        <p>Not just one AI—a whole team. Each specializes in something different. One checks image quality. Another transcribes. One extracts medications. Another runs safety checks. They work together, catch each other's mistakes, and make sure nothing slips through.</p>
-                    </div>
-                    <div class="magic-visual">
-                        <div class="agent-network">
-                            <div class="network-node"></div>
-                            <div class="network-node"></div>
-                            <div class="network-node"></div>
-                            <div class="network-node"></div>
-                            <svg class="network-lines" width="200" height="200" viewBox="0 0 200 200">
-                                <line x1="50" y1="50" x2="150" y2="50" stroke="#059669" stroke-width="2"/>
-                                <line x1="50" y1="50" x2="50" y2="150" stroke="#059669" stroke-width="2"/>
-                                <line x1="150" y1="50" x2="150" y2="150" stroke="#059669" stroke-width="2"/>
-                                <line x1="50" y1="150" x2="150" y2="150" stroke="#059669" stroke-width="2"/>
-                                <line x1="50" y1="50" x2="150" y2="150" stroke="#059669" stroke-width="2"/>
-                                <line x1="150" y1="50" x2="50" y2="150" stroke="#059669" stroke-width="2"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="magic-item" data-reveal="2">
-                    <div class="magic-number">02</div>
-                    <div class="magic-content">
-                        <h3>Trained on real prescriptions</h3>
-                        <p>We fed it thousands of actual prescriptions. The good, the bad, and the "is this even English?" It learned that "BD" means twice daily, "TDS" means three times, "PRN" means as needed. All those cryptic abbreviations? It knows them by heart.</p>
-                    </div>
-                    <div class="magic-visual">
-                        <div class="training-data">
-                            <div class="data-item">BD → Twice daily</div>
-                            <div class="data-item">TDS → Three times</div>
-                            <div class="data-item">PRN → As needed</div>
-                            <div class="data-item">QID → Four times</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="magic-item" data-reveal="3">
-                    <div class="magic-number">03</div>
-                    <div class="magic-content">
-                        <h3>Safety checks built in</h3>
-                        <p>The AI doesn't just read—it thinks. If something looks off (like "take 47 pills at once" or a dosage that seems wrong), it flags it. Better to double-check than to guess wrong.</p>
-                    </div>
-                    <div class="magic-visual">
-                        <div class="safety-shield">
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                                <path d="M9 12l2 2 4-4"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+      <div class="chapter-container">
+        <span class="sticker sticker-tilt-left">peek behind the curtain</span>
+        <div class="chapter-label">Chapter 4</div>
+        <h2 class="chapter-title">
+          How does it
+          <span class="highlight"
+            >actually work?<svg
+              class="squiggle-underline"
+              viewBox="0 0 220 12"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+              /></svg
+          ></span>
+        </h2>
+
+        <div class="magic-reveal">
+          <div class="magic-item" data-reveal="1">
+            <div class="magic-number">01</div>
+            <div class="magic-content">
+              <h3>Multiple AI agents</h3>
+              <p>
+                Not just one AI—a whole team. Each specializes in something different. One checks
+                image quality. Another transcribes. One extracts medications. Another runs safety
+                checks. They work together, catch each other's mistakes, and make sure nothing slips
+                through.
+              </p>
             </div>
+            <div class="magic-visual">
+              <div class="agent-network">
+                <div class="network-node"></div>
+                <div class="network-node"></div>
+                <div class="network-node"></div>
+                <div class="network-node"></div>
+                <svg class="network-lines" width="200" height="200" viewBox="0 0 200 200">
+                  <line x1="50" y1="50" x2="150" y2="50" stroke="#059669" stroke-width="2" />
+                  <line x1="50" y1="50" x2="50" y2="150" stroke="#059669" stroke-width="2" />
+                  <line x1="150" y1="50" x2="150" y2="150" stroke="#059669" stroke-width="2" />
+                  <line x1="50" y1="150" x2="150" y2="150" stroke="#059669" stroke-width="2" />
+                  <line x1="50" y1="50" x2="150" y2="150" stroke="#059669" stroke-width="2" />
+                  <line x1="150" y1="50" x2="50" y2="150" stroke="#059669" stroke-width="2" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="magic-item" data-reveal="2">
+            <div class="magic-number">02</div>
+            <div class="magic-content">
+              <h3>Trained on real prescriptions</h3>
+              <p>
+                We fed it thousands of actual prescriptions. The good, the bad, and the "is this
+                even English?" It learned that "BD" means twice daily, "TDS" means three times,
+                "PRN" means as needed. All those cryptic abbreviations? It knows them by heart.
+              </p>
+            </div>
+            <div class="magic-visual">
+              <div class="training-data">
+                <div class="data-item">BD → Twice daily</div>
+                <div class="data-item">TDS → Three times</div>
+                <div class="data-item">PRN → As needed</div>
+                <div class="data-item">QID → Four times</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="magic-item" data-reveal="3">
+            <div class="magic-number">03</div>
+            <div class="magic-content">
+              <h3>Safety checks built in</h3>
+              <p>
+                The AI doesn't just read—it thinks. If something looks off (like "take 47 pills at
+                once" or a dosage that seems wrong), it flags it. Better to double-check than to
+                guess wrong.
+              </p>
+            </div>
+            <div class="magic-visual">
+              <div class="safety-shield">
+                <svg
+                  width="80"
+                  height="80"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#10b981"
+                  stroke-width="1.5"
+                >
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Chapter 5: The Features -->
     <section class="chapter chapter-features" data-chapter="5">
-        <div class="chapter-container">
-            <span class="sticker sticker-tilt-right">the superpowers</span>
-            <div class="chapter-label">Chapter 5</div>
-            <h2 class="chapter-title">
-                But wait, there's <span class="highlight">more<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
-            </h2>
-            <p class="chapter-intro">
-                We didn't stop at just reading prescriptions. We built features that make managing your medications actually enjoyable.
-            </p>
-            
-            <div class="magic-reveal">
-                <div class="magic-item" data-reveal="1">
-                    <div class="magic-number">01</div>
-                    <div class="magic-content">
-                        <h3>Google Calendar Integration</h3>
-                        <p>Never miss a dose again. One click adds all your medication reminders directly to Google Calendar. Morning pills at 8am? Evening dose at 9pm? It's all scheduled automatically. You can also export as ICS for any calendar app.</p>
-                    </div>
-                    <div class="magic-visual">
-                        <div class="feature-icon-large">
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.5">
-                                <rect x="3" y="4" width="18" height="18" rx="2"/>
-                                <path d="M16 2v4M8 2v4M3 10h18"/>
-                                <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="magic-item" data-reveal="2">
-                    <div class="magic-number">02</div>
-                    <div class="magic-content">
-                        <h3>3D Protein Folding</h3>
-                        <p>Ever wonder how your medication actually works? Click any drug to see its target protein in stunning 3D. Watch how the molecule binds to enzymes, blocks receptors, or activates pathways. It's like having a molecular biology lab in your browser. Powered by ESMFold AI.</p>
-                    </div>
-                    <div class="magic-visual">
-                        <div class="feature-icon-large protein-spin">
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="1.5">
-                                <path d="M12 2a10 10 0 1 0 10 10"/>
-                                <circle cx="12" cy="12" r="3"/>
-                                <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
-                                <circle cx="12" cy="5" r="1.5" fill="#0d9488"/>
-                                <circle cx="12" cy="19" r="1.5" fill="#0d9488"/>
-                                <circle cx="5" cy="12" r="1.5" fill="#0d9488"/>
-                                <circle cx="19" cy="12" r="1.5" fill="#0d9488"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="magic-item" data-reveal="3">
-                    <div class="magic-number">03</div>
-                    <div class="magic-content">
-                        <h3>Body Effect Visualization</h3>
-                        <p>See exactly which organs your medication affects. Interactive 3D body map shows you where each drug works—heart, liver, kidneys, brain. Understand side effects before they happen. Knowledge is power.</p>
-                    </div>
-                    <div class="magic-visual">
-                        <div class="feature-icon-large">
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                <circle cx="12" cy="12" r="2" fill="#10b981"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+      <div class="chapter-container">
+        <span class="sticker sticker-tilt-right">the superpowers</span>
+        <div class="chapter-label">Chapter 5</div>
+        <h2 class="chapter-title">
+          But wait, there's
+          <span class="highlight"
+            >more<svg
+              class="squiggle-underline"
+              viewBox="0 0 220 12"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+              /></svg
+          ></span>
+        </h2>
+        <p class="chapter-intro">
+          We didn't stop at just reading prescriptions. We built features that make managing your
+          medications actually enjoyable.
+        </p>
 
+        <div class="magic-reveal">
+          <div class="magic-item" data-reveal="1">
+            <div class="magic-number">01</div>
+            <div class="magic-content">
+              <h3>Google Calendar Integration</h3>
+              <p>
+                Never miss a dose again. One click adds all your medication reminders directly to
+                Google Calendar. Morning pills at 8am? Evening dose at 9pm? It's all scheduled
+                automatically. You can also export as ICS for any calendar app.
+              </p>
             </div>
+            <div class="magic-visual">
+              <div class="feature-icon-large">
+                <svg
+                  width="80"
+                  height="80"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#059669"
+                  stroke-width="1.5"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18" />
+                  <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="magic-item" data-reveal="2">
+            <div class="magic-number">02</div>
+            <div class="magic-content">
+              <h3>3D Protein Folding</h3>
+              <p>
+                Ever wonder how your medication actually works? Click any drug to see its target
+                protein in stunning 3D. Watch how the molecule binds to enzymes, blocks receptors,
+                or activates pathways. It's like having a molecular biology lab in your browser.
+                Powered by ESMFold AI.
+              </p>
+            </div>
+            <div class="magic-visual">
+              <div class="feature-icon-large protein-spin">
+                <svg
+                  width="80"
+                  height="80"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#0d9488"
+                  stroke-width="1.5"
+                >
+                  <path d="M12 2a10 10 0 1 0 10 10" />
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+                  <circle cx="12" cy="5" r="1.5" fill="#0d9488" />
+                  <circle cx="12" cy="19" r="1.5" fill="#0d9488" />
+                  <circle cx="5" cy="12" r="1.5" fill="#0d9488" />
+                  <circle cx="19" cy="12" r="1.5" fill="#0d9488" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="magic-item" data-reveal="3">
+            <div class="magic-number">03</div>
+            <div class="magic-content">
+              <h3>Body Effect Visualization</h3>
+              <p>
+                See exactly which organs your medication affects. Interactive 3D body map shows you
+                where each drug works—heart, liver, kidneys, brain. Understand side effects before
+                they happen. Knowledge is power.
+              </p>
+            </div>
+            <div class="magic-visual">
+              <div class="feature-icon-large">
+                <svg
+                  width="80"
+                  height="80"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#10b981"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                  />
+                  <circle cx="12" cy="12" r="2" fill="#10b981" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Chapter 6: The Ending -->
     <section class="chapter chapter-6" data-chapter="6">
-        <div class="chapter-container">
-            <div class="ending-content">
-                <h2 class="ending-title">
-                    So, what happens next?
-                </h2>
-                <p class="ending-text">
-                    You could keep squinting at prescriptions. Keep Googling medical abbreviations at midnight. 
-                    Keep calling pharmacies and hoping someone can decipher your doctor's handwriting.
-                </p>
-                <p class="ending-text">
-                    Or you could try UnScribble. Upload a prescription. Wait 3 seconds. Get organized, readable results.
-                </p>
-                <p class="ending-text strong">
-                    Your choice.
-                </p>
-                
-                <div class="ending-cta">
-                    <a href="/upload.html" class="btn-ending" id="ctaBtn">
-                        <span>Try UnScribble now</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                    </a>
-                    <p class="cta-subtext">No signup. No credit card. Just upload and go.</p>
-                </div>
-                
-                <div class="social-proof">
-                    <div class="proof-stat">
-                        <div class="stat-big">99.2%</div>
-                        <div class="stat-label">Accuracy</div>
-                    </div>
-                    <div class="proof-stat">
-                        <div class="stat-big">2.8s</div>
-                        <div class="stat-label">Average time</div>
-                    </div>
-                    <div class="proof-stat">
-                        <div class="stat-big">10k+</div>
-                        <div class="stat-label">Prescriptions scanned</div>
-                    </div>
-                </div>
+      <div class="chapter-container">
+        <div class="ending-content">
+          <h2 class="ending-title">So, what happens next?</h2>
+          <p class="ending-text">
+            You could keep squinting at prescriptions. Keep Googling medical abbreviations at
+            midnight. Keep calling pharmacies and hoping someone can decipher your doctor's
+            handwriting.
+          </p>
+          <p class="ending-text">
+            Or you could try UnScribble. Upload a prescription. Wait 3 seconds. Get organized,
+            readable results.
+          </p>
+          <p class="ending-text strong">Your choice.</p>
+
+          <div class="ending-cta">
+            <a href="/upload.html" class="btn-ending" id="ctaBtn">
+              <span>Try UnScribble now</span>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
+            <p class="cta-subtext">No signup. No credit card. Just upload and go.</p>
+          </div>
+
+          <div class="social-proof">
+            <div class="proof-stat">
+              <div class="stat-big">99.2%</div>
+              <div class="stat-label">Accuracy</div>
             </div>
+            <div class="proof-stat">
+              <div class="stat-big">2.8s</div>
+              <div class="stat-label">Average time</div>
+            </div>
+            <div class="proof-stat">
+              <div class="stat-big">10k+</div>
+              <div class="stat-label">Prescriptions scanned</div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-brand">
-                <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-                    <rect width="40" height="40" rx="10" fill="url(#footer-gradient)"/>
-                    <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                    <circle cx="28" cy="26" r="3" fill="white"/>
-                    <defs>
-                        <linearGradient id="footer-gradient" x1="0" y1="0" x2="40" y2="40">
-                            <stop offset="0%" stop-color="#059669"/>
-                            <stop offset="100%" stop-color="#0d9488"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-                <p>Making prescriptions readable, one scan at a time</p>
-            </div>
-            <div class="footer-links">
-                <a href="/upload.html">Try it</a>
-                <a href="/tech-landing.html">Architecture</a>
-                <a href="/GOOGLE_CALENDAR_SETUP.md">Setup guide</a>
-                <a href="/test-gcal.html">API test</a>
-            </div>
+      <div class="footer-container">
+        <div class="footer-brand">
+          <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="10" fill="url(#footer-gradient)" />
+            <path
+              d="M12 14h16M12 20h16M12 26h10"
+              stroke="white"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+            <circle cx="28" cy="26" r="3" fill="white" />
+            <defs>
+              <linearGradient id="footer-gradient" x1="0" y1="0" x2="40" y2="40">
+                <stop offset="0%" stop-color="#059669" />
+                <stop offset="100%" stop-color="#0d9488" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <p>Making prescriptions readable, one scan at a time</p>
         </div>
+        <div class="footer-links">
+          <a href="/upload.html">Try it</a>
+          <a href="/tech-landing.html">Architecture</a>
+        </div>
+      </div>
     </footer>
 
-    <script src="/landing.js"></script>
-</body>
+    <script src="/js/pages/landing.js"></script>
+  </body>
 </html>

@@ -1,5 +1,5 @@
-import { MAX_EDGE, JPEG_QUALITY, enhanceImageData } from "./image-enhance.js";
-import { buildDecodeRequestBody, decodePrescriptionStream } from "./decode-client.js";
+import { MAX_EDGE, JPEG_QUALITY, enhanceImageData } from "../core/image-enhance.js";
+import { buildDecodeRequestBody, decodePrescriptionStream } from "../core/decode-client.js";
 
 const MEDICAL_JOKES = [
   "Why did the prescription go to therapy? It had too many issues to refill...",
@@ -11,7 +11,7 @@ const MEDICAL_JOKES = [
   "What did one prescription say to the other? Take it easy, don't overdose on stress!",
   "Why was the antibiotic so popular? It was a real culture killer!",
   "Why was the medicine bottle always happy? It was filled with good spirits!",
-  "What's a doctor's favorite instrument? The organ!",
+  "What's a doctor's favorite instrument? The organ!"
 ];
 
 const state = {
@@ -21,7 +21,6 @@ const state = {
   originalDataUrl: "",
   model: "",
   workflowAgents: [],
-  currentJoke: "",
   totalAgents: 7,
   completedAgents: 0
 };
@@ -31,9 +30,6 @@ const els = {
   statusText: document.querySelector("#modelStatus .status-text"),
   fileInput: document.querySelector("#fileInput"),
   dropzone: document.querySelector("#dropzone"),
-  dropzoneContent: document.querySelector("#dropzoneContent"),
-  dropzonePreview: document.querySelector("#dropzonePreview"),
-  dropzoneImage: document.querySelector("#dropzoneImage"),
   fileName: document.querySelector("#fileName"),
   previewSection: document.querySelector("#previewSection"),
   previewCanvas: document.querySelector("#previewCanvas"),
@@ -44,21 +40,17 @@ const els = {
   loadingHint: document.querySelector("#loadingHint"),
   errorCard: document.querySelector("#errorCard"),
   errorMessage: document.querySelector("#errorMessage"),
-  retryBtn: document.querySelector("#retryBtn"),
-  toast: document.querySelector("#toast")
+  retryBtn: document.querySelector("#retryBtn")
 };
 
 let enhanceWorker = null;
 let enhanceJobId = 0;
-let decodeAbortController = null;
-let toastTimer = null;
 
 init();
 
 async function init() {
   bindEvents();
   await loadConfig();
-  setTodayAsDefault();
 }
 
 function bindEvents() {
@@ -135,12 +127,6 @@ function shortModelName(model) {
   return parts[parts.length - 1] || id;
 }
 
-function setTodayAsDefault() {
-  const today = new Date().toISOString().split("T")[0];
-  const dateInput = document.querySelector("#startDateInput");
-  if (dateInput) dateInput.value = today;
-}
-
 async function handleFile(file) {
   if (!file.type.startsWith("image/")) {
     showError("Please select an image file (PNG, JPG, or WEBP).");
@@ -149,10 +135,10 @@ async function handleFile(file) {
 
   state.file = file;
   state.originalImage = await loadImage(file);
-  
+
   // Hide the dropzone after upload
   els.dropzone.style.display = "none";
-  
+
   els.fileName.textContent = file.name;
   els.previewSection.hidden = false;
   await renderPreview();
@@ -169,7 +155,7 @@ function loadImage(file) {
 
 function getEnhanceWorker() {
   if (!enhanceWorker) {
-    enhanceWorker = new Worker("/image-enhance.worker.js", { type: "module" });
+    enhanceWorker = new Worker("/js/core/image-enhance.worker.js", { type: "module" });
   }
   return enhanceWorker;
 }
@@ -195,7 +181,10 @@ async function renderPreview() {
   const mode = getEnhancementMode();
   const canvas = els.previewCanvas;
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  const scale = Math.min(1, MAX_EDGE / Math.max(state.originalImage.width, state.originalImage.height));
+  const scale = Math.min(
+    1,
+    MAX_EDGE / Math.max(state.originalImage.width, state.originalImage.height)
+  );
   canvas.width = Math.max(1, Math.round(state.originalImage.width * scale));
   canvas.height = Math.max(1, Math.round(state.originalImage.height * scale));
   ctx.drawImage(state.originalImage, 0, 0, canvas.width, canvas.height);
@@ -221,9 +210,6 @@ async function renderPreview() {
 async function processPrescription() {
   if (!state.imageDataUrl) return;
 
-  decodeAbortController = new AbortController();
-  const { signal } = decodeAbortController;
-
   setLoading(true);
   els.errorCard.hidden = true;
 
@@ -241,7 +227,7 @@ async function processPrescription() {
           workflow = payload.workflow;
         }
       },
-      signal
+      undefined
     );
 
     if (result) {
@@ -256,11 +242,8 @@ async function processPrescription() {
       window.location.href = "/results.html";
     }
   } catch (error) {
-    if (error.name !== "AbortError") {
-      showError(error.message);
-    }
+    showError(error.message);
   } finally {
-    decodeAbortController = null;
     setLoading(false);
   }
 }
@@ -283,12 +266,14 @@ function handleWorkflowEvent(event, payload) {
       updateStepStatus(payload.id, "active");
       break;
     case "agent.complete":
-      state.completedAgents++;
-      const progress = Math.round((state.completedAgents / state.totalAgents) * 100);
-      updateProgressBar(progress);
-      updateStepStatus(payload.id, "completed");
-      if (payload.summary) {
-        setLoadingHint(`${agentLabel(payload.id)} done`);
+      {
+        state.completedAgents++;
+        const progress = Math.round((state.completedAgents / state.totalAgents) * 100);
+        updateProgressBar(progress);
+        updateStepStatus(payload.id, "completed");
+        if (payload.summary) {
+          setLoadingHint(`${agentLabel(payload.id)} done`);
+        }
       }
       break;
     case "agent.error":
@@ -326,13 +311,13 @@ function updateStepStatus(agentId, status) {
 }
 
 function updateProgressBar(percentage) {
-  const progressFill = document.getElementById('progressBarFill');
-  const progressText = document.getElementById('progressText');
-  
+  const progressFill = document.getElementById("progressBarFill");
+  const progressText = document.getElementById("progressText");
+
   if (progressFill) {
     progressFill.style.width = `${percentage}%`;
   }
-  
+
   if (progressText) {
     progressText.textContent = `${percentage}%`;
   }
@@ -368,11 +353,10 @@ function setLoading(isLoading) {
     setLoadingHint("Preparing image…");
     state.completedAgents = 0;
     updateProgressBar(0);
-    // Set a random joke
-    state.currentJoke = MEDICAL_JOKES[Math.floor(Math.random() * MEDICAL_JOKES.length)];
+    const currentJoke = MEDICAL_JOKES[Math.floor(Math.random() * MEDICAL_JOKES.length)];
     const jokeElement = document.querySelector("#loadingJoke");
     if (jokeElement) {
-      jokeElement.textContent = state.currentJoke;
+      jokeElement.textContent = currentJoke;
     }
   }
 }
@@ -392,7 +376,7 @@ function resetUpload() {
   els.fileInput.value = "";
   els.previewSection.hidden = true;
   els.errorCard.hidden = true;
-  
+
   // Show the dropzone again
   els.dropzone.style.display = "";
 }
@@ -406,12 +390,4 @@ function syncSegmentedControls() {
 
 function getEnhancementMode() {
   return document.querySelector("input[name='enhance']:checked")?.value || "original";
-}
-
-function showToast(message) {
-  if (!els.toast) return;
-  els.toast.textContent = message;
-  els.toast.classList.add("is-visible");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => els.toast.classList.remove("is-visible"), 2400);
 }

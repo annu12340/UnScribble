@@ -4,22 +4,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `npm install` — installs `fastest-levenshtein` for formulary fuzzy-matching.
+- `npm install` — installs runtime and dev quality tooling dependencies.
 - `npm start` (or `npm run dev`) — runs `node server.js`. No build step or bundler.
-- `npm test` — `node --test` for safety-rules, merger, formulary, orchestrator (mock).
+- `npm test` — `node --test` for unit and focused browser-module tests.
+- `npm run lint:strict` — syntax checks, stale-path structure checks, and ESLint with zero warnings.
+- `npm run format:check` — Prettier check for JS/CSS/HTML/MD/JSON/YAML.
+- `npm run check` — strict lint, Prettier check, and Node tests.
+- `npm run test:e2e` — Playwright smoke tests (`npx playwright install chromium` once after install).
 - Requires Node >= 18 (uses global `fetch`).
-- Server binds to `127.0.0.1:${PORT || 3000}`.
+- Server binds to `0.0.0.0:${PORT || 3000}`.
 - `WORKFLOW_MOCK=1 npm start` — runs the multi-agent pipeline with fixture outputs (no NVIDIA API calls).
 
 ## Configuration
 
-- `.env` is loaded by `loadDotEnv` in `server.js` before agent modules load. Copy `.env copy.example` → `.env`.
+- `.env` is loaded by `loadDotEnv` in `server.js` before agent modules load. Copy `.env.example` → `.env`.
 - **Required for live decode:** `NVIDIA_API_KEY`. Without it (and without `WORKFLOW_MOCK=1`), decode endpoints return 500.
 - `NVIDIA_API_BASE_URL` defaults to `https://inference-api.nvidia.com/v1`.
 - `NVIDIA_MODEL` defaults to `openai/openai/gpt-5.5` in `agents/config.js`.
 - Reasoning is intentionally not sent on structured-JSON calls (see `agents/nim-client.js`); the `NVIDIA_REASONING_EFFORT` env var is ignored.
 - `WORKFLOW_MOCK=1` — fixture agent outputs from `agents/mock-fixtures.js`.
 - `WORKFLOW_AGENT_TIMEOUT_MS` — per-agent timeout (default 90000).
+- `NVIDIA_REQUEST_TIMEOUT_MS` — abort timeout for individual NVIDIA fetches (default follows `WORKFLOW_AGENT_TIMEOUT_MS`, 90000).
 - `WORKFLOW_SKIP_SYNTHESIS=1` — skip synthesis agent step (summary built in merger).
 - `WORKFLOW_CACHE_DISABLE=1` — disable in-memory decode result cache.
 - `WORKFLOW_CACHE_TTL_MS` — TTL for cached decode results (default 300000, i.e. 5 minutes).
@@ -42,7 +47,16 @@ agents/
   merger.js        → merge agent artifacts; deterministic summary builder
   safety-rules.js  → deterministic human-review rules
   formulary.js     → dedup, fuzzy match, distance-1 auto-correct
-  agents/*.js      → one thin runner per agent (delegates to run-agent.js)
+  runners/*.js     → one thin runner per agent (delegates to run-agent.js)
+  features/*.js    → protein mechanism and body-effect helpers
+public/
+  js/core/         → shared browser modules
+  js/pages/        → page entrypoints
+  js/medication/   → medication schedule, mechanism, and visualization modules
+  css/             → shared and page styles
+data/
+  formulary.json
+  drug-body-effects.json
 ```
 
 ### Workflow stages (orchestrator.js)
@@ -61,11 +75,12 @@ agents/
 
 ### API routes
 
-| Route | Purpose |
-|-------|---------|
-| `GET /api/config` | API key status, model, `workflow: true`, `agents[]`, `mock` |
-| `POST /api/decode/stream` | **Primary** — SSE workflow events, final `workflow.complete` with `result` |
-| `POST /api/decode` | Batch — same orchestrator, returns JSON + `events[]` |
+| Route                              | Purpose                                                                    |
+| ---------------------------------- | -------------------------------------------------------------------------- |
+| `GET /api/config`                  | API key status, model, `workflow: true`, `agents[]`, `mock`                |
+| `POST /api/decode/stream`          | **Primary** — SSE workflow events, final `workflow.complete` with `result` |
+| `POST /api/decode`                 | Batch — same orchestrator, returns JSON + `events[]`                       |
+| `GET /data/drug-body-effects.json` | Internal static body-map data                                              |
 
 ### SSE events
 
@@ -74,17 +89,19 @@ agents/
 - `workflow.complete` — `{ result, workflow: { steps, totalMs, model } }`
 - `workflow.error` — `{ message, agentId? }`
 
+HTTP responses include `X-Request-ID`; decode SSE events and workflow objects include the same request ID for correlation.
+
 ### Result contract
 
-`agents/merger.js` produces the object `public/app.js` `renderResult` expects: `summary`, `raw_transcription`, `region_hint`, `patient`, `medications[]` (with extended fields including `medication_name_raw`), `allergies`, `clinical_context`, `abbreviations`, `non_medication_text`, `follow_up_instructions`, `global_warnings`, `image_quality` (with `recommended_preprocessing`), `requires_human_review`, `review_reason`.
+`agents/merger.js` produces the object consumed by `public/js/pages/results.js` and `public/js/pages/medication-details.js`: `summary`, `raw_transcription`, `region_hint`, `patient`, `medications[]` (with extended fields including `medication_name_raw`), `allergies`, `clinical_context`, `abbreviations`, `non_medication_text`, `follow_up_instructions`, `global_warnings`, `image_quality` (with `recommended_preprocessing`), `requires_human_review`, `review_reason`.
 
 When changing fields, update **agent schemas** in `agents/schemas.js`, **merger**, **mock-fixtures.js**, and **frontend renderers**. `region_hint`, `medication_name_raw`, and `image_quality.recommended_preprocessing` are all in `required` under strict mode.
 
 ### Frontend
 
-- ES modules: `public/app.js` imports `image-enhance.js`, `decode-client.js`, `render-result.js`; enhancement runs in `image-enhance.worker.js` when available.
-- `decodePrescription()` uses `fetch` + `ReadableStream` on `/api/decode/stream` (supports `AbortController` on clear/new decode).
-- Loading UI: Rx bottle loader, per-agent list (`#agentProgress`), workflow trace after complete (`#workflowTrace`).
+- ES modules: page entrypoints in `public/js/pages/` import shared modules from `public/js/core/` and medication modules from `public/js/medication/`; enhancement runs in `public/js/core/image-enhance.worker.js` when available.
+- `decodePrescriptionStream()` uses `fetch` + `ReadableStream` on `/api/decode/stream`.
+- Loading UI: Rx bottle loader and per-agent list on the upload page.
 - Image enhancement on canvas: `original`, `contrast` (CLAHE), `mono` (Sauvola). Non-original modes send `originalImageDataUrl` for vision agents.
 
 ## Editing guidance

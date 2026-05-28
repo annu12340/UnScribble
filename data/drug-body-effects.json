@@ -1,0 +1,162 @@
+{
+  "lisinopril": {
+    "regions": ["chest", "kidneys"],
+    "organs": ["Heart", "Blood vessels", "Kidneys"],
+    "summary": "Acts on the cardiovascular system — relaxes blood vessels and lowers blood pressure, with effects on kidney-related hormone pathways."
+  },
+  "atorvastatin": {
+    "regions": ["abdomen", "chest"],
+    "organs": ["Liver", "Blood vessels", "Heart"],
+    "summary": "Works mainly in the liver to reduce cholesterol production, which lowers LDL in the bloodstream and supports heart health."
+  },
+  "metformin": {
+    "regions": ["abdomen", "limbs"],
+    "organs": ["Liver", "Pancreas", "Muscles"],
+    "summary": "Lowers blood sugar by reducing glucose release from the liver and improving how muscle cells respond to insulin."
+  },
+  "omeprazole": {
+    "regions": ["abdomen"],
+    "organs": ["Stomach"],
+    "summary": "Reduces acid production in the stomach lining, easing heartburn and helping acid-related irritation heal."
+  },
+  "amoxicillin": {
+    "regions": ["head", "chest", "abdomen"],
+    "organs": ["Sinuses", "Lungs", "Ears", "Urinary tract"],
+    "summary": "Fights bacterial infections — commonly used for respiratory, ear/sinus, and urinary infections depending on the prescription."
+  },
+  "amox": {
+    "regions": ["head", "chest", "abdomen"],
+    "organs": ["Sinuses", "Lungs", "Ears", "Urinary tract"],
+    "summary": "Fights bacterial infections — commonly used for respiratory, ear/sinus, and urinary infections depending on the prescription."
+  },
+  "ibuprofen": {
+    "regions": ["limbs", "head", "abdomen"],
+    "organs": ["Joints", "Muscles", "Stomach lining"],
+    "summary": "Reduces pain, fever, and inflammation body-wide; can irritate the stomach lining if taken without food or for long periods."
+  },
+  "aspirin": {
+    "regions": ["chest", "limbs", "head"],
+    "organs": ["Blood platelets", "Heart", "Joints"],
+    "summary": "Affects blood clotting and inflammation — used for pain, fever, and in some patients for heart protection at low doses."
+  },
+  "acetaminophen": {
+    "regions": ["head", "limbs"],
+    "organs": ["Brain (pain/fever centers)", "Liver (metabolism)"],
+    "summary": "Relieves pain and fever; processed mainly by the liver, so dose limits matter."
+  },
+  "paracetamol": {
+    "regions": ["head", "limbs"],
+    "organs": ["Brain (pain/fever centers)", "Liver (metabolism)"],
+    "summary": "Same class as acetaminophen — eases pain and fever with primary liver metabolism."
+  },
+  "levothyroxine": {
+    "regions": ["neck", "chest"],
+    "organs": ["Thyroid", "Metabolism (body-wide)"],
+    "summary": "Replaces thyroid hormone, regulating metabolism, energy, and many body-wide functions."
+  },
+  "albuterol": {
+    "regions": ["chest"],
+    "organs": ["Lungs", "Airways"],
+    "summary": "Opens airways in the lungs quickly, making breathing easier during asthma or wheezing."
+  },
+  "prednisone": {
+    "regions": ["chest", "limbs", "abdomen"],
+    "organs": ["Immune system", "Lungs", "Joints", "Skin"],
+    "summary": "Broad anti-inflammatory steroid — can calm immune overreactions in lungs, joints, skin, and elsewhere."
+  },
+  "amlodipine": {
+    "regions": ["chest", "limbs"],
+    "organs": ["Blood vessels", "Heart"],
+    "summary": "Relaxes and widens blood vessels so the heart pumps against less resistance, lowering blood pressure; may cause ankle swelling in the limbs."
+  },
+  "metoprolol": {
+    "regions": ["chest"],
+    "organs": ["Heart", "Blood vessels"],
+    "summary": "A beta-blocker that slows the heart rate and reduces its workload, lowering blood pressure and easing chest strain."
+  },
+  "losartan": {
+    "regions": ["chest", "kidneys"],
+    "organs": ["Blood vessels", "Heart", "Kidneys"],
+    "summary": "Blocks a hormone that tightens blood vessels, lowering blood pressure and protecting the kidneys in some conditions."
+  },
+  "hydrochlorothiazide": {
+    "regions": ["kidneys", "abdomen"],
+    "organs": ["Kidneys", "Blood vessels"],
+    "summary": "A water pill that helps the kidneys remove extra salt and fluid, lowering blood pressure and reducing swelling."
+  },
+  "furosemide": {
+    "regions": ["kidneys", "abdomen", "limbs"],
+    "organs": ["Kidneys", "Blood vessels"],
+    "summary": "A strong diuretic that makes the kidneys flush out excess fluid, relieving swelling in the limbs and fluid buildup around the lungs."
+  },
+  "simvastatin": {
+    "regions": ["abdomen", "chest"],
+    "organs": ["Liver", "Blood vessels", "Heart"],
+    "summary": "Works in the liver to cut cholesterol production, lowering LDL in the blood and supporting heart and vessel health."
+  },
+  "warfarin": {
+    "regions": ["abdomen", "chest"],
+    "organs": ["Liver", "Blood (clotting factors)"],
+    "summary": "A blood thinner that reduces the liver's production of clotting factors to prevent dangerous clots; requires regular monitoring."
+  },
+  "clopidogrel": {
+    "regions": ["chest"],
+    "organs": ["Blood platelets", "Heart", "Blood vessels"],
+    "summary": "Stops platelets from clumping together, lowering the risk of clots, heart attack, and stroke."
+  },
+  "insulin": {
+    "regions": ["abdomen", "limbs"],
+    "organs": ["Liver", "Muscles", "Fat tissue"],
+    "summary": "Replaces or supplements the body's insulin, helping cells take up sugar from the blood to control blood glucose."
+  },
+  "glipizide": {
+    "regions": ["abdomen"],
+    "organs": ["Pancreas"],
+    "summary": "Prompts the pancreas to release more insulin, lowering blood sugar in type 2 diabetes."
+  },
+  "sertraline": {
+    "regions": ["head"],
+    "organs": ["Brain"],
+    "summary": "An SSRI that increases serotonin signaling in the brain to help with depression and anxiety; effects build over weeks."
+  },
+  "escitalopram": {
+    "regions": ["head"],
+    "organs": ["Brain"],
+    "summary": "An SSRI that boosts serotonin activity in the brain to ease depression and anxiety symptoms over time."
+  },
+  "gabapentin": {
+    "regions": ["head", "limbs"],
+    "organs": ["Brain", "Nervous system"],
+    "summary": "Calms overactive nerve signaling, used for nerve pain and as an add-on for seizures."
+  },
+  "montelukast": {
+    "regions": ["chest", "head"],
+    "organs": ["Lungs", "Airways", "Sinuses"],
+    "summary": "Blocks inflammatory signals in the airways to control asthma and allergy symptoms; taken regularly, not as a rescue inhaler."
+  },
+  "cetirizine": {
+    "regions": ["head", "chest"],
+    "organs": ["Immune system", "Sinuses", "Airways"],
+    "summary": "An antihistamine that blocks allergy signals, easing sneezing, itching, and runny nose with little drowsiness."
+  },
+  "azithromycin": {
+    "regions": ["chest", "head", "abdomen"],
+    "organs": ["Lungs", "Sinuses", "Throat"],
+    "summary": "An antibiotic used for respiratory, sinus, and some skin or urinary infections; often a short course."
+  },
+  "ciprofloxacin": {
+    "regions": ["abdomen", "kidneys"],
+    "organs": ["Urinary tract", "Gut", "Kidneys"],
+    "summary": "A broad antibiotic commonly used for urinary, gut, and some respiratory infections."
+  },
+  "pantoprazole": {
+    "regions": ["abdomen"],
+    "organs": ["Stomach"],
+    "summary": "Reduces stomach acid production to relieve reflux and help acid-related irritation heal."
+  },
+  "tramadol": {
+    "regions": ["head", "limbs"],
+    "organs": ["Brain", "Nervous system"],
+    "summary": "Acts on pain pathways in the brain and nervous system to relieve moderate pain; can be habit-forming."
+  }
+}

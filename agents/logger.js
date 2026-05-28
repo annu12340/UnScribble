@@ -5,8 +5,7 @@
  */
 const LEVELS = { debug: 10, info: 20, warn: 30, error: 40 };
 
-const threshold =
-  LEVELS[String(process.env.LOG_LEVEL || "info").toLowerCase()] ?? LEVELS.info;
+const threshold = LEVELS[String(process.env.LOG_LEVEL || "info").toLowerCase()] ?? LEVELS.info;
 
 /**
  * Check if logging is enabled

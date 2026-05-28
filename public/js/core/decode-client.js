@@ -90,9 +90,13 @@ export async function decodePrescriptionStream(url, body, onEvent, signal) {
     throw new Error(message);
   }
 
-  await consumeSseStream(response, (parsed) => {
-    if (parsed && parsed.event && parsed.payload) {
-      onEvent(parsed.event, parsed.payload);
-    }
-  }, signal);
+  await consumeSseStream(
+    response,
+    (parsed) => {
+      if (parsed && parsed.event && parsed.payload) {
+        onEvent(parsed.event, parsed.payload);
+      }
+    },
+    signal
+  );
 }

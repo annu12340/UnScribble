@@ -3,16 +3,16 @@
 const config = require("../config");
 const { callResponses, visionContent } = require("../nim-client");
 const log = require("../logger");
-const { getBodyEffects, medicationLookupKeys } = require("../drug-body-effects");
+const { getBodyEffects, medicationLookupKeys } = require("./body-effects");
 
 // Drug target protein database (simplified example)
 const DRUG_TARGETS = {
-  "lisinopril": { protein: "ACE", sequence: "MKLKHLVPAS..." },
-  "atorvastatin": { protein: "HMG-CoA reductase", sequence: "MGSSHHHHHH..." },
-  "metformin": { protein: "AMPK", sequence: "MADEEKLPPG..." },
-  "omeprazole": { protein: "H+/K+ ATPase", sequence: "MGDKKKKKKK..." },
-  "amoxicillin": { protein: "Penicillin-binding protein", sequence: "MKLKHLVPAS..." },
-  "ibuprofen": { protein: "COX-2", sequence: "MADEEKLPPG..." },
+  lisinopril: { protein: "ACE", sequence: "MKLKHLVPAS..." },
+  atorvastatin: { protein: "HMG-CoA reductase", sequence: "MGSSHHHHHH..." },
+  metformin: { protein: "AMPK", sequence: "MADEEKLPPG..." },
+  omeprazole: { protein: "H+/K+ ATPase", sequence: "MGDKKKKKKK..." },
+  amoxicillin: { protein: "Penicillin-binding protein", sequence: "MKLKHLVPAS..." },
+  ibuprofen: { protein: "COX-2", sequence: "MADEEKLPPG..." }
 };
 
 /**
@@ -38,14 +38,14 @@ async function predictProteinMechanism(medicationName) {
       medication: medicationName,
       hasProteinData: false,
       bodyEffects,
-      message: "Protein target data not available for this medication",
+      message: "Protein target data not available for this medication"
     };
   }
 
   try {
     // Call NVIDIA ESMFold NIM to predict protein structure
     const proteinStructure = await predictProteinStructure(target.sequence);
-    
+
     // Get mechanism explanation
     const mechanism = await explainMechanism(matchedKey || medicationName, target.protein);
 
@@ -56,7 +56,7 @@ async function predictProteinMechanism(medicationName) {
       proteinStructure: proteinStructure,
       mechanism: mechanism,
       bodyEffects,
-      visualizationReady: true,
+      visualizationReady: true
     };
   } catch (error) {
     log.error("protein-mechanism", "prediction failed", {
@@ -67,7 +67,7 @@ async function predictProteinMechanism(medicationName) {
       medication: medicationName,
       hasProteinData: false,
       bodyEffects,
-      error: error.message,
+      error: error.message
     };
   }
 }
@@ -78,11 +78,11 @@ async function predictProteinMechanism(medicationName) {
 async function predictProteinStructure(sequence) {
   // This would call the actual ESMFold NIM endpoint
   // For now, returning mock structure
-  
-  log.info("protein-mechanism", "calling ESMFold", { 
-    sequenceLength: sequence.length 
+
+  log.info("protein-mechanism", "calling ESMFold", {
+    sequenceLength: sequence.length
   });
-  
+
   // In production, this would be:
   // const response = await fetch(`${config.baseUrl}/esmfold`, {
   //   method: "POST",
@@ -92,7 +92,7 @@ async function predictProteinStructure(sequence) {
   //   },
   //   body: JSON.stringify({ sequence })
   // });
-  
+
   return {
     pdbData: "MOCK_PDB_DATA", // Would contain actual PDB format structure
     confidence: 0.92,
@@ -109,14 +109,14 @@ async function explainMechanism(medication, targetProtein) {
     log.info("protein-mechanism", "using mock mechanism explanation", { medication });
     return getMockMechanism(medication, targetProtein);
   }
-  
+
   const instructions = `You are a pharmacology expert. Explain in simple terms how ${medication} works by interacting with ${targetProtein}. Keep it under 100 words and accessible to patients.`;
-  
+
   const content = visionContent(
     `Explain the mechanism of action for ${medication} targeting ${targetProtein}.`,
     null
   );
-  
+
   const schema = {
     type: "object",
     properties: {
@@ -136,7 +136,7 @@ async function explainMechanism(medication, targetProtein) {
     required: ["mechanism", "bindingSite", "effect"],
     additionalProperties: false
   };
-  
+
   const { result } = await callResponses({
     instructions,
     content,
@@ -144,7 +144,7 @@ async function explainMechanism(medication, targetProtein) {
     schema,
     maxTokens: 1000
   });
-  
+
   return result;
 }
 
@@ -153,48 +153,57 @@ async function explainMechanism(medication, targetProtein) {
  */
 function getMockMechanism(medication, targetProtein) {
   const mechanisms = {
-    "lisinopril": {
-      mechanism: "Lisinopril blocks the ACE enzyme, which normally converts angiotensin I to angiotensin II. By preventing this conversion, blood vessels relax and widen, reducing blood pressure and making it easier for the heart to pump blood.",
+    lisinopril: {
+      mechanism:
+        "Lisinopril blocks the ACE enzyme, which normally converts angiotensin I to angiotensin II. By preventing this conversion, blood vessels relax and widen, reducing blood pressure and making it easier for the heart to pump blood.",
       bindingSite: "Active site of the ACE enzyme, specifically the zinc-binding pocket",
       effect: "Blood vessels dilate, blood pressure decreases, and cardiac workload is reduced"
     },
-    "atorvastatin": {
-      mechanism: "Atorvastatin inhibits HMG-CoA reductase, the enzyme responsible for cholesterol production in the liver. By blocking this enzyme, the liver produces less cholesterol and removes more LDL cholesterol from the blood.",
+    atorvastatin: {
+      mechanism:
+        "Atorvastatin inhibits HMG-CoA reductase, the enzyme responsible for cholesterol production in the liver. By blocking this enzyme, the liver produces less cholesterol and removes more LDL cholesterol from the blood.",
       bindingSite: "Active site of HMG-CoA reductase enzyme",
-      effect: "Cholesterol production decreases, LDL levels drop, and cardiovascular risk is reduced"
+      effect:
+        "Cholesterol production decreases, LDL levels drop, and cardiovascular risk is reduced"
     },
-    "metformin": {
-      mechanism: "Metformin activates AMPK enzyme, which regulates cellular energy. This reduces glucose production in the liver and increases insulin sensitivity in muscles, helping cells absorb glucose from the bloodstream more effectively.",
+    metformin: {
+      mechanism:
+        "Metformin activates AMPK enzyme, which regulates cellular energy. This reduces glucose production in the liver and increases insulin sensitivity in muscles, helping cells absorb glucose from the bloodstream more effectively.",
       bindingSite: "Allosteric binding site on AMPK enzyme",
-      effect: "Blood glucose levels decrease, insulin sensitivity improves, and cellular energy metabolism is optimized"
+      effect:
+        "Blood glucose levels decrease, insulin sensitivity improves, and cellular energy metabolism is optimized"
     },
-    "omeprazole": {
-      mechanism: "Omeprazole irreversibly blocks the H+/K+ ATPase pump in stomach cells. This pump is responsible for secreting acid into the stomach. By blocking it, acid production is significantly reduced.",
+    omeprazole: {
+      mechanism:
+        "Omeprazole irreversibly blocks the H+/K+ ATPase pump in stomach cells. This pump is responsible for secreting acid into the stomach. By blocking it, acid production is significantly reduced.",
       bindingSite: "Cysteine residues on the H+/K+ ATPase pump",
-      effect: "Stomach acid production decreases, allowing ulcers to heal and reducing heartburn symptoms"
+      effect:
+        "Stomach acid production decreases, allowing ulcers to heal and reducing heartburn symptoms"
     },
-    "amoxicillin": {
-      mechanism: "Amoxicillin binds to penicillin-binding proteins in bacterial cell walls, blocking cross-linking of peptidoglycan. The cell wall weakens and the bacterium lyses.",
+    amoxicillin: {
+      mechanism:
+        "Amoxicillin binds to penicillin-binding proteins in bacterial cell walls, blocking cross-linking of peptidoglycan. The cell wall weakens and the bacterium lyses.",
       bindingSite: "Penicillin-binding protein active site",
       effect: "Bacterial cell wall synthesis is inhibited, stopping infection spread"
     },
-    "ibuprofen": {
-      mechanism: "Ibuprofen inhibits cyclooxygenase (COX) enzymes, reducing production of prostaglandins that cause pain, fever, and inflammation.",
+    ibuprofen: {
+      mechanism:
+        "Ibuprofen inhibits cyclooxygenase (COX) enzymes, reducing production of prostaglandins that cause pain, fever, and inflammation.",
       bindingSite: "COX enzyme active site",
       effect: "Pain and inflammation decrease as prostaglandin levels fall"
     }
   };
-  
+
   const key = medication.toLowerCase();
-  return mechanisms[key] || {
-    mechanism: `${medication} interacts with ${targetProtein} to produce its therapeutic effect. The drug binds to specific sites on the protein, modulating its activity.`,
-    bindingSite: `Active or allosteric site on ${targetProtein}`,
-    effect: "Therapeutic effect through protein modulation"
-  };
+  return (
+    mechanisms[key] || {
+      mechanism: `${medication} interacts with ${targetProtein} to produce its therapeutic effect. The drug binds to specific sites on the protein, modulating its activity.`,
+      bindingSite: `Active or allosteric site on ${targetProtein}`,
+      effect: "Therapeutic effect through protein modulation"
+    }
+  );
 }
 
 module.exports = {
-  id: "protein_mechanism",
-  label: "Protein Mechanism",
   predictProteinMechanism
 };

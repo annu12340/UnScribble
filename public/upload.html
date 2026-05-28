@@ -10,8 +10,8 @@
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css" />
-    <link rel="stylesheet" href="/rx-quirky.css" />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/rx-quirky.css" />
   </head>
   <body class="upload-page rx-app">
     <div class="app-shell">
@@ -19,8 +19,13 @@
         <a href="/landing.html" class="brand brand-link">
           <div class="brand-mark rx-logo" aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-              <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="28" cy="26" r="3" fill="white"/>
+              <path
+                d="M12 14h16M12 20h16M12 26h10"
+                stroke="white"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+              <circle cx="28" cy="26" r="3" fill="white" />
             </svg>
           </div>
           <div>
@@ -36,10 +41,9 @@
 
       <main class="upload-workspace">
         <div class="upload-container">
-          
           <div class="progress-steps">
             <div class="progress-line">
-              <div class="progress-line-fill" style="width: 0%;"></div>
+              <div class="progress-line-fill" style="width: 0%"></div>
             </div>
             <div class="progress-step active">
               <div class="step-circle">1</div>
@@ -63,22 +67,37 @@
 
           <div class="upload-card">
             <label class="dropzone large" id="dropzone">
-              <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" capture="environment" />
+              <input
+                id="fileInput"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                capture="environment"
+              />
               <div class="dropzone-content" id="dropzoneContent">
                 <span class="dropzone-icon" aria-hidden="true">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V8m0 0l-3 3m3-3 3 3" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                  <svg
+                    width="48"
+                    height="48"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 16V8m0 0l-3 3m3-3 3 3"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+                    />
                   </svg>
                 </span>
                 <span class="dropzone-title">Drop image here or click to browse</span>
                 <span class="dropzone-subtitle">PNG, JPG, WEBP · Maximum 10 MB</span>
-              </div>
-              <div class="dropzone-preview" id="dropzonePreview" hidden>
-                <img id="dropzoneImage" alt="Uploaded prescription" />
-                <div class="dropzone-overlay">
-                  <span class="dropzone-overlay-text">Click to change image</span>
-                </div>
               </div>
             </label>
 
@@ -86,13 +105,22 @@
               <div class="preview-header">
                 <span class="file-name" id="fileName">prescription.jpg</span>
                 <button class="btn ghost small" id="removeBtn" type="button">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"
+                    />
                   </svg>
                   Remove
                 </button>
               </div>
-              
+
               <div class="preview-canvas-wrap">
                 <canvas id="previewCanvas" aria-label="Prescription preview"></canvas>
               </div>
@@ -100,15 +128,31 @@
               <fieldset class="field">
                 <legend class="field-label">Image Enhancement</legend>
                 <div class="segmented" role="radiogroup" aria-label="Image enhancement">
-                  <label><input type="radio" name="enhance" value="original" checked /><span>Original</span></label>
-                  <label><input type="radio" name="enhance" value="contrast" /><span>Contrast</span></label>
+                  <label
+                    ><input type="radio" name="enhance" value="original" checked /><span
+                      >Original</span
+                    ></label
+                  >
+                  <label
+                    ><input type="radio" name="enhance" value="contrast" /><span
+                      >Contrast</span
+                    ></label
+                  >
                   <label><input type="radio" name="enhance" value="mono" /><span>Mono</span></label>
                 </div>
                 <p class="field-hint">Choose enhancement mode to improve text clarity</p>
               </fieldset>
 
               <button class="btn primary large" id="processBtn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
                   <path stroke-linecap="round" d="M12 3v3m0 12v3M3 12h3m12 0h3" />
                   <circle cx="12" cy="12" r="4" />
                 </svg>
@@ -180,7 +224,15 @@
           </div>
 
           <div class="error-card" id="errorCard" hidden>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              aria-hidden="true"
+            >
               <circle cx="12" cy="12" r="10" />
               <path d="M12 8v4m0 4h.01" />
             </svg>
@@ -191,8 +243,6 @@
       </main>
     </div>
 
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-    <script type="module" src="/upload.js"></script>
+    <script type="module" src="/js/pages/upload.js"></script>
   </body>
 </html>

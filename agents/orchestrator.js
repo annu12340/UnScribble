@@ -10,13 +10,13 @@ const { validateAgainstFormulary } = require("./formulary");
 const { mergeMedicationRuns } = require("./merge-medication-runs");
 const { cacheKey, getCached, setCached, cacheEnabled } = require("./workflow-cache");
 
-const imageQualityAgent = require("./agents/image-quality");
-const rawTranscriptionAgent = require("./agents/raw-transcription");
-const patientHeaderAgent = require("./agents/patient-header");
-const medicationsAgent = require("./agents/medications");
-const clinicalContextAgent = require("./agents/clinical-context");
-const safetyReviewAgent = require("./agents/safety-review");
-const synthesisAgent = require("./agents/synthesis");
+const imageQualityAgent = require("./runners/image-quality");
+const rawTranscriptionAgent = require("./runners/raw-transcription");
+const patientHeaderAgent = require("./runners/patient-header");
+const medicationsAgent = require("./runners/medications");
+const clinicalContextAgent = require("./runners/clinical-context");
+const safetyReviewAgent = require("./runners/safety-review");
+const synthesisAgent = require("./runners/synthesis");
 
 const AGENT_MANIFEST = [
   imageQualityAgent,
@@ -30,8 +30,18 @@ const AGENT_MANIFEST = [
 
 async function runAgent(agent, ctx, emit, steps) {
   const started = Date.now();
-  log.info("workflow", `agent start · ${agent.label}`, { id: agent.id, mock: config.mock });
-  emit("agent.start", { id: agent.id, label: agent.label });
+  log.info("workflow", `agent start · ${agent.label}`, {
+    workflowId: ctx.workflowId,
+    requestId: ctx.requestId,
+    id: agent.id,
+    mock: config.mock
+  });
+  emit("agent.start", {
+    workflowId: ctx.workflowId,
+    requestId: ctx.requestId,
+    id: agent.id,
+    label: agent.label
+  });
 
   try {
     let output;
@@ -53,12 +63,20 @@ async function runAgent(agent, ctx, emit, steps) {
     ctx.artifacts[agent.id] = output;
     steps.push({ id: agent.id, label: agent.label, status: "complete", durationMs });
     const summary = summarizeOutput(agent.id, output);
-    log.info("workflow", `agent done · ${agent.label}`, { id: agent.id, durationMs, summary });
+    log.info("workflow", `agent done · ${agent.label}`, {
+      workflowId: ctx.workflowId,
+      requestId: ctx.requestId,
+      id: agent.id,
+      durationMs,
+      summary
+    });
     emit("agent.complete", {
+      workflowId: ctx.workflowId,
+      requestId: ctx.requestId,
       id: agent.id,
       durationMs,
       summary,
-      requestId: ctx.lastNimRequestId || undefined
+      nimRequestId: ctx.lastNimRequestId || undefined
     });
     return output;
   } catch (error) {
@@ -71,6 +89,8 @@ async function runAgent(agent, ctx, emit, steps) {
       message: error.message
     });
     log.error("workflow", `agent failed · ${agent.label}`, {
+      workflowId: ctx.workflowId,
+      requestId: ctx.requestId,
       id: agent.id,
       durationMs,
       message: error.message,
@@ -83,13 +103,15 @@ async function runAgent(agent, ctx, emit, steps) {
       });
     }
     emit("agent.error", {
+      workflowId: ctx.workflowId,
+      requestId: ctx.requestId,
       id: agent.id,
       label: agent.label,
       message: error.message,
       detail: error.detail || "",
       rawText: error.rawText ? error.rawText.slice(0, 500) : ""
     });
-    
+
     // Attach agent context to error for better debugging
     error.agentId = agent.id;
     error.critical = agent.critical;
@@ -145,7 +167,10 @@ async function maybeSelfConsistency(ctx, emit, steps) {
 
   ctx.artifacts.medications = {
     ...firstArtifact,
-    medications: mergeMedicationRuns(firstArtifact.medications || [], secondArtifact.medications || [])
+    medications: mergeMedicationRuns(
+      firstArtifact.medications || [],
+      secondArtifact.medications || []
+    )
   };
 }
 
@@ -165,8 +190,9 @@ function summarizeOutput(agentId, output) {
   return "";
 }
 
-async function runWorkflow(body, emit) {
+async function runWorkflow(body, emit, options = {}) {
   const workflowId = crypto.randomUUID();
+  const requestId = options.requestId || "";
   const started = Date.now();
   const steps = [];
 
@@ -175,21 +201,24 @@ async function runWorkflow(body, emit) {
   if (key) {
     const cached = getCached(key);
     if (cached) {
-      log.info("workflow", "cache hit", { workflowId, key: key.slice(0, 12) });
-      emit("workflow.start", { workflowId, agents: AGENT_MANIFEST });
+      log.info("workflow", "cache hit", { workflowId, requestId, key: key.slice(0, 12) });
+      emit("workflow.start", { workflowId, requestId, agents: AGENT_MANIFEST });
       const workflow = {
         workflowId,
+        requestId,
         steps: [],
         totalMs: Date.now() - started,
         model: cached.workflow?.model || config.model,
         cached: true
       };
-      emit("workflow.complete", { result: cached.result, workflow });
+      emit("workflow.complete", { workflowId, requestId, result: cached.result, workflow });
       return { result: cached.result, workflow };
     }
   }
 
   const ctx = {
+    workflowId,
+    requestId,
     body,
     imageDataUrl: body.imageDataUrl,
     originalImageDataUrl: body.originalImageDataUrl || "",
@@ -199,12 +228,13 @@ async function runWorkflow(body, emit) {
 
   log.info("workflow", "decode started", {
     workflowId,
+    requestId,
     fileName: body.fileName || "",
     enhancementMode: body.enhancementMode,
     mock: config.mock,
     model: config.model
   });
-  emit("workflow.start", { workflowId, agents: AGENT_MANIFEST });
+  emit("workflow.start", { workflowId, requestId, agents: AGENT_MANIFEST });
 
   try {
     let stageStart = Date.now();
@@ -231,13 +261,20 @@ async function runWorkflow(body, emit) {
         result.summary ||
         "Image unusable — medication extraction skipped. Please recapture the prescription.";
       result = await validateAgainstFormulary(result);
-      const workflow = { workflowId, steps, totalMs: Date.now() - started, model: config.model };
+      const workflow = {
+        workflowId,
+        requestId,
+        steps,
+        totalMs: Date.now() - started,
+        model: config.model
+      };
       log.info("workflow", "decode complete (early exit)", {
         workflowId,
+        requestId,
         totalMs: workflow.totalMs,
         review: result.requires_human_review
       });
-      emit("workflow.complete", { result, workflow });
+      emit("workflow.complete", { workflowId, requestId, result, workflow });
       return { result, workflow };
     }
 
@@ -276,25 +313,35 @@ async function runWorkflow(body, emit) {
     log.info("workflow", "formulary validation");
     merged = await validateAgainstFormulary(merged);
 
-    const workflow = { workflowId, steps, totalMs: Date.now() - started, model: config.model };
+    const workflow = {
+      workflowId,
+      requestId,
+      steps,
+      totalMs: Date.now() - started,
+      model: config.model
+    };
     log.info("workflow", "decode complete", {
       workflowId,
+      requestId,
       totalMs: workflow.totalMs,
       medications: merged.medications?.length ?? 0,
       requires_human_review: merged.requires_human_review,
       legibility: merged.image_quality?.legibility
     });
     if (key) setCached(key, { result: merged, workflow });
-    emit("workflow.complete", { result: merged, workflow });
+    emit("workflow.complete", { workflowId, requestId, result: merged, workflow });
     return { result: merged, workflow };
   } catch (error) {
     log.error("workflow", "decode failed", {
       workflowId,
+      requestId,
       agentId: error.agentId,
       message: error.message,
       detail: error.detail
     });
     emit("workflow.error", {
+      workflowId,
+      requestId,
       message: error.detail || error.message,
       agentId: error.agentId || null
     });

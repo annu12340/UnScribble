@@ -125,13 +125,15 @@ function lasaBlock() {
 
 function lasaBlockFor(medNames) {
   const names = (Array.isArray(medNames) ? medNames : [])
-    .map((n) => String(n || "").trim().toLowerCase())
+    .map((n) =>
+      String(n || "")
+        .trim()
+        .toLowerCase()
+    )
     .filter(Boolean);
   if (!names.length) return lasaBlock();
 
-  const relevant = LASA_PAIRS.filter(([a, b]) =>
-    names.some((name) => fuzzyMatchAny(name, [a, b]))
-  );
+  const relevant = LASA_PAIRS.filter(([a, b]) => names.some((name) => fuzzyMatchAny(name, [a, b])));
   if (!relevant.length) return lasaBlock();
   return relevant.map(([a, b]) => `  - ${a} / ${b}`).join("\n");
 }

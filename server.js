@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const fsp = require("node:fs/promises");
+const crypto = require("node:crypto");
 const http = require("node:http");
 const path = require("node:path");
 const { URL } = require("node:url");
@@ -12,9 +13,10 @@ const log = require("./agents/logger");
 const { AGENT_MANIFEST, runWorkflow } = require("./agents/orchestrator");
 const { initSseResponse, writeSse } = require("./agents/sse");
 const { formularySize } = require("./agents/formulary");
-const { predictProteinMechanism } = require("./agents/agents/protein-mechanism");
+const { predictProteinMechanism } = require("./agents/features/protein-mechanism");
 
 const PUBLIC_DIR = path.join(ROOT, "public");
+const DATA_DIR = path.join(ROOT, "data");
 const MAX_BODY_BYTES = 32 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
@@ -58,73 +60,95 @@ function applySecurityHeaders(res) {
   }
 }
 
-const server = http.createServer(async (req, res) => {
-  try {
-    applySecurityHeaders(res);
-    const requestUrl = new URL(req.url, `http://${req.headers.host}`);
+function createAppServer() {
+  return http.createServer(async (req, res) => {
+    try {
+      applySecurityHeaders(res);
+      const requestId = requestIdFor(req);
+      req.requestId = requestId;
+      res.setHeader("X-Request-ID", requestId);
+      const requestUrl = new URL(req.url, `http://${req.headers.host}`);
 
-    // API routes
-    if (req.method === "GET" && requestUrl.pathname === "/api/config") {
-      return sendJson(res, 200, {
-        configured: Boolean(config.apiKey),
-        model: config.model,
-        provider: "nvidia-nim",
-        maxImageBytes: MAX_IMAGE_BYTES,
-        workflow: true,
-        agents: AGENT_MANIFEST,
-        mock: config.mock,
-        googleCalendar: {
-          enabled: Boolean(process.env.GOOGLE_CLIENT_ID),
-          clientId: process.env.GOOGLE_CLIENT_ID || ""
+      // API routes
+      if (req.method === "GET" && requestUrl.pathname === "/api/config") {
+        return sendJson(res, 200, {
+          configured: Boolean(config.apiKey),
+          model: config.model,
+          provider: "nvidia-nim",
+          maxImageBytes: MAX_IMAGE_BYTES,
+          workflow: true,
+          agents: AGENT_MANIFEST,
+          mock: config.mock,
+          googleCalendar: {
+            enabled: Boolean(process.env.GOOGLE_CLIENT_ID),
+            clientId: process.env.GOOGLE_CLIENT_ID || ""
+          }
+        });
+      }
+
+      if (req.method === "POST" && requestUrl.pathname === "/api/decode/stream") {
+        return await handleDecodeStream(req, res);
+      }
+
+      if (req.method === "POST" && requestUrl.pathname === "/api/decode") {
+        return await handleDecodeBatch(req, res);
+      }
+
+      if (req.method === "POST" && requestUrl.pathname === "/api/protein-mechanism") {
+        return await handleProteinMechanism(req, res);
+      }
+
+      if (
+        (req.method === "GET" || req.method === "HEAD") &&
+        requestUrl.pathname === "/data/drug-body-effects.json"
+      ) {
+        return await serveDataFile(req, res, "drug-body-effects.json");
+      }
+
+      // Static file routes
+      if (req.method === "GET" || req.method === "HEAD") {
+        if (requestUrl.pathname === "/") {
+          res.writeHead(302, { Location: "/landing.html" });
+          res.end();
+          return;
         }
+        return await serveStatic(req, res, requestUrl.pathname);
+      }
+
+      sendJson(res, 405, { error: "Method not allowed" });
+    } catch (error) {
+      log.error("http", "request error", {
+        requestId: req.requestId,
+        method: req.method,
+        url: req.url,
+        message: error.message
+      });
+      const statusCode = error.statusCode || 500;
+      sendJson(res, statusCode, {
+        error: statusCode >= 500 ? "Server error" : error.message,
+        detail: statusCode >= 500 ? error.message : undefined
       });
     }
+  });
+}
 
-    if (req.method === "POST" && requestUrl.pathname === "/api/decode/stream") {
-      return await handleDecodeStream(req, res);
+if (require.main === module) {
+  const server = createAppServer();
+  server.listen(PORT, "0.0.0.0", () => {
+    console.log(`UnScribble running at http://localhost:${PORT}`);
+    console.log(`Workflow: multi-agent SSE · formulary entries: ${formularySize}`);
+    if (config.mock) console.log("WORKFLOW_MOCK=1 — using fixture agent outputs");
+    if (!config.apiKey) {
+      console.log("NVIDIA_API_KEY is not set. Add it to .env before decoding prescriptions.");
     }
+  });
+}
 
-    if (req.method === "POST" && requestUrl.pathname === "/api/decode") {
-      return await handleDecodeBatch(req, res);
-    }
-
-    if (req.method === "POST" && requestUrl.pathname === "/api/protein-mechanism") {
-      return await handleProteinMechanism(req, res);
-    }
-
-    // Static file routes
-    if (req.method === "GET" || req.method === "HEAD") {
-      if (requestUrl.pathname === "/") {
-        res.writeHead(302, { Location: "/landing.html" });
-        res.end();
-        return;
-      }
-      return await serveStatic(req, res, requestUrl.pathname);
-    }
-
-    sendJson(res, 405, { error: "Method not allowed" });
-  } catch (error) {
-    log.error("http", "request error", { 
-      method: req.method, 
-      url: req.url, 
-      message: error.message 
-    });
-    const statusCode = error.statusCode || 500;
-    sendJson(res, statusCode, {
-      error: statusCode >= 500 ? "Server error" : error.message,
-      detail: statusCode >= 500 ? error.message : undefined
-    });
-  }
-});
-
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`UnScribble running at http://localhost:${PORT}`);
-  console.log(`Workflow: multi-agent SSE · formulary entries: ${formularySize}`);
-  if (config.mock) console.log("WORKFLOW_MOCK=1 — using fixture agent outputs");
-  if (!config.apiKey) {
-    console.log("NVIDIA_API_KEY is not set. Add it to .env before decoding prescriptions.");
-  }
-});
+function requestIdFor(req) {
+  const incoming = String(req.headers["x-request-id"] || "").trim();
+  if (/^[A-Za-z0-9._:-]{8,128}$/.test(incoming)) return incoming;
+  return crypto.randomUUID();
+}
 
 async function handleDecodeStream(req, res) {
   if (!config.apiKey && !config.mock) {
@@ -144,20 +168,30 @@ async function handleDecodeStream(req, res) {
 
   initSseResponse(res);
   log.info("http", "POST /api/decode/stream", {
+    requestId: req.requestId,
     fileName: body.fileName,
     enhancementMode: body.enhancementMode
   });
 
   try {
-    await runWorkflow(body, (event, data) => {
-      log.debug("sse", event, data.id || data.workflowId || "");
-      writeSse(res, event, data);
-    });
-    log.info("http", "SSE stream finished");
+    await runWorkflow(
+      body,
+      (event, data) => {
+        log.debug("sse", event, data.id || data.workflowId || "");
+        writeSse(res, event, { requestId: req.requestId, ...data });
+      },
+      { requestId: req.requestId }
+    );
+    log.info("http", "SSE stream finished", { requestId: req.requestId });
     res.end();
   } catch (error) {
-    log.error("http", "SSE stream error", { message: error.message, agentId: error.agentId });
+    log.error("http", "SSE stream error", {
+      requestId: req.requestId,
+      message: error.message,
+      agentId: error.agentId
+    });
     writeSse(res, "workflow.error", {
+      requestId: req.requestId,
       message: error.detail || error.message,
       agentId: error.agentId || null
     });
@@ -182,18 +216,27 @@ async function handleDecodeBatch(req, res) {
   }
 
   log.info("http", "POST /api/decode", {
+    requestId: req.requestId,
     fileName: body.fileName,
     enhancementMode: body.enhancementMode
   });
 
   const events = [];
   try {
-    const { result, workflow } = await runWorkflow(body, (event, data) => {
-      log.debug("http", `batch event · ${event}`, data.id || "");
-      events.push({ event, data });
+    const { result, workflow } = await runWorkflow(
+      body,
+      (event, data) => {
+        log.debug("http", `batch event · ${event}`, data.id || "");
+        events.push({ event, data: { requestId: req.requestId, ...data } });
+      },
+      { requestId: req.requestId }
+    );
+    log.info("http", "batch decode complete", {
+      requestId: req.requestId,
+      totalMs: workflow?.totalMs
     });
-    log.info("http", "batch decode complete", { totalMs: workflow?.totalMs });
     return sendJson(res, 200, {
+      requestId: req.requestId,
       result,
       workflow,
       events,
@@ -201,9 +244,14 @@ async function handleDecodeBatch(req, res) {
       decodedAt: new Date().toISOString()
     });
   } catch (error) {
-    log.error("http", "batch decode failed", { message: error.message, agentId: error.agentId });
+    log.error("http", "batch decode failed", {
+      requestId: req.requestId,
+      message: error.message,
+      agentId: error.agentId
+    });
     const statusCode = error.statusCode || 500;
     return sendJson(res, statusCode, {
+      requestId: req.requestId,
       error: statusCode >= 500 ? "Decoding failed" : error.message,
       detail: error.detail || error.message,
       events,
@@ -224,16 +272,17 @@ async function handleProteinMechanism(req, res) {
   if (!medication) {
     return sendJson(res, 400, { error: "Medication name is required" });
   }
-  
-  log.info("http", "POST /api/protein-mechanism", { medication });
-  
+
+  log.info("http", "POST /api/protein-mechanism", { requestId: req.requestId, medication });
+
   try {
     const result = await predictProteinMechanism(medication);
     return sendJson(res, 200, result);
   } catch (error) {
-    log.error("http", "protein mechanism failed", { 
-      medication, 
-      message: error.message 
+    log.error("http", "protein mechanism failed", {
+      requestId: req.requestId,
+      medication,
+      message: error.message
     });
     return sendJson(res, error.statusCode || 500, {
       error: "Failed to predict protein mechanism",
@@ -301,7 +350,12 @@ function readJson(req) {
 
 async function resolveStaticFile(pathname) {
   const safePath = pathname === "/" ? "/index.html" : pathname;
-  const decodedPath = decodeURIComponent(safePath);
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(safePath);
+  } catch {
+    return { missing: true };
+  }
   const filePath = path.normalize(path.join(PUBLIC_DIR, decodedPath));
 
   if (!filePath.startsWith(PUBLIC_DIR + path.sep) && filePath !== PUBLIC_DIR) {
@@ -322,6 +376,16 @@ async function resolveStaticFile(pathname) {
   }
 }
 
+async function serveDataFile(req, res, fileName) {
+  const filePath = path.join(DATA_DIR, fileName);
+  const stat = await fsp.stat(filePath).catch(() => null);
+  if (!stat?.isFile()) {
+    sendJson(res, 404, { error: "Not found" });
+    return;
+  }
+  sendFile(req, res, filePath, stat, "no-store");
+}
+
 async function serveStatic(req, res, pathname) {
   let resolved = await resolveStaticFile(pathname);
 
@@ -340,11 +404,68 @@ async function serveStatic(req, res, pathname) {
     resolved = { filePath: indexPath, stat: indexStat };
   }
 
-  const type = mimeTypes[path.extname(resolved.filePath).toLowerCase()] || "application/octet-stream";
+  const cacheControl = cacheControlFor(resolved.filePath);
+  sendFile(req, res, resolved.filePath, resolved.stat, cacheControl);
+}
+
+function contentTypeFor(filePath) {
+  return mimeTypes[path.extname(filePath).toLowerCase()] || "application/octet-stream";
+}
+
+function cacheControlFor(filePath) {
+  const type = contentTypeFor(filePath);
+  if (type.includes("html")) return "no-store";
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext === ".js" || ext === ".css") {
+    return "public, max-age=86400, stale-while-revalidate=604800";
+  }
+  return "public, max-age=3600";
+}
+
+function entityTagFor(stat) {
+  return `"${stat.size.toString(16)}-${Math.floor(stat.mtimeMs).toString(16)}"`;
+}
+
+function isFresh(req, stat, etag) {
+  const ifNoneMatch = req.headers["if-none-match"];
+  if (
+    ifNoneMatch &&
+    ifNoneMatch
+      .split(",")
+      .map((value) => value.trim())
+      .includes(etag)
+  ) {
+    return true;
+  }
+
+  const ifModifiedSince = req.headers["if-modified-since"];
+  if (!ifModifiedSince) return false;
+  const sinceMs = Date.parse(ifModifiedSince);
+  if (Number.isNaN(sinceMs)) return false;
+  return Math.floor(stat.mtimeMs / 1000) * 1000 <= sinceMs;
+}
+
+function sendFile(req, res, filePath, stat, cacheControl) {
+  const type = contentTypeFor(filePath);
+  const etag = entityTagFor(stat);
+  const lastModified = stat.mtime.toUTCString();
+
+  if (isFresh(req, stat, etag)) {
+    res.writeHead(304, {
+      ETag: etag,
+      "Last-Modified": lastModified,
+      "Cache-Control": cacheControl
+    });
+    res.end();
+    return;
+  }
+
   res.writeHead(200, {
     "Content-Type": type,
-    "Content-Length": resolved.stat.size,
-    "Cache-Control": type.includes("html") ? "no-store" : "public, max-age=3600"
+    "Content-Length": stat.size,
+    "Cache-Control": cacheControl,
+    ETag: etag,
+    "Last-Modified": lastModified
   });
 
   if (req.method === "HEAD") {
@@ -352,7 +473,7 @@ async function serveStatic(req, res, pathname) {
     return;
   }
 
-  fs.createReadStream(resolved.filePath).pipe(res);
+  fs.createReadStream(filePath).pipe(res);
 }
 
 function sendJson(res, statusCode, payload) {
@@ -384,3 +505,11 @@ function loadDotEnv(filePath) {
     }
   }
 }
+
+module.exports = {
+  createAppServer,
+  cacheControlFor,
+  contentTypeFor,
+  entityTagFor,
+  resolveStaticFile
+};

@@ -7,8 +7,12 @@ const { mergeArtifacts, buildDeterministicSummary } = require("../agents/merger"
 describe("merger", () => {
   it("mergeArtifacts combines agent outputs", () => {
     const merged = mergeArtifacts({
-      image_quality: { image_quality: { legibility: "high", issues: [], recommended_next_capture: "" } },
-      raw_transcription: { raw_transcription: [{ line_number: 1, text: "Tab X", section: "medication" }] },
+      image_quality: {
+        image_quality: { legibility: "high", issues: [], recommended_next_capture: "" }
+      },
+      raw_transcription: {
+        raw_transcription: [{ line_number: 1, text: "Tab X", section: "medication" }]
+      },
       patient_header: { patient: { name: "Jane Doe" } },
       medications: { medications: [{ medication_name: "X", line_number: 1 }] },
       clinical_context: { allergies: [], clinical_context: { diagnoses: ["fever"] } }

@@ -37,7 +37,9 @@ const observeChapters = () => {
 };
 
 const animateFlowNodes = () => {
-  const nodes = document.querySelectorAll(".flowchart-svg [data-animate]");
+  const nodes = document.querySelectorAll(
+    ".flowchart-svg [data-animate], .diagram-svg [data-animate]"
+  );
   if (!nodes.length) return;
 
   const observer = new IntersectionObserver(

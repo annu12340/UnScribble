@@ -3,9 +3,52 @@
  */
 
 const FALLBACK_MEDICATION = "lisinopril";
+const SCRIPT_PROMISES = new Map();
+
+function loadScript(src) {
+  if (SCRIPT_PROMISES.has(src)) return SCRIPT_PROMISES.get(src);
+
+  const existing = document.querySelector(`script[src="${src}"]`);
+  if (existing?.dataset.loaded === "true") return Promise.resolve();
+
+  const promise = new Promise((resolve, reject) => {
+    const script = existing || document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.dataset.dynamic = "true";
+    script.addEventListener(
+      "load",
+      () => {
+        script.dataset.loaded = "true";
+        resolve();
+      },
+      { once: true }
+    );
+    script.addEventListener("error", () => reject(new Error(`Failed to load ${src}`)), {
+      once: true
+    });
+    if (!existing) document.head.appendChild(script);
+  });
+
+  SCRIPT_PROMISES.set(src, promise);
+  return promise;
+}
+
+async function ensureProteinViewerLoaded() {
+  if (window.ProteinViewer && window.THREE?.OrbitControls) return true;
+
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js");
+  await loadScript(
+    "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"
+  );
+  await loadScript("/js/medication/protein-viewer.js");
+  return Boolean(window.ProteinViewer);
+}
 
 function medicationLookupKeys(name) {
-  const raw = String(name || "").trim().toLowerCase();
+  const raw = String(name || "")
+    .trim()
+    .toLowerCase();
   if (!raw) return [];
   const first = raw.split(/\s+/)[0];
   return [...new Set([raw, first].filter(Boolean))];
@@ -15,7 +58,7 @@ async function fetchMechanism(medication) {
   const response = await fetch("/api/protein-mechanism", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ medication }),
+    body: JSON.stringify({ medication })
   });
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -38,7 +81,7 @@ async function resolveMechanismData(medicationName) {
       data: fallback,
       displayName: medicationName || FALLBACK_MEDICATION,
       resolvedKey: FALLBACK_MEDICATION,
-      usedFallback: true,
+      usedFallback: true
     };
   }
 
@@ -54,8 +97,7 @@ function setSidebarLoading(els) {
   els.mechanism.textContent = "—";
   els.effect.textContent = "—";
   els.fallbackNote.hidden = true;
-  els.viewer.innerHTML =
-    '<p class="mechanism-sidebar-loading">Loading 3D structure…</p>';
+  els.viewer.innerHTML = '<p class="mechanism-sidebar-loading">Loading 3D structure…</p>';
 }
 
 function setSidebarUnavailable(els, message) {
@@ -65,8 +107,7 @@ function setSidebarUnavailable(els, message) {
   els.bindingSite.textContent = "Not available for this medication yet.";
   els.mechanism.textContent = "";
   els.effect.textContent = "";
-  els.viewer.innerHTML =
-    '<p class="mechanism-sidebar-empty">3D protein view unavailable.</p>';
+  els.viewer.innerHTML = '<p class="mechanism-sidebar-empty">3D protein view unavailable.</p>';
 }
 
 /**
@@ -79,15 +120,10 @@ export async function loadMechanismSidebar(medicationName, els) {
   setSidebarLoading(els);
 
   try {
-    const { data, displayName, usedFallback } = await resolveMechanismData(
-      medicationName
-    );
+    const { data, displayName, usedFallback } = await resolveMechanismData(medicationName);
 
     if (!data.hasProteinData) {
-      setSidebarUnavailable(
-        els,
-        data.message || "Protein target data not available."
-      );
+      setSidebarUnavailable(els, data.message || "Protein target data not available.");
       return;
     }
 
@@ -105,17 +141,14 @@ export async function loadMechanismSidebar(medicationName, els) {
 
     els.viewer.innerHTML = "";
 
-    if (typeof ProteinViewer === "undefined") {
-      els.viewer.innerHTML =
-        '<p class="mechanism-sidebar-empty">3D viewer could not load.</p>';
+    const hasViewer = await ensureProteinViewerLoaded();
+    if (!hasViewer) {
+      els.viewer.innerHTML = '<p class="mechanism-sidebar-empty">3D viewer could not load.</p>';
       return;
     }
 
-    const viewer = new ProteinViewer("mechanismSidebarViewer");
-    await viewer.loadProteinStructure(
-      data.proteinStructure.pdbData,
-      displayName
-    );
+    const viewer = new window.ProteinViewer("mechanismSidebarViewer");
+    await viewer.loadProteinStructure(data.proteinStructure.pdbData, displayName);
   } catch (error) {
     console.error("Mechanism sidebar error:", error);
     setSidebarUnavailable(els, `Could not load mechanism data.`);
@@ -131,6 +164,6 @@ export function mechanismSidebarElements() {
     mechanism: document.querySelector("#mechanismAction"),
     effect: document.querySelector("#mechanismEffect"),
     fallbackNote: document.querySelector("#mechanismFallbackNote"),
-    viewer: document.querySelector("#mechanismSidebarViewer"),
+    viewer: document.querySelector("#mechanismSidebarViewer")
   };
 }

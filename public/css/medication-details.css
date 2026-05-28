@@ -408,9 +408,14 @@ body.medication-details-page .med-shell {
   align-items: start;
 }
 
-.medication-details-page .med-panel--body .body-map-canvas {
+.medication-details-page .med-panel--body .body-map-canvas,
+.medication-details-page .med-panel--body .body-spline-canvas {
   height: min(420px, 55vh);
   min-height: 300px;
+}
+
+.medication-details-page .body-effects-map--spline {
+  min-width: 0;
 }
 
 .med-panel--mechanism .mechanism-layout {
@@ -452,7 +457,9 @@ body.medication-details-page .med-shell {
   background: #ffffff;
   border: 1px solid rgba(5, 150, 105, 0.14);
   box-shadow: 0 6px 20px rgba(5, 150, 105, 0.07);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .med-stat:hover {

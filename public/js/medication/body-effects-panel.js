@@ -9,14 +9,16 @@ const GENERIC_FALLBACK = {
   organs: [],
   summary:
     "We do not have a body-region map for this medication in our demo database yet. Ask your pharmacist or clinician where it acts.",
-  uncertain: true,
+  uncertain: true
 };
 
 /** @type {Record<string, { regions: string[], organs: string[], summary: string }> | null} */
 let bodyEffectsDb = null;
 
 function medicationLookupKeys(name) {
-  const raw = String(name || "").trim().toLowerCase();
+  const raw = String(name || "")
+    .trim()
+    .toLowerCase();
   if (!raw) return [];
   const first = raw.split(/\s+/)[0];
   return [...new Set([raw, first].filter(Boolean))];
@@ -25,13 +27,13 @@ function medicationLookupKeys(name) {
 async function loadBodyEffectsDb() {
   if (bodyEffectsDb) return bodyEffectsDb;
   try {
-    const response = await fetch("/drug-body-effects.json", { cache: "no-store" });
+    const response = await fetch("/data/drug-body-effects.json", { cache: "no-store" });
     if (response.ok) {
       bodyEffectsDb = await response.json();
       return bodyEffectsDb;
     }
   } catch (error) {
-    console.warn("Could not load drug-body-effects.json", error);
+    console.warn("Could not load body effects data", error);
   }
   bodyEffectsDb = {};
   return bodyEffectsDb;
@@ -73,8 +75,7 @@ export function renderBodyEffectsForMedication(medicationName, els) {
   els.panel.hidden = false;
   if (els.summary) els.summary.textContent = "Loading body map…";
   if (els.map) {
-    els.map.innerHTML =
-      '<p class="body-effects-loading">Loading body diagram…</p>';
+    els.map.innerHTML = '<p class="body-effects-loading">Loading body diagram…</p>';
   }
 
   loadBodyEffectsDb().then((db) => {
@@ -82,16 +83,11 @@ export function renderBodyEffectsForMedication(medicationName, els) {
   });
 }
 
-/** @deprecated Use renderBodyEffectsForMedication */
-export async function loadBodyEffectsPanel(medicationName, els) {
-  renderBodyEffectsForMedication(medicationName, els);
-}
-
 export function bodyEffectsPanelElements() {
   return {
     panel: document.querySelector("#bodyEffectsPanel"),
     map: document.querySelector("#bodyEffectsMap"),
     organs: document.querySelector("#bodyEffectsOrgans"),
-    summary: document.querySelector("#bodyEffectsSummary"),
+    summary: document.querySelector("#bodyEffectsSummary")
   };
 }

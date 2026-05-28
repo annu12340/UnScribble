@@ -26,7 +26,9 @@ async function run(ctx) {
       "Extract abbreviations, allergies, clinical context, and non-medication text from this transcription.",
       "Do not re-emit medication lines.",
       regionLine,
-      nonMedLines ? `Non-medication transcription lines:\n${nonMedLines}` : "(no non-medication lines)"
+      nonMedLines
+        ? `Non-medication transcription lines:\n${nonMedLines}`
+        : "(no non-medication lines)"
     ],
     schemaName: "clinical_context",
     schema: schemas.clinicalContext,

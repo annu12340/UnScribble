@@ -1,147 +1,265 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UnScribble — Technical Architecture</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Nothing+You+Could+Do&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/tech-landing.css">
-</head>
-<body>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Nothing+You+Could+Do&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/tech-landing.css" />
+  </head>
+  <body>
     <div class="story-progress">
-        <div class="progress-bar"></div>
+      <div class="progress-bar"></div>
     </div>
 
     <nav class="nav">
-        <div class="nav-container">
-            <a href="/landing.html" class="nav-logo" style="text-decoration:none;color:inherit">
-                <svg width="36" height="36" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                    <rect width="40" height="40" rx="10" fill="url(#logo-gradient)"/>
-                    <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                    <circle cx="28" cy="26" r="3" fill="white"/>
-                    <defs>
-                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="40" y2="40">
-                            <stop offset="0%" stop-color="#059669"/>
-                            <stop offset="100%" stop-color="#0d9488"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-                <span>UnScribble</span>
-            </a>
-            <div class="nav-links nav-links-tech">
-                <a href="/landing.html">Story</a>
-                <a href="#architecture">Architecture</a>
-                <a href="#agents">Agents</a>
-                <a href="/upload.html" class="btn-nav">Try it</a>
-            </div>
+      <div class="nav-container">
+        <a href="/landing.html" class="nav-logo" style="text-decoration: none; color: inherit">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <rect width="40" height="40" rx="10" fill="url(#logo-gradient)" />
+            <path
+              d="M12 14h16M12 20h16M12 26h10"
+              stroke="white"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+            <circle cx="28" cy="26" r="3" fill="white" />
+            <defs>
+              <linearGradient id="logo-gradient" x1="0" y1="0" x2="40" y2="40">
+                <stop offset="0%" stop-color="#059669" />
+                <stop offset="100%" stop-color="#0d9488" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <span>UnScribble</span>
+        </a>
+        <div class="nav-links nav-links-tech">
+          <a href="/landing.html">Story</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#pipeline">Pipeline</a>
+          <a href="#events">Events</a>
+          <a href="/upload.html" class="btn-nav">Try it</a>
         </div>
+      </div>
     </nav>
 
     <!-- Hero -->
     <section class="chapter chapter-1 tech-hero" data-chapter="hero">
-        <div class="chapter-container">
-            <span class="sticker sticker-tilt-left">for builders</span>
-            <div class="chapter-label">Technical overview</div>
-            <h1 class="chapter-title">
-                Under the <span class="highlight">hood<svg class="squiggle-underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
-            </h1>
-            <p class="chapter-intro" style="max-width:640px;margin:0 auto">
-                UnScribble is a transcription aid—not a clinical decision system. This page documents
-                the multi-agent decode pipeline, deterministic safety layer, image preprocessing, and
-                vanilla frontend that turns handwritten prescriptions into structured, reviewable output.
-            </p>
-            <div class="tech-badge-row">
-                <span class="tech-badge">Node ≥ 18</span>
-                <span class="tech-badge">NVIDIA NIM</span>
-                <span class="tech-badge">SSE streaming</span>
-                <span class="tech-badge">Strict JSON schemas</span>
-                <span class="tech-badge">No bundler</span>
-            </div>
-            <nav class="tech-toc" aria-label="Page sections">
-                <a href="#architecture">Architecture</a>
-                <a href="#stack">Tech stack</a>
-                <a href="#pipeline">Pipeline</a>
-                <a href="#agents">Agents</a>
-                <a href="#algorithms">Algorithms</a>
-                <a href="#api">API &amp; SSE</a>
-            </nav>
+      <div class="chapter-container">
+        <span class="sticker sticker-tilt-left">for builders</span>
+        <div class="chapter-label">Technical overview</div>
+        <h1 class="chapter-title">
+          Under the
+          <span class="highlight"
+            >hood<svg
+              class="squiggle-underline"
+              viewBox="0 0 220 12"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M2,8 Q30,2 60,7 T120,7 T180,7 T218,5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+              /></svg
+          ></span>
+        </h1>
+        <p class="chapter-intro" style="max-width: 520px; margin: 0 auto">
+          Transcription aid · multi-agent decode · diagrams below.
+        </p>
+        <div class="tech-badge-row">
+          <span class="tech-badge">Node ≥ 18</span>
+          <span class="tech-badge">NVIDIA NIM</span>
+          <span class="tech-badge">SSE streaming</span>
+          <span class="tech-badge">Strict JSON schemas</span>
+          <span class="tech-badge">No bundler</span>
         </div>
-        <div class="scroll-hint">
-            <span>Scroll to explore</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M12 5v14M5 12l7 7 7-7"/>
-            </svg>
-        </div>
+        <nav class="tech-toc" aria-label="Page sections">
+          <a href="#architecture">Architecture</a>
+          <a href="#stack">Tech stack</a>
+          <a href="#pipeline">Pipeline</a>
+          <a href="#agents">Agents</a>
+          <a href="#data-flow">Data flow</a>
+          <a href="#events">SSE events</a>
+          <a href="#api">API</a>
+        </nav>
+      </div>
+      <div class="scroll-hint">
+        <span>Scroll to explore</span>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14M5 12l7 7 7-7" />
+        </svg>
+      </div>
     </section>
 
     <!-- Architecture -->
     <section id="architecture" class="chapter chapter-tech chapter-4" data-chapter="arch">
-        <div class="chapter-container">
-            <span class="sticker sticker-tilt-right">two-tier</span>
-            <div class="chapter-label">Section 01</div>
-            <h2 class="chapter-title">
-                System <span class="highlight">architecture</span>
-            </h2>
-            <p class="chapter-intro">
-                A thin HTTP server serves static assets and orchestrates a staged agent workflow.
-                All decode intelligence lives server-side under <code>agents/</code>; the browser handles
-                capture, optional preprocessing, SSE progress, and rich result visualization.
-            </p>
+      <div class="chapter-container">
+        <span class="sticker sticker-tilt-right">two-tier</span>
+        <div class="chapter-label">Section 01</div>
+        <h2 class="chapter-title">System <span class="highlight">architecture</span></h2>
+        <p class="chapter-intro">
+          Thin server + staged agents under <code>agents/</code>; vanilla client under
+          <code>public/</code>.
+        </p>
 
-            <div class="arch-diagram">
-                <div class="arch-layers">
-                    <div class="arch-layer">
-                        <div class="arch-layer-label">Client</div>
-                        <div class="arch-layer-body">
-                            <h4>Vanilla frontend (<code>public/</code>)</h4>
-                            <p>ES modules, Canvas/Web Worker image enhancement, <code>fetch</code> + ReadableStream on <code>/api/decode/stream</code>, results &amp; medication detail views (3D protein, body map).</p>
-                        </div>
-                    </div>
-                    <div class="arch-arrow" aria-hidden="true">↓</div>
-                    <div class="arch-layer">
-                        <div class="arch-layer-label">Transport</div>
-                        <div class="arch-layer-body">
-                            <h4>HTTP + Server-Sent Events</h4>
-                            <p><code>POST /api/decode/stream</code> emits <code>workflow.start</code>, per-agent progress, and <code>workflow.complete</code>. Batch JSON at <code>POST /api/decode</code>.</p>
-                        </div>
-                    </div>
-                    <div class="arch-arrow" aria-hidden="true">↓</div>
-                    <div class="arch-layer">
-                        <div class="arch-layer-label">Server</div>
-                        <div class="arch-layer-body">
-                            <h4><code>server.js</code></h4>
-                            <p>Static file host, route handlers, env loading. Binds <code>127.0.0.1:${PORT||3000}</code>. No build step.</p>
-                        </div>
-                    </div>
-                    <div class="arch-arrow" aria-hidden="true">↓</div>
-                    <div class="arch-layer">
-                        <div class="arch-layer-label">Orchestrator</div>
-                        <div class="arch-layer-body">
-                            <h4><code>agents/orchestrator.js</code></h4>
-                            <p>Staged workflow, parallel Stage 2, self-consistency re-run, merger, formulary validation, SHA-256 LRU cache (16 entries, 5 min TTL).</p>
-                        </div>
-                    </div>
-                    <div class="arch-arrow" aria-hidden="true">↓</div>
-                    <div class="arch-layer">
-                        <div class="arch-layer-label">Model API</div>
-                        <div class="arch-layer-body">
-                            <h4>NVIDIA Inference (NIM)</h4>
-                            <p>Vision + text agents via Responses API (<code>nim-client.js</code>). Structured JSON with strict schemas; mock mode via <code>WORKFLOW_MOCK=1</code>.</p>
-                        </div>
-                    </div>
-                </div>
+        <figure class="diagram-figure">
+          <figcaption class="diagram-caption">Component architecture</figcaption>
+          <div class="diagram-wrap">
+            <svg
+              class="diagram-svg arch-components-svg"
+              viewBox="0 0 880 220"
+              role="img"
+              aria-label="Component architecture: browser, server, orchestrator, agents, NVIDIA NIM"
+            >
+              <defs>
+                <marker
+                  id="arch-arr"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="7"
+                  refY="4"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 4, 0 8" fill="#34d399" />
+                </marker>
+              </defs>
+              <g data-animate data-delay="0">
+                <rect
+                  class="diag-box diag-box--client"
+                  x="20"
+                  y="60"
+                  width="130"
+                  height="100"
+                  rx="12"
+                />
+                <text class="diag-title" x="85" y="95" text-anchor="middle">Browser</text>
+                <text class="diag-sub" x="85" y="118" text-anchor="middle">public/js</text>
+                <text class="diag-sub" x="85" y="136" text-anchor="middle">enhance · SSE UI</text>
+              </g>
+              <path class="diag-arrow" d="M150 110 H175" marker-end="url(#arch-arr)" />
+              <g data-animate data-delay="80">
+                <rect class="diag-box" x="175" y="60" width="120" height="100" rx="12" />
+                <text class="diag-title" x="235" y="95" text-anchor="middle">server.js</text>
+                <text class="diag-sub" x="235" y="118" text-anchor="middle">static · routes</text>
+                <text class="diag-sub" x="235" y="136" text-anchor="middle">SSE stream</text>
+              </g>
+              <path class="diag-arrow" d="M295 110 H320" marker-end="url(#arch-arr)" />
+              <g data-animate data-delay="160">
+                <rect
+                  class="diag-box diag-box--orch"
+                  x="320"
+                  y="40"
+                  width="150"
+                  height="140"
+                  rx="12"
+                />
+                <text class="diag-title" x="395" y="72" text-anchor="middle">orchestrator</text>
+                <text class="diag-sub" x="395" y="94" text-anchor="middle">stages · cache</text>
+                <text class="diag-sub" x="395" y="112" text-anchor="middle">merge · formulary</text>
+                <text class="diag-sub" x="395" y="130" text-anchor="middle">safety-rules</text>
+                <text class="diag-sub" x="395" y="158" text-anchor="middle">LRU · mock</text>
+              </g>
+              <path class="diag-arrow" d="M470 110 H495" marker-end="url(#arch-arr)" />
+              <g data-animate data-delay="240">
+                <rect
+                  class="diag-box diag-box--agents"
+                  x="495"
+                  y="50"
+                  width="140"
+                  height="120"
+                  rx="12"
+                />
+                <text class="diag-title" x="565" y="85" text-anchor="middle">runners/</text>
+                <text class="diag-sub" x="565" y="108" text-anchor="middle">7 agents</text>
+                <text class="diag-sub" x="565" y="126" text-anchor="middle">schemas · prompts</text>
+                <text class="diag-sub" x="565" y="148" text-anchor="middle">run-agent.js</text>
+              </g>
+              <path class="diag-arrow" d="M635 110 H660" marker-end="url(#arch-arr)" />
+              <g data-animate data-delay="320">
+                <rect
+                  class="diag-box diag-box--nim"
+                  x="660"
+                  y="60"
+                  width="120"
+                  height="100"
+                  rx="12"
+                />
+                <text class="diag-title" x="720" y="95" text-anchor="middle">NVIDIA NIM</text>
+                <text class="diag-sub" x="720" y="118" text-anchor="middle">Responses API</text>
+                <text class="diag-sub" x="720" y="136" text-anchor="middle">strict JSON</text>
+              </g>
+              <path
+                class="diag-arrow diag-arrow--return"
+                d="M720 170 C720 200 85 200 85 170"
+                marker-end="url(#arch-arr)"
+              />
+              <text class="diag-legend" x="440" y="205" text-anchor="middle">
+                workflow.complete → result JSON
+              </text>
+            </svg>
+          </div>
+        </figure>
+
+        <div class="arch-diagram arch-diagram--compact">
+          <div class="arch-layers">
+            <div class="arch-layer">
+              <div class="arch-layer-label">Client</div>
+              <div class="arch-layer-body">
+                <h4><code>public/</code></h4>
+                <p>Capture · CLAHE/Sauvola · results UI</p>
+              </div>
             </div>
+            <div class="arch-arrow" aria-hidden="true">↓</div>
+            <div class="arch-layer">
+              <div class="arch-layer-label">Server</div>
+              <div class="arch-layer-body">
+                <h4><code>server.js</code> + SSE</h4>
+                <p><code>/api/decode/stream</code></p>
+              </div>
+            </div>
+            <div class="arch-arrow" aria-hidden="true">↓</div>
+            <div class="arch-layer">
+              <div class="arch-layer-label">Agents</div>
+              <div class="arch-layer-body">
+                <h4><code>orchestrator.js</code></h4>
+                <p>Staged pipeline · merger · formulary</p>
+              </div>
+            </div>
+            <div class="arch-arrow" aria-hidden="true">↓</div>
+            <div class="arch-layer">
+              <div class="arch-layer-label">NIM</div>
+              <div class="arch-layer-body">
+                <h4>Vision + text</h4>
+                <p><code>WORKFLOW_MOCK=1</code> for fixtures</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            <div class="code-panel">
-                <div class="code-panel-header">
-                    <span class="code-dot code-dot--r"></span>
-                    <span class="code-dot code-dot--y"></span>
-                    <span class="code-dot code-dot--g"></span>
-                    <span>Repository layout</span>
-                </div>
-                <pre><span class="cmt"># Simplified tree</span>
+        <div class="code-panel">
+          <div class="code-panel-header">
+            <span class="code-dot code-dot--r"></span>
+            <span class="code-dot code-dot--y"></span>
+            <span class="code-dot code-dot--g"></span>
+            <span>Repository layout</span>
+          </div>
+          <pre><span class="cmt"># Simplified tree</span>
 server.js              <span class="cmt">→ routes, static, SSE</span>
 agents/
   orchestrator.js      <span class="cmt">→ staged workflow + cache</span>
@@ -151,478 +269,680 @@ agents/
   merger.js            <span class="cmt">→ merge artifacts + summary</span>
   safety-rules.js      <span class="cmt">→ deterministic review flags</span>
   formulary.js         <span class="cmt">→ Levenshtein fuzzy match</span>
-  agents/*.js          <span class="cmt">→ one runner per agent</span>
-public/                <span class="cmt">→ upload, results, landing, viz</span></pre>
-            </div>
-
-            <p class="disclaimer-tech">
-                <strong>Transcription aid only.</strong> Output is for reading and organizing prescription text—not dosing advice or clinical decisions. Low-confidence and safety flags route to human review.
-            </p>
+  runners/*.js         <span class="cmt">→ one runner per agent</span>
+  features/*.js        <span class="cmt">→ protein/body-effect helpers</span>
+public/
+  js/{core,pages,medication}/
+  css/                 <span class="cmt">→ shared and page styles</span></pre>
         </div>
+
+        <p class="disclaimer-tech">
+          <strong>Transcription aid only.</strong> Not for clinical decisions.
+        </p>
+      </div>
     </section>
 
     <!-- Tech stack -->
     <section id="stack" class="chapter chapter-tech chapter-features" data-chapter="stack">
-        <div class="chapter-container">
-            <span class="sticker sticker-tilt-left">the stack</span>
-            <div class="chapter-label">Section 02</div>
-            <h2 class="chapter-title">Tech <span class="highlight">stack</span></h2>
-            <p class="chapter-intro">Minimal dependencies by design—one npm package for formulary fuzzy matching; everything else is Node builtins and browser APIs.</p>
-
-            <div class="stack-grid">
-                <article class="stack-card">
-                    <h3><span class="stack-icon" aria-hidden="true">⚙️</span> Runtime</h3>
-                    <ul>
-                        <li><code>Node.js ≥ 18</code> — global <code>fetch</code></li>
-                        <li><code>node --test</code> — safety, merger, formulary, orchestrator</li>
-                        <li><code>.env</code> — API keys &amp; workflow toggles</li>
-                    </ul>
-                </article>
-                <article class="stack-card">
-                    <h3><span class="stack-icon" aria-hidden="true">🧠</span> AI / ML</h3>
-                    <ul>
-                        <li>NVIDIA NIM Responses API</li>
-                        <li>Default model: <code>openai/openai/gpt-5.5</code></li>
-                        <li>Strict JSON schemas per agent</li>
-                        <li>ESMFold (protein viewer, optional)</li>
-                    </ul>
-                </article>
-                <article class="stack-card">
-                    <h3><span class="stack-icon" aria-hidden="true">🖼️</span> Image (client)</h3>
-                    <ul>
-                        <li>Canvas 2D preprocessing</li>
-                        <li><strong>CLAHE</strong> — contrast mode</li>
-                        <li><strong>Sauvola</strong> — mono/binarize mode</li>
-                        <li>Web Worker when available</li>
-                    </ul>
-                </article>
-                <article class="stack-card">
-                    <h3><span class="stack-icon" aria-hidden="true">📐</span> Algorithms (server)</h3>
-                    <ul>
-                        <li><code>fastest-levenshtein</code> — formulary match</li>
-                        <li>SHA-256 content-hash cache</li>
-                        <li>LASA pair detection (<code>medical-context.js</code>)</li>
-                        <li>Deterministic safety rules</li>
-                    </ul>
-                </article>
-                <article class="stack-card">
-                    <h3><span class="stack-icon" aria-hidden="true">🌐</span> Frontend</h3>
-                    <ul>
-                        <li>Vanilla HTML/CSS/JS (ES modules)</li>
-                        <li>No React, no bundler</li>
-                        <li>SSE via ReadableStream</li>
-                        <li>3D body map + protein viewer pages</li>
-                    </ul>
-                </article>
-                <article class="stack-card">
-                    <h3><span class="stack-icon" aria-hidden="true">🔧</span> Dev &amp; ops flags</h3>
-                    <ul>
-                        <li><code>WORKFLOW_MOCK=1</code> — fixture outputs</li>
-                        <li><code>WORKFLOW_SKIP_SYNTHESIS=1</code></li>
-                        <li><code>WORKFLOW_CACHE_DISABLE=1</code></li>
-                        <li><code>WORKFLOW_AGENT_TIMEOUT_MS</code></li>
-                    </ul>
-                </article>
-            </div>
+      <div class="chapter-container">
+        <span class="sticker sticker-tilt-left">the stack</span>
+        <div class="chapter-label">Section 02</div>
+        <h2 class="chapter-title">Tech <span class="highlight">stack</span></h2>
+        <div class="stack-pills">
+          <span class="tech-badge">Node ≥ 18</span>
+          <span class="tech-badge">NVIDIA NIM</span>
+          <span class="tech-badge">Vanilla ES modules</span>
+          <span class="tech-badge">CLAHE · Sauvola</span>
+          <span class="tech-badge">Levenshtein formulary</span>
+          <span class="tech-badge">WORKFLOW_MOCK</span>
         </div>
+      </div>
     </section>
 
     <!-- Pipeline flowchart -->
     <section id="pipeline" class="chapter chapter-tech chapter-4" data-chapter="pipeline">
-        <div class="chapter-container">
-            <span class="sticker sticker-tilt-right">flow</span>
-            <div class="chapter-label">Section 03</div>
-            <h2 class="chapter-title">Decode <span class="highlight">pipeline</span></h2>
-            <p class="chapter-intro">
-                Stages run sequentially except Stage 2 (three agents in parallel). Unusable images short-circuit
-                after quality check; formulary validation always runs at the end.
-            </p>
+      <div class="chapter-container">
+        <span class="sticker sticker-tilt-right">flow</span>
+        <div class="chapter-label">Section 03</div>
+        <h2 class="chapter-title">Decode <span class="highlight">pipeline</span></h2>
+        <p class="chapter-intro">
+          Sequential stages · Stage 2 parallel · cache &amp; formulary at edges.
+        </p>
 
-            <div class="flowchart-wrap">
-                <svg class="flowchart-svg" viewBox="0 0 720 920" role="img" aria-labelledby="flow-title flow-desc">
-                    <title id="flow-title">UnScribble decode workflow</title>
-                    <desc id="flow-desc">Staged agent pipeline from image upload through formulary validation</desc>
-                    <defs>
-                        <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-                            <polygon points="0 0, 8 4, 0 8" fill="#34d399"/>
-                        </marker>
-                    </defs>
+        <div class="flowchart-wrap">
+          <svg
+            class="flowchart-svg"
+            viewBox="0 0 720 920"
+            role="img"
+            aria-labelledby="flow-title flow-desc"
+          >
+            <title id="flow-title">UnScribble decode workflow</title>
+            <desc id="flow-desc">
+              Staged agent pipeline from image upload through formulary validation
+            </desc>
+            <defs>
+              <marker
+                id="arrowhead"
+                markerWidth="8"
+                markerHeight="8"
+                refX="6"
+                refY="4"
+                orient="auto"
+              >
+                <polygon points="0 0, 8 4, 0 8" fill="#34d399" />
+              </marker>
+            </defs>
 
-                    <!-- Cache check -->
-                    <g data-animate data-delay="0">
-                        <rect class="flow-node--post" x="210" y="20" width="300" height="52" rx="10"/>
-                        <text class="flow-stage-tag" x="230" y="38">CACHE</text>
-                        <text class="flow-label" x="230" y="58">SHA-256(image) hit → skip agents</text>
-                    </g>
-                    <path class="flow-arrow" d="M360 72 L360 100" marker-end="url(#arrowhead)"/>
+            <!-- Cache check -->
+            <g data-animate data-delay="0">
+              <rect class="flow-node--post" x="210" y="20" width="300" height="52" rx="10" />
+              <text class="flow-stage-tag" x="230" y="38">CACHE</text>
+              <text class="flow-label" x="230" y="58">SHA-256(image) hit → skip agents</text>
+            </g>
+            <path class="flow-arrow" d="M360 72 L360 100" marker-end="url(#arrowhead)" />
 
-                    <!-- Stage 1 -->
-                    <g data-animate data-delay="80">
-                        <rect class="flow-node" x="200" y="100" width="320" height="64" rx="10"/>
-                        <text class="flow-stage-tag" x="220" y="118">STAGE 1</text>
-                        <text class="flow-label" x="220" y="140">image_quality</text>
-                        <text class="flow-sublabel" x="220" y="156">legibility: high / medium / low / unusable</text>
-                    </g>
-                    <path class="flow-arrow" d="M360 164 L360 192" marker-end="url(#arrowhead)"/>
+            <!-- Stage 1 -->
+            <g data-animate data-delay="80">
+              <rect class="flow-node" x="200" y="100" width="320" height="64" rx="10" />
+              <text class="flow-stage-tag" x="220" y="118">STAGE 1</text>
+              <text class="flow-label" x="220" y="140">image_quality</text>
+              <text class="flow-sublabel" x="220" y="156">
+                legibility: high / medium / low / unusable
+              </text>
+            </g>
+            <path class="flow-arrow" d="M360 164 L360 192" marker-end="url(#arrowhead)" />
 
-                    <!-- Branch unusable -->
-                    <g data-animate data-delay="160">
-                        <rect class="flow-node--det" x="40" y="200" width="200" height="48" rx="8"/>
-                        <text class="flow-label" x="55" y="230">unusable → early exit</text>
-                    </g>
-                    <path class="flow-arrow" d="M240 224 L280 224" stroke-dasharray="4 3"/>
-                    <g data-animate data-delay="200">
-                        <rect class="flow-node--det" x="280" y="200" width="160" height="48" rx="8"/>
-                        <text class="flow-label" x="295" y="230">safety_review</text>
-                    </g>
-                    <path class="flow-arrow" d="M360 248 L360 280" marker-end="url(#arrowhead)"/>
+            <!-- Branch unusable -->
+            <g data-animate data-delay="160">
+              <rect class="flow-node--det" x="40" y="200" width="200" height="48" rx="8" />
+              <text class="flow-label" x="55" y="230">unusable → early exit</text>
+            </g>
+            <path class="flow-arrow" d="M240 224 L280 224" stroke-dasharray="4 3" />
+            <g data-animate data-delay="200">
+              <rect class="flow-node--det" x="280" y="200" width="160" height="48" rx="8" />
+              <text class="flow-label" x="295" y="230">safety_review</text>
+            </g>
+            <path class="flow-arrow" d="M360 248 L360 280" marker-end="url(#arrowhead)" />
 
-                    <!-- Stage 1b -->
-                    <g data-animate data-delay="240">
-                        <rect class="flow-node" x="180" y="280" width="360" height="64" rx="10"/>
-                        <text class="flow-stage-tag" x="200" y="298">STAGE 1b</text>
-                        <text class="flow-label" x="200" y="320">raw_transcription + region_hint</text>
-                        <text class="flow-sublabel" x="200" y="336">style, confidence, evidence (UK/US/IN bias)</text>
-                    </g>
-                    <path class="flow-arrow" d="M360 344 L360 372" marker-end="url(#arrowhead)"/>
+            <!-- Stage 1b -->
+            <g data-animate data-delay="240">
+              <rect class="flow-node" x="180" y="280" width="360" height="64" rx="10" />
+              <text class="flow-stage-tag" x="200" y="298">STAGE 1b</text>
+              <text class="flow-label" x="200" y="320">raw_transcription + region_hint</text>
+              <text class="flow-sublabel" x="200" y="336">
+                style, confidence, evidence (UK/US/IN bias)
+              </text>
+            </g>
+            <path class="flow-arrow" d="M360 344 L360 372" marker-end="url(#arrowhead)" />
 
-                    <!-- Stage 2 parallel -->
-                    <g data-animate data-delay="320">
-                        <rect class="flow-node--parallel" x="40" y="380" width="200" height="56" rx="10"/>
-                        <text class="flow-stage-tag" x="55" y="398">STAGE 2 ∥</text>
-                        <text class="flow-label" x="55" y="418">patient_header</text>
-                    </g>
-                    <g data-animate data-delay="360">
-                        <rect class="flow-node--parallel" x="260" y="380" width="200" height="56" rx="10"/>
-                        <text class="flow-label" x="275" y="418">medications</text>
-                        <text class="flow-sublabel" x="275" y="432">critical agent</text>
-                    </g>
-                    <g data-animate data-delay="400">
-                        <rect class="flow-node--parallel" x="480" y="380" width="200" height="56" rx="10"/>
-                        <text class="flow-label" x="495" y="418">clinical_context</text>
-                    </g>
-                    <path class="flow-arrow" d="M360 436 L360 464" marker-end="url(#arrowhead)"/>
+            <!-- Stage 2 parallel -->
+            <g data-animate data-delay="320">
+              <rect class="flow-node--parallel" x="40" y="380" width="200" height="56" rx="10" />
+              <text class="flow-stage-tag" x="55" y="398">STAGE 2 ∥</text>
+              <text class="flow-label" x="55" y="418">patient_header</text>
+            </g>
+            <g data-animate data-delay="360">
+              <rect class="flow-node--parallel" x="260" y="380" width="200" height="56" rx="10" />
+              <text class="flow-label" x="275" y="418">medications</text>
+              <text class="flow-sublabel" x="275" y="432">critical agent</text>
+            </g>
+            <g data-animate data-delay="400">
+              <rect class="flow-node--parallel" x="480" y="380" width="200" height="56" rx="10" />
+              <text class="flow-label" x="495" y="418">clinical_context</text>
+            </g>
+            <path class="flow-arrow" d="M360 436 L360 464" marker-end="url(#arrowhead)" />
 
-                    <!-- Stage 2b -->
-                    <g data-animate data-delay="480">
-                        <rect class="flow-node" x="120" y="464" width="480" height="72" rx="10"/>
-                        <text class="flow-stage-tag" x="140" y="482">STAGE 2b (conditional)</text>
-                        <text class="flow-label" x="140" y="504">medications self-consistency re-run</text>
-                        <text class="flow-sublabel" x="140" y="522">if confidence &lt; 0.7 or uncertain tokens; max 6 rows; mergeMedicationRuns</text>
-                    </g>
-                    <path class="flow-arrow" d="M360 536 L360 564" marker-end="url(#arrowhead)"/>
+            <!-- Stage 2b -->
+            <g data-animate data-delay="480">
+              <rect class="flow-node" x="120" y="464" width="480" height="72" rx="10" />
+              <text class="flow-stage-tag" x="140" y="482">STAGE 2b (conditional)</text>
+              <text class="flow-label" x="140" y="504">medications self-consistency re-run</text>
+              <text class="flow-sublabel" x="140" y="522">
+                if confidence &lt; 0.7 or uncertain tokens; max 6 rows; mergeMedicationRuns
+              </text>
+            </g>
+            <path class="flow-arrow" d="M360 536 L360 564" marker-end="url(#arrowhead)" />
 
-                    <!-- Merger -->
-                    <g data-animate data-delay="560">
-                        <rect class="flow-node--det" x="200" y="564" width="320" height="48" rx="10"/>
-                        <text class="flow-label" x="220" y="594">mergeArtifacts (merger.js)</text>
-                    </g>
-                    <path class="flow-arrow" d="M360 612 L360 640" marker-end="url(#arrowhead)"/>
+            <!-- Merger -->
+            <g data-animate data-delay="560">
+              <rect class="flow-node--det" x="200" y="564" width="320" height="48" rx="10" />
+              <text class="flow-label" x="220" y="594">mergeArtifacts (merger.js)</text>
+            </g>
+            <path class="flow-arrow" d="M360 612 L360 640" marker-end="url(#arrowhead)" />
 
-                    <!-- Stage 3 -->
-                    <g data-animate data-delay="640">
-                        <rect class="flow-node--det" x="200" y="640" width="320" height="48" rx="10"/>
-                        <text class="flow-stage-tag" x="220" y="658">STAGE 3</text>
-                        <text class="flow-label" x="220" y="678">safety_review (deterministic)</text>
-                    </g>
-                    <path class="flow-arrow" d="M360 688 L360 716" marker-end="url(#arrowhead)"/>
+            <!-- Stage 3 -->
+            <g data-animate data-delay="640">
+              <rect class="flow-node--det" x="200" y="640" width="320" height="48" rx="10" />
+              <text class="flow-stage-tag" x="220" y="658">STAGE 3</text>
+              <text class="flow-label" x="220" y="678">safety_review (deterministic)</text>
+            </g>
+            <path class="flow-arrow" d="M360 688 L360 716" marker-end="url(#arrowhead)" />
 
-                    <!-- Stage 4 -->
-                    <g data-animate data-delay="720">
-                        <rect class="flow-node" x="180" y="716" width="360" height="56" rx="10"/>
-                        <text class="flow-stage-tag" x="200" y="734">STAGE 4</text>
-                        <text class="flow-label" x="200" y="754">synthesis (LLM) or deterministic summary</text>
-                    </g>
-                    <path class="flow-arrow" d="M360 772 L360 800" marker-end="url(#arrowhead)"/>
+            <!-- Stage 4 -->
+            <g data-animate data-delay="720">
+              <rect class="flow-node" x="180" y="716" width="360" height="56" rx="10" />
+              <text class="flow-stage-tag" x="200" y="734">STAGE 4</text>
+              <text class="flow-label" x="200" y="754">
+                synthesis (LLM) or deterministic summary
+              </text>
+            </g>
+            <path class="flow-arrow" d="M360 772 L360 800" marker-end="url(#arrowhead)" />
 
-                    <!-- Post -->
-                    <g data-animate data-delay="800">
-                        <rect class="flow-node--post" x="160" y="800" width="400" height="56" rx="10"/>
-                        <text class="flow-stage-tag" x="180" y="818">POST</text>
-                        <text class="flow-label" x="180" y="838">validateAgainstFormulary · dedup · distance-1 auto-correct</text>
-                    </g>
-                </svg>
-            </div>
+            <!-- Post -->
+            <g data-animate data-delay="800">
+              <rect class="flow-node--post" x="160" y="800" width="400" height="56" rx="10" />
+              <text class="flow-stage-tag" x="180" y="818">POST</text>
+              <text class="flow-label" x="180" y="838">
+                validateAgainstFormulary · dedup · distance-1 auto-correct
+              </text>
+            </g>
+          </svg>
         </div>
+      </div>
+    </section>
+
+    <!-- Data flow -->
+    <section id="data-flow" class="chapter chapter-tech chapter-4" data-chapter="dataflow">
+      <div class="chapter-container">
+        <span class="sticker sticker-tilt-left">end-to-end</span>
+        <div class="chapter-label">Section 04</div>
+        <h2 class="chapter-title">Data <span class="highlight">flow</span></h2>
+
+        <figure class="diagram-figure">
+          <figcaption class="diagram-caption">Upload → decode → results</figcaption>
+          <div class="diagram-wrap">
+            <svg
+              class="diagram-svg data-flow-svg"
+              viewBox="0 0 900 280"
+              role="img"
+              aria-label="Data flow from prescription photo to structured results"
+            >
+              <defs>
+                <marker
+                  id="df-arr"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="7"
+                  refY="4"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 4, 0 8" fill="#0d9488" />
+                </marker>
+              </defs>
+              <g data-animate data-delay="0">
+                <rect
+                  class="diag-box diag-box--client"
+                  x="24"
+                  y="90"
+                  width="110"
+                  height="72"
+                  rx="10"
+                />
+                <text class="diag-title" x="79" y="122" text-anchor="middle">Photo</text>
+                <text class="diag-sub" x="79" y="142" text-anchor="middle">upload.html</text>
+              </g>
+              <path class="diag-arrow" d="M134 126 H168" marker-end="url(#df-arr)" />
+              <g data-animate data-delay="60">
+                <rect class="diag-box" x="168" y="75" width="120" height="102" rx="10" />
+                <text class="diag-title" x="228" y="108" text-anchor="middle">Enhance</text>
+                <text class="diag-sub" x="228" y="128" text-anchor="middle">original</text>
+                <text class="diag-sub" x="228" y="146" text-anchor="middle">contrast · mono</text>
+                <text class="diag-sub" x="228" y="164" text-anchor="middle">+ original URL</text>
+              </g>
+              <path class="diag-arrow" d="M288 126 H322" marker-end="url(#df-arr)" />
+              <g data-animate data-delay="120">
+                <rect
+                  class="diag-box diag-box--orch"
+                  x="322"
+                  y="75"
+                  width="130"
+                  height="102"
+                  rx="10"
+                />
+                <text class="diag-title" x="387" y="108" text-anchor="middle">POST stream</text>
+                <text class="diag-sub" x="387" y="128" text-anchor="middle">imageDataUrl</text>
+                <text class="diag-sub" x="387" y="146" text-anchor="middle">SSE progress</text>
+                <text class="diag-sub" x="387" y="164" text-anchor="middle">Rx loader UI</text>
+              </g>
+              <path class="diag-arrow" d="M452 126 H486" marker-end="url(#df-arr)" />
+              <g data-animate data-delay="180">
+                <rect
+                  class="diag-box diag-box--agents"
+                  x="486"
+                  y="60"
+                  width="150"
+                  height="132"
+                  rx="10"
+                />
+                <text class="diag-title" x="561" y="95" text-anchor="middle">Orchestrator</text>
+                <text class="diag-sub" x="561" y="115" text-anchor="middle">agents → merger</text>
+                <text class="diag-sub" x="561" y="133" text-anchor="middle">
+                  safety · synthesis
+                </text>
+                <text class="diag-sub" x="561" y="151" text-anchor="middle">formulary pass</text>
+                <text class="diag-sub" x="561" y="175" text-anchor="middle">sessionStorage</text>
+              </g>
+              <path class="diag-arrow" d="M636 126 H670" marker-end="url(#df-arr)" />
+              <g data-animate data-delay="240">
+                <rect
+                  class="diag-box diag-box--client"
+                  x="670"
+                  y="75"
+                  width="120"
+                  height="102"
+                  rx="10"
+                />
+                <text class="diag-title" x="730" y="108" text-anchor="middle">Results</text>
+                <text class="diag-sub" x="730" y="128" text-anchor="middle">medications[]</text>
+                <text class="diag-sub" x="730" y="146" text-anchor="middle">review flags</text>
+                <text class="diag-sub" x="730" y="164" text-anchor="middle">detail pages</text>
+              </g>
+              <g data-animate data-delay="300">
+                <rect
+                  class="diag-box diag-box--nim"
+                  x="322"
+                  y="210"
+                  width="314"
+                  height="48"
+                  rx="8"
+                />
+                <text class="diag-sub" x="479" y="240" text-anchor="middle">
+                  Cache hit: skip agents · emit workflow.complete (cached)
+                </text>
+              </g>
+              <path
+                class="diag-arrow diag-arrow--dashed"
+                d="M387 177 L387 210"
+                marker-end="url(#df-arr)"
+                stroke-dasharray="5 4"
+              />
+            </svg>
+          </div>
+        </figure>
+      </div>
     </section>
 
     <!-- Agents -->
     <section id="agents" class="chapter chapter-tech chapter-4" data-chapter="agents">
-        <div class="chapter-container">
-            <span class="sticker sticker-tilt-left">the team</span>
-            <div class="chapter-label">Section 04</div>
-            <h2 class="chapter-title">Seven <span class="highlight">agents</span></h2>
-            <p class="chapter-intro">
-                Each agent has a strict JSON schema (<code>additionalProperties: false</code>), dedicated prompts,
-                and a thin runner in <code>agents/agents/</code>. Critical agents fail the whole workflow on error; others degrade gracefully.
-            </p>
+      <div class="chapter-container">
+        <span class="sticker sticker-tilt-left">the team</span>
+        <div class="chapter-label">Section 05</div>
+        <h2 class="chapter-title">Seven <span class="highlight">agents</span></h2>
+        <p class="chapter-intro">Strict JSON schemas · runners in <code>agents/runners/</code>.</p>
 
-            <div class="agent-grid">
-                <article class="agent-card">
-                    <div class="agent-card-header">
-                        <h3>Image quality</h3>
-                        <span class="agent-id">image_quality</span>
-                    </div>
-                    <div class="agent-tags">
-                        <span class="agent-tag agent-tag--vision">Vision</span>
-                    </div>
-                    <p>Assesses legibility, blur, lighting, and recommends preprocessing (<code>original</code>, <code>contrast</code>, <code>mono</code>). If <code>unusable</code>, downstream extraction is skipped.</p>
-                    <p class="agent-io"><strong>Out:</strong> <code>image_quality.legibility</code>, <code>recommended_preprocessing</code></p>
-                </article>
+        <figure class="diagram-figure">
+          <figcaption class="diagram-caption">
+            Agent map (vision → text → merge → safety)
+          </figcaption>
+          <div class="diagram-wrap">
+            <svg
+              class="diagram-svg agent-map-svg"
+              viewBox="0 0 720 340"
+              role="img"
+              aria-label="Agent dependency map"
+            >
+              <defs>
+                <marker
+                  id="ag-arr"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="7"
+                  refY="4"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 4, 0 8" fill="#34d399" />
+                </marker>
+              </defs>
+              <g data-animate data-delay="0">
+                <rect
+                  class="diag-box diag-box--vision"
+                  x="260"
+                  y="16"
+                  width="200"
+                  height="52"
+                  rx="10"
+                />
+                <text class="diag-title" x="360" y="48" text-anchor="middle">image_quality</text>
+              </g>
+              <path class="diag-arrow" d="M360 68 V98" marker-end="url(#ag-arr)" />
+              <g data-animate data-delay="80">
+                <rect
+                  class="diag-box diag-box--vision"
+                  x="240"
+                  y="98"
+                  width="240"
+                  height="52"
+                  rx="10"
+                />
+                <text class="diag-title" x="360" y="130" text-anchor="middle">
+                  raw_transcription + region_hint
+                </text>
+              </g>
+              <path class="diag-arrow" d="M360 150 V178" marker-end="url(#ag-arr)" />
+              <g data-animate data-delay="160">
+                <rect
+                  class="diag-box diag-box--parallel"
+                  x="40"
+                  y="178"
+                  width="180"
+                  height="48"
+                  rx="8"
+                />
+                <text class="diag-label" x="130" y="208" text-anchor="middle">patient_header</text>
+              </g>
+              <g data-animate data-delay="200">
+                <rect
+                  class="diag-box diag-box--parallel"
+                  x="270"
+                  y="178"
+                  width="180"
+                  height="48"
+                  rx="8"
+                />
+                <text class="diag-label" x="360" y="208" text-anchor="middle">medications ★</text>
+              </g>
+              <g data-animate data-delay="240">
+                <rect
+                  class="diag-box diag-box--parallel"
+                  x="500"
+                  y="178"
+                  width="180"
+                  height="48"
+                  rx="8"
+                />
+                <text class="diag-label" x="590" y="208" text-anchor="middle">
+                  clinical_context
+                </text>
+              </g>
+              <path class="diag-arrow" d="M360 226 V254" marker-end="url(#ag-arr)" />
+              <g data-animate data-delay="320">
+                <rect
+                  class="diag-box diag-box--orch"
+                  x="200"
+                  y="254"
+                  width="320"
+                  height="44"
+                  rx="8"
+                />
+                <text class="diag-label" x="360" y="282" text-anchor="middle">
+                  merger → safety_review → synthesis
+                </text>
+              </g>
+              <text class="diag-legend" x="360" y="328" text-anchor="middle">
+                ★ critical · dashed = optional 2b re-run
+              </text>
+            </svg>
+          </div>
+        </figure>
 
-                <article class="agent-card">
-                    <div class="agent-card-header">
-                        <h3>Raw transcription</h3>
-                        <span class="agent-id">raw_transcription</span>
-                    </div>
-                    <div class="agent-tags">
-                        <span class="agent-tag agent-tag--vision">Vision</span>
-                        <span class="agent-tag agent-tag--critical">Critical</span>
-                    </div>
-                    <p>Line-by-line OCR-style transcription with uncertainty markers. Infers <code>region_hint</code> (UK/US/India style) to steer abbreviation expansion in later agents.</p>
-                    <p class="agent-io"><strong>Out:</strong> <code>raw_transcription[]</code>, <code>region_hint</code></p>
-                </article>
-
-                <article class="agent-card">
-                    <div class="agent-card-header">
-                        <h3>Patient header</h3>
-                        <span class="agent-id">patient_header</span>
-                    </div>
-                    <div class="agent-tags">
-                        <span class="agent-tag agent-tag--text">Text</span>
-                    </div>
-                    <p>Extracts patient demographics, prescriber, clinic, dates from transcribed text. Runs in parallel with medications and clinical context.</p>
-                    <p class="agent-io"><strong>Out:</strong> <code>patient</code> object</p>
-                </article>
-
-                <article class="agent-card">
-                    <div class="agent-card-header">
-                        <h3>Medications</h3>
-                        <span class="agent-id">medications</span>
-                    </div>
-                    <div class="agent-tags">
-                        <span class="agent-tag agent-tag--text">Text</span>
-                        <span class="agent-tag agent-tag--critical">Critical</span>
-                    </div>
-                    <p>Structured drug rows: name, strength, form, dose, frequency, duration, PRN flags, confidence scores, LASA-aware alternatives. May re-run with temperature nudge for low-confidence lines.</p>
-                    <p class="agent-io"><strong>Out:</strong> <code>medications[]</code> with <code>medication_name_confidence</code></p>
-                </article>
-
-                <article class="agent-card">
-                    <div class="agent-card-header">
-                        <h3>Clinical context</h3>
-                        <span class="agent-id">clinical_context</span>
-                    </div>
-                    <div class="agent-tags">
-                        <span class="agent-tag agent-tag--text">Text</span>
-                    </div>
-                    <p>Diagnoses, allergies, advice, follow-up instructions. Uses <code>regionDirective()</code> for locale-specific schedule abbreviations (BD, TDS, QID, etc.).</p>
-                    <p class="agent-io"><strong>Out:</strong> <code>clinical_context</code>, <code>allergies</code>, <code>abbreviations</code></p>
-                </article>
-
-                <article class="agent-card">
-                    <div class="agent-card-header">
-                        <h3>Safety review</h3>
-                        <span class="agent-id">safety_review</span>
-                    </div>
-                    <div class="agent-tags">
-                        <span class="agent-tag agent-tag--det">Deterministic</span>
-                    </div>
-                    <p>Rule engine in <code>safety-rules.js</code>—flags low legibility, missing dose/frequency, uncertain tokens, high-risk abbreviations (STAT, IU, MSO4, µg).</p>
-                    <p class="agent-io"><strong>Out:</strong> <code>requires_human_review</code>, <code>review_reason</code></p>
-                </article>
-
-                <article class="agent-card">
-                    <div class="agent-card-header">
-                        <h3>Summary</h3>
-                        <span class="agent-id">synthesis</span>
-                    </div>
-                    <div class="agent-tags">
-                        <span class="agent-tag agent-tag--text">Text</span>
-                    </div>
-                    <p>Patient-friendly narrative summary from merged artifacts. Skippable via <code>WORKFLOW_SKIP_SYNTHESIS=1</code> for a deterministic template from <code>merger.js</code>.</p>
-                    <p class="agent-io"><strong>Out:</strong> <code>summary</code></p>
-                </article>
-            </div>
+        <div class="agent-table-wrap">
+          <table class="agent-table">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Type</th>
+                <th>Key output</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>image_quality</code></td>
+                <td>Vision</td>
+                <td>legibility, preprocessing hint</td>
+              </tr>
+              <tr>
+                <td><code>raw_transcription</code></td>
+                <td>Vision ★</td>
+                <td>lines, <code>region_hint</code></td>
+              </tr>
+              <tr>
+                <td><code>patient_header</code></td>
+                <td>Text</td>
+                <td><code>patient</code></td>
+              </tr>
+              <tr>
+                <td><code>medications</code></td>
+                <td>Text ★</td>
+                <td><code>medications[]</code></td>
+              </tr>
+              <tr>
+                <td><code>clinical_context</code></td>
+                <td>Text</td>
+                <td>allergies, abbreviations</td>
+              </tr>
+              <tr>
+                <td><code>safety_review</code></td>
+                <td>Rules</td>
+                <td><code>requires_human_review</code></td>
+              </tr>
+              <tr>
+                <td><code>synthesis</code></td>
+                <td>Text</td>
+                <td><code>summary</code></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
     </section>
 
-    <!-- Algorithms -->
-    <section id="algorithms" class="chapter chapter-tech chapter-4" data-chapter="algo">
-        <div class="chapter-container">
-            <span class="sticker sticker-tilt-right">math &amp; rules</span>
-            <div class="chapter-label">Section 05</div>
-            <h2 class="chapter-title">Key <span class="highlight">algorithms</span></h2>
-            <p class="chapter-intro">A mix of classical image processing, edit-distance search, and deterministic merge logic—no black-box scoring on safety.</p>
+    <!-- SSE events -->
+    <section id="events" class="chapter chapter-tech chapter-4" data-chapter="events">
+      <div class="chapter-container">
+        <span class="sticker sticker-tilt-right">wire protocol</span>
+        <div class="chapter-label">Section 06</div>
+        <h2 class="chapter-title">SSE <span class="highlight">events</span></h2>
 
-            <div class="algo-list">
-                <article class="algo-item">
-                    <div class="algo-num">1</div>
-                    <div>
-                        <h3>CLAHE (Contrast Limited Adaptive Histogram Equalization)</h3>
-                        <p>Client-side enhancement in <code>image-enhance.js</code>. Tiles the grayscale image, clips histogram peaks, and redistributes contrast locally—helps faded or uneven lighting before the vision model sees the image.</p>
-                        <div class="algo-formula">Mode: enhancementMode = "contrast" → applyCLAHE(imageData)</div>
-                    </div>
-                </article>
+        <figure class="diagram-figure">
+          <figcaption class="diagram-caption">Sequence: decode stream</figcaption>
+          <div class="diagram-wrap">
+            <svg
+              class="diagram-svg sequence-svg"
+              viewBox="0 0 720 420"
+              role="img"
+              aria-label="SSE event sequence between browser, server, and orchestrator"
+            >
+              <defs>
+                <marker
+                  id="seq-arr"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="7"
+                  refY="4"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 4, 0 8" fill="#059669" />
+                </marker>
+              </defs>
+              <text class="diag-title" x="120" y="36" text-anchor="middle">Browser</text>
+              <text class="diag-title" x="360" y="36" text-anchor="middle">server.js</text>
+              <text class="diag-title" x="600" y="36" text-anchor="middle">orchestrator</text>
+              <line class="seq-lifeline" x1="120" y1="48" x2="120" y2="400" />
+              <line class="seq-lifeline" x1="360" y1="48" x2="360" y2="400" />
+              <line class="seq-lifeline" x1="600" y1="48" x2="600" y2="400" />
 
-                <article class="algo-item">
-                    <div class="algo-num">2</div>
-                    <div>
-                        <h3>Sauvola adaptive thresholding</h3>
-                        <p>Local mean + standard deviation per window (radius 12, k=0.2, R=128) binarizes ink vs paper—ideal for mono mode on noisy phone photos.</p>
-                        <div class="algo-formula">T(x,y) = mean · (1 + k · (σ/R − 1))  →  ink if gray &lt; T</div>
-                    </div>
-                </article>
+              <g data-animate data-delay="0">
+                <path class="seq-msg seq-msg--req" d="M120 72 H360" marker-end="url(#seq-arr)" />
+                <text class="seq-label" x="240" y="64" text-anchor="middle">
+                  POST /api/decode/stream
+                </text>
+              </g>
+              <g data-animate data-delay="80">
+                <path class="seq-msg" d="M360 100 H600" marker-end="url(#seq-arr)" />
+                <text class="seq-label" x="480" y="92" text-anchor="middle">runWorkflow()</text>
+              </g>
+              <g data-animate data-delay="160">
+                <path class="seq-msg seq-msg--evt" d="M600 128 H360" marker-end="url(#seq-arr)" />
+                <text class="seq-label" x="480" y="120" text-anchor="middle">workflow.start</text>
+              </g>
+              <g data-animate data-delay="240">
+                <path class="seq-msg seq-msg--evt" d="M360 156 H120" marker-end="url(#seq-arr)" />
+                <text class="seq-label" x="240" y="148" text-anchor="middle">→ SSE to client</text>
+              </g>
+              <g data-animate data-delay="320">
+                <path class="seq-msg seq-msg--evt" d="M600 200 H360" marker-end="url(#seq-arr)" />
+                <text class="seq-label" x="480" y="192" text-anchor="middle">
+                  agent.start / complete × N
+                </text>
+              </g>
+              <g data-animate data-delay="400">
+                <path class="seq-msg seq-msg--evt" d="M360 228 H120" marker-end="url(#seq-arr)" />
+                <text class="seq-label" x="240" y="220" text-anchor="middle">
+                  per-agent progress
+                </text>
+              </g>
+              <g data-animate data-delay="480">
+                <path class="seq-msg seq-msg--evt" d="M600 280 H360" marker-end="url(#seq-arr)" />
+                <text class="seq-label" x="480" y="272" text-anchor="middle">
+                  workflow.complete + result
+                </text>
+              </g>
+              <g data-animate data-delay="560">
+                <path class="seq-msg seq-msg--evt" d="M360 308 H120" marker-end="url(#seq-arr)" />
+                <text class="seq-label" x="240" y="300" text-anchor="middle">→ results UI</text>
+              </g>
+              <g data-animate data-delay="640">
+                <rect
+                  class="diag-box diag-box--det"
+                  x="180"
+                  y="340"
+                  width="360"
+                  height="44"
+                  rx="8"
+                />
+                <text class="diag-sub" x="360" y="368" text-anchor="middle">
+                  workflow.error on critical agent failure
+                </text>
+              </g>
+            </svg>
+          </div>
+        </figure>
 
-                <article class="algo-item">
-                    <div class="algo-num">3</div>
-                    <div>
-                        <h3>Formulary fuzzy match (Levenshtein)</h3>
-                        <p>After LLM extraction, drug names are validated against a JSON formulary. Candidates are bucketed by length; <code>fastest-levenshtein</code> finds distance ≤ 2. Distance-1 with a single unambiguous match auto-corrects the name (original kept in <code>medication_name_raw</code>).</p>
-                        <div class="algo-formula">dedup key: (name|strength|form) → promote | alternatives | cap confidence</div>
-                    </div>
-                </article>
-
-                <article class="algo-item">
-                    <div class="algo-num">4</div>
-                    <div>
-                        <h3>Self-consistency merge</h3>
-                        <p>When medication name confidence &lt; 0.7 or uncertainty markers exist (≤6 rows), a second medications pass runs with <code>temperatureNudge</code> and LASA-focused context. <code>mergeMedicationRuns</code> picks per line: agree → max confidence; disagree + higher conf + in formulary → second pass; else flag disagreement.</p>
-                    </div>
-                </article>
-
-                <article class="algo-item">
-                    <div class="algo-num">5</div>
-                    <div>
-                        <h3>Workflow LRU cache</h3>
-                        <p>SHA-256 of <code>imageDataUrl|originalImageDataUrl</code> keys a 16-entry LRU with 5-minute TTL. Cache hits emit only <code>workflow.start</code> + <code>workflow.complete</code> with <code>cached: true</code>.</p>
-                        <div class="algo-formula">cacheKey = sha256(image + "|" + originalImage)</div>
-                    </div>
-                </article>
-
-                <article class="algo-item">
-                    <div class="algo-num">6</div>
-                    <div>
-                        <h3>LASA (look-alike sound-alike) guardrails</h3>
-                        <p><code>medical-context.js</code> maintains LASA pairs and injects focused blocks on re-runs when first-pass drug names are ambiguous—reducing swaps like hydroxyzine / hydralazine.</p>
-                    </div>
-                </article>
-            </div>
-        </div>
+        <figure class="diagram-figure">
+          <figcaption class="diagram-caption">Event timeline (happy path)</figcaption>
+          <div class="diagram-wrap">
+            <svg
+              class="diagram-svg event-timeline-svg"
+              viewBox="0 0 720 100"
+              role="img"
+              aria-label="SSE event timeline"
+            >
+              <g data-animate data-delay="0">
+                <circle class="evt-dot" cx="60" cy="50" r="8" />
+                <text class="evt-name" x="60" y="78" text-anchor="middle">start</text>
+              </g>
+              <line class="evt-line" x1="68" y1="50" x2="140" y2="50" />
+              <g data-animate data-delay="100">
+                <circle class="evt-dot" cx="148" cy="50" r="8" />
+                <text class="evt-name" x="148" y="78" text-anchor="middle">agent…</text>
+              </g>
+              <line class="evt-line" x1="156" y1="50" x2="420" y2="50" />
+              <g data-animate data-delay="200">
+                <rect class="evt-bar" x="200" y="38" width="220" height="24" rx="6" />
+                <text class="evt-bar-label" x="310" y="54" text-anchor="middle">
+                  agent.start → agent.complete (×7)
+                </text>
+              </g>
+              <line class="evt-line" x1="428" y1="50" x2="500" y2="50" />
+              <g data-animate data-delay="300">
+                <circle class="evt-dot evt-dot--done" cx="508" cy="50" r="8" />
+                <text class="evt-name" x="508" y="78" text-anchor="middle">complete</text>
+              </g>
+              <line class="evt-line" x1="516" y1="50" x2="580" y2="50" />
+              <g data-animate data-delay="400">
+                <circle class="evt-dot evt-dot--cache" cx="588" cy="50" r="8" />
+                <text class="evt-name" x="588" y="78" text-anchor="middle">cache?</text>
+              </g>
+              <line class="evt-line" x1="596" y1="50" x2="660" y2="50" />
+              <g data-animate data-delay="500">
+                <circle class="evt-dot evt-dot--done" cx="668" cy="50" r="8" />
+                <text class="evt-name" x="668" y="28" text-anchor="middle">result</text>
+              </g>
+            </svg>
+          </div>
+        </figure>
+      </div>
     </section>
 
-    <!-- API & SSE -->
+    <!-- API -->
     <section id="api" class="chapter chapter-tech chapter-6" data-chapter="api">
-        <div class="chapter-container">
-            <span class="sticker sticker-tilt-left">wire protocol</span>
-            <div class="chapter-label">Section 06</div>
-            <h2 class="chapter-title">API &amp; <span class="highlight">streaming</span></h2>
+      <div class="chapter-container">
+        <span class="sticker sticker-tilt-left">routes</span>
+        <div class="chapter-label">Section 07</div>
+        <h2 class="chapter-title">API <span class="highlight">surface</span></h2>
 
-            <div class="tech-split">
-                <div>
-                    <h3 style="font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:16px">Routes</h3>
-                    <div class="stack-card" style="margin-bottom:16px">
-                        <ul>
-                            <li><code>GET /api/config</code> — model, agents[], mock flag</li>
-                            <li><code>POST /api/decode/stream</code> — primary SSE decode</li>
-                            <li><code>POST /api/decode</code> — batch JSON + events[]</li>
-                        </ul>
-                    </div>
-
-                    <div class="sse-timeline">
-                        <div class="sse-event">
-                            <code>workflow.start</code>
-                            <p>{ workflowId, agents: [{ id, label }] }</p>
-                        </div>
-                        <div class="sse-event">
-                            <code>agent.start</code> / <code>agent.complete</code>
-                            <p>Per-agent progress; summaries only (no full PHI in stream)</p>
-                        </div>
-                        <div class="sse-event">
-                            <code>workflow.complete</code>
-                            <p>{ result, workflow: { steps, totalMs, model, cached? } }</p>
-                        </div>
-                        <div class="sse-event">
-                            <code>workflow.error</code>
-                            <p>{ message, agentId? } on critical failure</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 style="font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:16px">Result contract</h3>
-                    <p style="font-size:var(--text-sm);color:var(--text-light);margin-bottom:16px">
-                        <code>merger.js</code> produces the object consumed by <code>render-result.js</code>:
-                    </p>
-                    <div class="code-panel">
-                        <div class="code-panel-header">
-                            <span class="code-dot code-dot--r"></span>
-                            <span class="code-dot code-dot--y"></span>
-                            <span class="code-dot code-dot--g"></span>
-                            <span>workflow.complete → result</span>
-                        </div>
-                        <pre>{
-  <span class="str">"summary"</span>,
-  <span class="str">"raw_transcription"</span>,
-  <span class="str">"region_hint"</span>,
-  <span class="str">"patient"</span>,
-  <span class="str">"medications"</span>: [{ <span class="str">"medication_name"</span>,
-    <span class="str">"medication_name_raw"</span>, <span class="str">"alternatives"</span>, ... }],
-  <span class="str">"allergies"</span>, <span class="str">"clinical_context"</span>,
-  <span class="str">"image_quality"</span>,
-  <span class="str">"requires_human_review"</span>,
-  <span class="str">"review_reason"</span>
-}</pre>
-                    </div>
-
-                    <div class="magic-reveal" style="margin-top:32px">
-                        <div class="magic-item visible">
-                            <div class="magic-number">→</div>
-                            <div class="magic-content">
-                                <h3>Frontend decode client</h3>
-                                <p><code>decode-client.js</code> posts the image (and optional <code>originalImageDataUrl</code> when enhanced), parses SSE from a ReadableStream, updates the Rx bottle loader and per-agent list, then hands off to results UI.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="api-routes-grid">
+          <div class="stack-card">
+            <ul>
+              <li><code>GET /api/config</code></li>
+              <li><code>POST /api/decode/stream</code></li>
+              <li><code>POST /api/decode</code></li>
+            </ul>
+          </div>
+          <div class="code-panel">
+            <div class="code-panel-header">
+              <span class="code-dot code-dot--r"></span>
+              <span class="code-dot code-dot--y"></span>
+              <span class="code-dot code-dot--g"></span>
+              <span>result (abbreviated)</span>
             </div>
-
-            <div class="ending-cta" style="margin-top:64px">
-                <a href="/upload.html" class="btn-ending">
-                    <span>Run a decode</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                </a>
-                <p class="cta-subtext"><code>npm install && npm start</code> · set <code>NVIDIA_API_KEY</code> or <code>WORKFLOW_MOCK=1</code></p>
-            </div>
+            <pre>{ <span class="str">summary</span>, <span class="str">medications</span>[], <span class="str">patient</span>,
+  <span class="str">requires_human_review</span>, <span class="str">image_quality</span>, ... }</pre>
+          </div>
         </div>
+
+        <div class="ending-cta" style="margin-top: 64px">
+          <a href="/upload.html" class="btn-ending">
+            <span>Run a decode</span>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+          <p class="cta-subtext">
+            <code>npm install && npm start</code> · set <code>NVIDIA_API_KEY</code> or
+            <code>WORKFLOW_MOCK=1</code>
+          </p>
+        </div>
+      </div>
     </section>
 
     <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-brand">
-                <svg width="32" height="32" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                    <rect width="40" height="40" rx="10" fill="url(#footer-gradient)"/>
-                    <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                    <circle cx="28" cy="26" r="3" fill="white"/>
-                    <defs>
-                        <linearGradient id="footer-gradient" x1="0" y1="0" x2="40" y2="40">
-                            <stop offset="0%" stop-color="#059669"/>
-                            <stop offset="100%" stop-color="#0d9488"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-                <p>Multi-agent prescription transcription · built for clarity, not clinical decisions</p>
-            </div>
-            <div class="footer-links">
-                <a href="/landing.html">Story landing</a>
-                <a href="/upload.html">Try it</a>
-                <a href="/tech-landing.html">Architecture</a>
-            </div>
+      <div class="footer-container">
+        <div class="footer-brand">
+          <svg width="32" height="32" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <rect width="40" height="40" rx="10" fill="url(#footer-gradient)" />
+            <path
+              d="M12 14h16M12 20h16M12 26h10"
+              stroke="white"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+            <circle cx="28" cy="26" r="3" fill="white" />
+            <defs>
+              <linearGradient id="footer-gradient" x1="0" y1="0" x2="40" y2="40">
+                <stop offset="0%" stop-color="#059669" />
+                <stop offset="100%" stop-color="#0d9488" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <p>Transcription aid · diagrams on this page</p>
         </div>
+        <div class="footer-links">
+          <a href="/landing.html">Story landing</a>
+          <a href="/upload.html">Try it</a>
+          <a href="/tech-landing.html">Architecture</a>
+        </div>
+      </div>
     </footer>
 
-    <script src="/tech-landing.js"></script>
-</body>
+    <script src="/js/pages/tech-landing.js"></script>
+  </body>
 </html>
