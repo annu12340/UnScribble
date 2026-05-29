@@ -2754,7 +2754,7 @@ pre {
 .loading-content .step-item.completed .step-icon::after {
   content: "";
   position: absolute;
-  left: 4px;
+  left: 8px;
   top: 2px;
   width: 4px;
   height: 7px;

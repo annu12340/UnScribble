@@ -470,6 +470,47 @@ body.medication-details-page .med-shell {
   gap: var(--med-gap);
 }
 
+.regulatory-grid,
+.ingredient-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--med-gap);
+  margin-top: 1rem;
+}
+
+.regulatory-card,
+.ingredient-item {
+  padding: 1rem;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+}
+
+.regulatory-card h4,
+.ingredient-item h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--rx-primary-dark);
+}
+
+.regulatory-list,
+.ingredient-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.regulatory-list li,
+.ingredient-list li {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
 .med-content-col {
   padding: var(--med-card-pad);
   margin: 0;

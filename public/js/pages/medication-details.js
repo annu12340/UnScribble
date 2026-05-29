@@ -433,6 +433,43 @@ function renderMedicationDetails() {
   );
 
   loadMechanismSidebar(med.medication_name || "", els.mechanism);
+  if (!med.regulatory_status || !med.ingredient_analysis) {
+    loadMedicationInsights(med.medication_name || "", med.raw_text || "").catch((error) => {
+      console.warn("Medication insights load failed:", error);
+      if (els.medRegulatorySummary) {
+        els.medRegulatorySummary.textContent = "Regulatory and ingredient information unavailable.";
+      }
+      if (els.medActiveIngredient) {
+        els.medActiveIngredient.textContent = med.medication_name || "—";
+      }
+    });
+  }
+}
+
+async function loadMedicationInsights(medicationName, rawText) {
+  const payload = {
+    medication_name: medicationName,
+    raw_text: rawText
+  };
+
+  const response = await fetch("/api/medication-insights", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`Medication insights request failed: ${response.status} ${details}`);
+  }
+
+  const insights = await response.json();
+  if (typeof insights !== "object" || insights === null) {
+    throw new Error("Invalid medication insights response");
+  }
+
+  state.medication = { ...state.medication, ...insights };
+  renderMedicationDetails();
 }
 
 function renderHeroChips({ dose, frequency, route, duration }) {

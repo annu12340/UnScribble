@@ -14,6 +14,7 @@ const { AGENT_MANIFEST, runWorkflow } = require("./agents/orchestrator");
 const { initSseResponse, writeSse } = require("./agents/sse");
 const { formularySize } = require("./agents/formulary");
 const { predictProteinMechanism } = require("./agents/features/protein-mechanism");
+const { getMedicationInsights } = require("./agents/features/medication-insights");
 
 const PUBLIC_DIR = path.join(ROOT, "public");
 const DATA_DIR = path.join(ROOT, "data");
@@ -96,6 +97,10 @@ function createAppServer() {
 
       if (req.method === "POST" && requestUrl.pathname === "/api/protein-mechanism") {
         return await handleProteinMechanism(req, res);
+      }
+
+      if (req.method === "POST" && requestUrl.pathname === "/api/medication-insights") {
+        return await handleMedicationInsights(req, res);
       }
 
       if (
@@ -286,6 +291,42 @@ async function handleProteinMechanism(req, res) {
     });
     return sendJson(res, error.statusCode || 500, {
       error: "Failed to predict protein mechanism",
+      detail: error.message
+    });
+  }
+}
+
+async function handleMedicationInsights(req, res) {
+  let body;
+  try {
+    body = await readJson(req);
+  } catch (error) {
+    return sendJson(res, error.statusCode || 400, { error: error.message });
+  }
+
+  const medication = String(body.medication_name || "").trim();
+  const rawText = String(body.raw_text || "").trim();
+  if (!medication && !rawText) {
+    return sendJson(res, 400, { error: "Medication name or raw_text is required" });
+  }
+
+  log.info("http", "POST /api/medication-insights", {
+    requestId: req.requestId,
+    medication,
+    rawText: Boolean(rawText)
+  });
+
+  try {
+    const result = await getMedicationInsights(medication, rawText);
+    return sendJson(res, 200, result);
+  } catch (error) {
+    log.error("http", "medication insights failed", {
+      requestId: req.requestId,
+      medication,
+      message: error.message
+    });
+    return sendJson(res, error.statusCode || 500, {
+      error: "Failed to load medication insights",
       detail: error.message
     });
   }

@@ -128,4 +128,20 @@ describe("HTTP reliability", () => {
     assert.equal(payload.workflow.requestId, "batch-request-123");
     assert.ok(payload.events.every((item) => item.data.requestId === "batch-request-123"));
   });
+
+  it("returns medication insights from the NVIDIA NIM fallback endpoint", async () => {
+    const app = createAppServer();
+    const res = await dispatch(app, {
+      method: "POST",
+      url: "/api/medication-insights",
+      body: JSON.stringify({ medication_name: "Amoxicillin" })
+    });
+
+    assert.equal(res.statusCode, 200);
+    const payload = JSON.parse(res.body);
+    assert.ok(payload.regulatory_status);
+    assert.ok(payload.ingredient_analysis);
+    assert.ok(Array.isArray(payload.regulatory_status.prescription_only_countries));
+    assert.ok(Array.isArray(payload.ingredient_analysis.equivalent_brands));
+  });
 });
