@@ -474,15 +474,6 @@ body.medication-details-page .med-shell {
   gap: var(--med-gap);
 }
 
-.section-chart {
-  min-height: 188px;
-  padding: 1.1rem 1rem 0.95rem;
-  border-radius: 24px;
-  background: rgba(236, 253, 245, 0.92);
-  border: 1px solid rgba(5, 150, 105, 0.16);
-  box-shadow: 0 12px 28px rgba(5, 150, 105, 0.06);
-}
-
 .section-chart-container {
   position: relative;
   min-height: 340px;
@@ -636,13 +627,6 @@ body.medication-details-page .med-shell {
   color: var(--rx-primary-dark);
 }
 
-.med-chart-card-copy {
-  margin: 0 0 0.75rem;
-  color: var(--muted);
-  font-size: 0.84rem;
-  line-height: 1.45;
-}
-
 .chart-type-badge {
   flex: 0 0 auto;
   padding: 0.22rem 0.55rem;
@@ -677,11 +661,6 @@ body.medication-details-page .med-shell {
   color: #b45309;
   background: rgba(245, 158, 11, 0.12);
   border-color: rgba(245, 158, 11, 0.18);
-}
-
-.chart-type-badge--doughnut {
-  color: #0284c7;
-  background: rgba(14, 165, 233, 0.12);
 }
 
 .chart-type-badge--bar {
@@ -847,54 +826,6 @@ body.medication-details-page .med-shell {
   line-height: 1.7;
 }
 
-.graph-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.7rem;
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
-  padding: 0.45rem 0.4rem;
-  border-radius: 12px;
-}
-
-.graph-row:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.graph-row-label {
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: var(--rx-primary-dark);
-  white-space: nowrap;
-}
-
-.graph-row-bar {
-  position: relative;
-  height: 0.95rem;
-  border-radius: 999px;
-  background: rgba(5, 150, 105, 0.12);
-  overflow: hidden;
-}
-
-.graph-row-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: inherit;
-  transition: width 0.5s ease;
-  background: linear-gradient(90deg, #34d399, #059669);
-}
-
-.graph-row-value {
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: var(--text);
-  white-space: nowrap;
-}
-
 .graph-empty {
   margin: 0;
   padding: 0.8rem 0.6rem;
@@ -950,52 +881,9 @@ body.medication-details-page .med-shell {
   }
 
   .med-content-grid,
-  .regulatory-grid,
-  .ingredient-grid,
   .med-panel--mechanism .mechanism-layout {
     grid-template-columns: 1fr;
   }
-}
-
-.regulatory-grid,
-.ingredient-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--med-gap);
-  margin-top: 1rem;
-}
-
-.regulatory-card,
-.ingredient-item {
-  padding: 1rem;
-  border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid var(--border);
-}
-
-.regulatory-card h4,
-.ingredient-item h4 {
-  margin: 0 0 0.5rem;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--rx-primary-dark);
-}
-
-.regulatory-list,
-.ingredient-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0.45rem;
-}
-
-.regulatory-list li,
-.ingredient-list li {
-  margin: 0;
-  color: var(--text);
-  font-size: 0.95rem;
-  line-height: 1.5;
 }
 
 .med-content-col {

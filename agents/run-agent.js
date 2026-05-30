@@ -13,7 +13,6 @@ const { buildUserContextBlock, visionImageUrl } = require("./medical-context");
  * @param {number} [options.maxTokens]
  * @param {"low"|"high"} [options.imageDetail]
  * @param {boolean} [options.includeImage]
- * @param {boolean} [options.temperatureNudge]
  */
 async function runVisionAgent(ctx, options) {
   const lines = [...(options.promptLines || []), buildUserContextBlock(ctx.body)].filter(Boolean);
@@ -28,8 +27,7 @@ async function runVisionAgent(ctx, options) {
     content,
     schemaName: options.schemaName,
     schema: options.schema,
-    maxTokens: options.maxTokens,
-    temperatureNudge: options.temperatureNudge
+    maxTokens: options.maxTokens
   });
   ctx.lastNimRequestId = requestId || "";
   return { result, requestId };

@@ -3,6 +3,7 @@ const fsp = require("node:fs/promises");
 const crypto = require("node:crypto");
 const http = require("node:http");
 const path = require("node:path");
+const zlib = require("node:zlib");
 const { URL } = require("node:url");
 
 const ROOT = __dirname;
@@ -22,6 +23,10 @@ const SAMPLES_DIR = path.join(ROOT, "samples");
 const SAMPLE_IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp"]);
 const MAX_BODY_BYTES = 32 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
+// Gzip text assets when the client supports it and the file is big enough to be worth it.
+const COMPRESSIBLE_EXTENSIONS = new Set([".html", ".css", ".js", ".json", ".svg"]);
+const GZIP_MIN_BYTES = 1024;
 
 const PORT = Number(process.env.PORT || 3000);
 
@@ -532,8 +537,12 @@ function cacheControlFor(filePath) {
   return "public, max-age=3600";
 }
 
-function entityTagFor(stat) {
-  return `"${stat.size.toString(16)}-${Math.floor(stat.mtimeMs).toString(16)}"`;
+function entityTagFor(stat, suffix = "") {
+  return `"${stat.size.toString(16)}-${Math.floor(stat.mtimeMs).toString(16)}${suffix}"`;
+}
+
+function acceptsGzip(req) {
+  return /\bgzip\b/.test(req.headers["accept-encoding"] || "");
 }
 
 function isFresh(req, stat, etag) {
@@ -557,8 +566,14 @@ function isFresh(req, stat, etag) {
 
 function sendFile(req, res, filePath, stat, cacheControl) {
   const type = contentTypeFor(filePath);
-  const etag = entityTagFor(stat);
+  const ext = path.extname(filePath).toLowerCase();
+  const compressible = COMPRESSIBLE_EXTENSIONS.has(ext);
+  const useGzip =
+    compressible && req.method !== "HEAD" && stat.size >= GZIP_MIN_BYTES && acceptsGzip(req);
+  const etag = entityTagFor(stat, useGzip ? "-gz" : "");
   const lastModified = stat.mtime.toUTCString();
+
+  if (compressible) res.setHeader("Vary", "Accept-Encoding");
 
   if (isFresh(req, stat, etag)) {
     res.writeHead(304, {
@@ -570,20 +585,26 @@ function sendFile(req, res, filePath, stat, cacheControl) {
     return;
   }
 
-  res.writeHead(200, {
+  const headers = {
     "Content-Type": type,
-    "Content-Length": stat.size,
     "Cache-Control": cacheControl,
     ETag: etag,
     "Last-Modified": lastModified
-  });
+  };
+  // Compressed length is unknown up front; only set Content-Length for identity responses.
+  if (useGzip) headers["Content-Encoding"] = "gzip";
+  else headers["Content-Length"] = stat.size;
+
+  res.writeHead(200, headers);
 
   if (req.method === "HEAD") {
     res.end();
     return;
   }
 
-  fs.createReadStream(filePath).pipe(res);
+  const fileStream = fs.createReadStream(filePath);
+  if (useGzip) fileStream.pipe(zlib.createGzip()).pipe(res);
+  else fileStream.pipe(res);
 }
 
 function sendJson(res, statusCode, payload) {

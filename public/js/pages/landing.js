@@ -21,30 +21,6 @@ const updateNav = () => {
   }
 };
 
-
-
-// Interactive Demo Controls
-const setupDemoControls = () => {
-  const buttons = document.querySelectorAll(".demo-btn");
-  const contents = document.querySelectorAll(".demo-content");
-
-  buttons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const step = button.dataset.step;
-
-      // Update buttons
-      buttons.forEach((btn) => btn.classList.remove("active"));
-      button.classList.add("active");
-
-      // Update content
-      contents.forEach((content) => content.classList.remove("active"));
-      document.querySelector(`[data-content="${step}"]`).classList.add("active");
-    });
-  });
-};
-
-
-
 // Prescription demo — replay messy handwriting on hover
 const setupPrescriptionDemo = () => {
   const demo = document.getElementById("prescriptionDemo");
@@ -73,49 +49,6 @@ const setupScrollHint = () => {
       chapter2.scrollIntoView();
     }
   });
-};
-
-
-
-// Add hover effects to result actions
-const setupResultActions = () => {
-  const actions = document.querySelectorAll(".result-action");
-
-  actions.forEach((action) => {
-    action.addEventListener("click", (e) => {
-      e.preventDefault();
-
-      // Create ripple effect
-      const ripple = document.createElement("span");
-      ripple.style.position = "absolute";
-      ripple.style.width = "20px";
-      ripple.style.height = "20px";
-      ripple.style.background = "var(--primary)";
-      ripple.style.borderRadius = "50%";
-      ripple.style.opacity = "0.5";
-      ripple.style.transform = "scale(0)";
-      ripple.style.animation = "ripple 0.6s ease-out";
-
-      action.style.position = "relative";
-      action.appendChild(ripple);
-
-      setTimeout(() => ripple.remove(), 600);
-    });
-  });
-};
-
-// Add CSS for ripple animation
-const addRippleAnimation = () => {
-  const style = document.createElement("style");
-  style.textContent = `
-        @keyframes ripple {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
-        }
-    `;
-  document.head.appendChild(style);
 };
 
 // Easter egg: Konami code
@@ -260,11 +193,8 @@ const setupConfetti = () => {
 
 // Initialize everything
 const init = () => {
-  setupDemoControls();
   setupPrescriptionDemo();
   setupScrollHint();
-  setupResultActions();
-  addRippleAnimation();
   setupEasterEgg();
   setupDemoVideo();
   setupConfetti();
@@ -287,16 +217,6 @@ if (document.readyState === "loading") {
 } else {
   init();
 }
-
-document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-  anchor.addEventListener("click", function (e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute("href"));
-    if (target) {
-      target.scrollIntoView({ block: "start" });
-    }
-  });
-});
 
 // Performance optimization: Debounce scroll events
 let scrollTimeout;
