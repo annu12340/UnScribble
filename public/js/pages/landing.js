@@ -21,88 +21,7 @@ const updateNav = () => {
   }
 };
 
-// Chapter Visibility
-const observeChapters = () => {
-  const chapters = document.querySelectorAll(".chapter");
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-        }
-      });
-    },
-    {
-      threshold: 0.2
-    }
-  );
-
-  chapters.forEach((chapter) => observer.observe(chapter));
-};
-
-// Pipeline step stagger
-const observePipeline = () => {
-  const steps = document.querySelectorAll(".pipeline-step");
-  if (!steps.length) return;
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          steps.forEach((step, i) => {
-            window.setTimeout(() => step.classList.add("visible"), i * 120);
-          });
-          observer.disconnect();
-        }
-      });
-    },
-    { threshold: 0.4 }
-  );
-
-  const pipeline = document.querySelector(".journey-pipeline");
-  if (pipeline) observer.observe(pipeline);
-};
-
-// Struggle Items Animation
-const observeStruggleItems = () => {
-  const items = document.querySelectorAll(".struggle-item");
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-        }
-      });
-    },
-    {
-      threshold: 0.3
-    }
-  );
-
-  items.forEach((item) => observer.observe(item));
-};
-
-// Magic Reveal Animation
-const observeMagicItems = () => {
-  const items = document.querySelectorAll(".magic-item");
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-        }
-      });
-    },
-    {
-      threshold: 0.3
-    }
-  );
-
-  items.forEach((item) => observer.observe(item));
-};
 
 // Interactive Demo Controls
 const setupDemoControls = () => {
@@ -124,42 +43,7 @@ const setupDemoControls = () => {
   });
 };
 
-// Auto-advance demo
-const autoAdvanceDemo = () => {
-  let currentStep = 0;
-  const steps = ["upload", "process", "result"];
 
-  const demoSection = document.querySelector(".chapter-3");
-  let intervalId = null;
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          // Start auto-advance when demo is visible
-          intervalId = setInterval(() => {
-            currentStep = (currentStep + 1) % steps.length;
-            const button = document.querySelector(`[data-step="${steps[currentStep]}"]`);
-            if (button) button.click();
-          }, 4000);
-        } else {
-          // Stop when not visible
-          if (intervalId) {
-            clearInterval(intervalId);
-            intervalId = null;
-          }
-        }
-      });
-    },
-    {
-      threshold: 0.5
-    }
-  );
-
-  if (demoSection) {
-    observer.observe(demoSection);
-  }
-};
 
 // Prescription demo — replay messy handwriting on hover
 const setupPrescriptionDemo = () => {
@@ -191,18 +75,7 @@ const setupScrollHint = () => {
   });
 };
 
-// Parallax Effect for Prescription Paper
-const setupParallax = () => {
-  const paper = document.querySelector(".prescription-paper");
-  if (!paper) return;
 
-  window.addEventListener("mousemove", (e) => {
-    const x = (e.clientX / window.innerWidth - 0.5) * 20;
-    const y = (e.clientY / window.innerHeight - 0.5) * 20;
-
-    paper.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
-  });
-};
 
 // Add hover effects to result actions
 const setupResultActions = () => {
@@ -387,15 +260,9 @@ const setupConfetti = () => {
 
 // Initialize everything
 const init = () => {
-  observeChapters();
-  observePipeline();
-  observeStruggleItems();
-  observeMagicItems();
   setupDemoControls();
-  autoAdvanceDemo();
   setupPrescriptionDemo();
   setupScrollHint();
-  setupParallax();
   setupResultActions();
   addRippleAnimation();
   setupEasterEgg();
