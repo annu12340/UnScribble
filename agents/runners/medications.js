@@ -37,8 +37,7 @@ async function run(ctx) {
     schemaName: "medications",
     schema: schemas.medications,
     maxTokens: 4500,
-    imageDetail: "high",
-    temperatureNudge: rerun
+    imageDetail: "high"
   });
   return result;
 }

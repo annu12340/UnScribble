@@ -32,8 +32,7 @@ function buildRequestBody({
   content,
   schemaName,
   schema,
-  maxTokens = 4000,
-  temperatureNudge
+  maxTokens = 4000
 }) {
   const requestBody = {
     model: config.model,
@@ -50,11 +49,9 @@ function buildRequestBody({
       }
     }
   };
-  if (temperatureNudge) {
-    requestBody.temperature = 0.4;
-  }
-  // Reasoning is omitted for strict json_schema calls — it can consume max_output_tokens
-  // before the message block with structured JSON is emitted.
+  // temperature is not supported by the model (rejects it with a 400), and reasoning is
+  // omitted for strict json_schema calls — it can consume max_output_tokens before the
+  // message block with structured JSON is emitted.
   return requestBody;
 }
 
@@ -63,8 +60,7 @@ async function callResponses({
   content,
   schemaName,
   schema,
-  maxTokens,
-  temperatureNudge
+  maxTokens
 }) {
   if (!config.apiKey) {
     const error = new Error("NVIDIA_API_KEY is not configured");
@@ -80,7 +76,6 @@ async function callResponses({
       schemaName,
       schema,
       maxTokens: effectiveMax,
-      temperatureNudge,
       attempt
     });
 
@@ -116,7 +111,6 @@ async function callResponsesOnce({
   schemaName,
   schema,
   maxTokens,
-  temperatureNudge,
   attempt
 }) {
   const requestBody = buildRequestBody({
@@ -124,8 +118,7 @@ async function callResponsesOnce({
     content,
     schemaName,
     schema,
-    maxTokens,
-    temperatureNudge
+    maxTokens
   });
   const started = Date.now();
   const controller = new AbortController();
