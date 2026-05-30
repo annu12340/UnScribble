@@ -6,28 +6,22 @@ import {
   getGoogleUserInfo
 } from "../medication/medication-schedule.js";
 import { loadMechanismSidebar, mechanismSidebarElements } from "../medication/mechanism-sidebar.js";
-
-/** Change this to test another drug in the demo database (e.g. lisinopril, metformin, ibuprofen). */
-const DEMO_MEDICATION_NAME = "Amoxicillin";
-
-const DEMO_MEDICATION = {
-  medication_name: DEMO_MEDICATION_NAME,
-  strength: "500 mg",
-  form: "Capsule",
-  dose: "1 capsule",
-  frequency: "Three times daily",
-  duration: "7 days",
-  route: "Oral",
-  quantity: "21",
-  refills: "0",
-  timing: "With or without food",
-  confidence: 0.88,
-  sig: "Take 1 capsule by mouth three times daily for 7 days",
-  administration_notes: "Complete the full course even if you feel better.",
-  raw_text: "Amox 500mg cap i tab po tds x7d",
-  safety_flags: [],
-  alternatives: []
-};
+import {
+  renderOverviewCharts,
+  renderInsightCharts,
+  setChartsLoading,
+  syncChartReveal,
+  INSIGHT_CHART_IDS
+} from "../medication/medication-charts.js";
+import {
+  buildInsightsRequestBody,
+  collectMedicationWarnings,
+  confidencePercent,
+  formatNormalizedFrequency,
+  hasInsightPayload,
+  resolveMedicationLoad
+} from "../medication/medication-details-shared.js";
+import { renderInsightSections } from "../medication/medication-details-sections.js";
 
 const state = {
   medication: null,
@@ -48,6 +42,7 @@ const els = {
   medForm: document.querySelector("#medForm"),
   medHeroChips: document.querySelector("#medHeroChips"),
   medConfidenceWrap: document.querySelector("#medConfidenceWrap"),
+  medConfidenceGauge: document.querySelector("#medConfidenceGauge"),
   medDose: document.querySelector("#medDose"),
   medFrequency: document.querySelector("#medFrequency"),
   medDuration: document.querySelector("#medDuration"),
@@ -93,7 +88,6 @@ const els = {
   medCommonSideEffects: document.querySelector("#medCommonSideEffects"),
   medSeriousAdverseEvents: document.querySelector("#medSeriousAdverseEvents"),
   medMonitoringNotes: document.querySelector("#medMonitoringNotes"),
-  medAdministrationGuidance: document.querySelector("#medAdministrationGuidance"),
   medStorageInstructions: document.querySelector("#medStorageInstructions"),
   medMissedDoseGuidance: document.querySelector("#medMissedDoseGuidance"),
   medRecentRecalls: document.querySelector("#medRecentRecalls"),
@@ -113,7 +107,8 @@ const els = {
 };
 
 let toastTimer = null;
-const chartInstances = {}; // Store Chart.js instances for cleanup
+const chartInstances = {};
+let insightsRequest = null;
 
 init();
 
@@ -187,7 +182,7 @@ async function loadGoogleConfig() {
       if (isGoogleSignedIn()) {
         updateGoogleSignInUI();
       }
-    } else {
+    } else if (els.addToCalendarBtn) {
       els.addToCalendarBtn.style.display = "none";
     }
   } catch (error) {
@@ -238,23 +233,16 @@ function setTodayAsDefault() {
   if (els.startDateInput) els.startDateInput.value = today;
 }
 
-function buildDemoMedication(overrideName) {
-  const name = String(overrideName || DEMO_MEDICATION_NAME).trim() || DEMO_MEDICATION_NAME;
-  return { ...DEMO_MEDICATION, medication_name: name };
-}
-
 function loadMedicationData() {
   const params = new URLSearchParams(window.location.search);
   const medOverride = params.get("med");
   const forceDemo = params.get("demo") === "1";
   let storedData = sessionStorage.getItem("selectedMedication");
 
-  // Fallback to localStorage if sessionStorage wasn't populated for some reason
   if (!storedData) {
     try {
       storedData = localStorage.getItem("selectedMedication");
       if (storedData) {
-        // Remove the fallback so it doesn't persist across unrelated visits
         localStorage.removeItem("selectedMedication");
       }
     } catch (err) {
@@ -262,36 +250,34 @@ function loadMedicationData() {
     }
   }
 
-  if (forceDemo) {
-    state.medication = buildDemoMedication(medOverride);
-    els.noDataState.hidden = true;
-    els.medicationDetailsContent.hidden = false;
-    if (els.demoBanner) {
-      els.demoBanner.hidden = false;
-      els.demoBanner.textContent = `Demo mode — showing hardcoded data for "${state.medication.medication_name}". Remove ?demo=1 to use results from session.`;
-    }
-    renderMedicationDetails();
-    return;
-  }
+  const resolved = resolveMedicationLoad({
+    storedData,
+    forceDemo,
+    medOverride
+  });
 
-  if (!storedData) {
+  if (resolved.mode === "empty") {
     state.medication = null;
     els.noDataState.hidden = false;
     els.medicationDetailsContent.hidden = true;
+    if (resolved.error) {
+      console.error("Error loading medication data:", resolved.error);
+    }
     return;
   }
 
-  try {
-    state.medication = JSON.parse(storedData);
-    els.noDataState.hidden = true;
-    els.medicationDetailsContent.hidden = false;
-    if (els.demoBanner) els.demoBanner.hidden = true;
-    renderMedicationDetails();
-  } catch (error) {
-    console.error("Error loading medication data:", error);
-    els.noDataState.hidden = false;
-    els.medicationDetailsContent.hidden = true;
+  state.medication = resolved.medication;
+  els.noDataState.hidden = true;
+  els.medicationDetailsContent.hidden = false;
+
+  if (resolved.mode === "demo" && els.demoBanner) {
+    els.demoBanner.hidden = false;
+    els.demoBanner.textContent = resolved.demoBannerText || "";
+  } else if (els.demoBanner) {
+    els.demoBanner.hidden = true;
   }
+
+  renderMedicationDetails();
 }
 
 function renderMedicationDetails() {
@@ -322,33 +308,31 @@ function renderMedicationDetails() {
   if (els.medDuration) els.medDuration.textContent = med.duration || "—";
   if (els.medRoute) els.medRoute.textContent = route || "—";
 
-  // Administration
   const adminText = [med.administration_notes, med.instructions].filter(Boolean).join(". ");
   if (adminText && els.medAdministration) {
     els.medAdministration.replaceChildren(createElement("p", "", adminText));
   }
 
-  // Schedule
   const schedules = parseMedicationSchedule([med]);
   if (schedules.length > 0) {
     state.schedule = schedules[0];
     renderSchedule(state.schedule);
   }
 
-  // Additional Information
   if (els.medQuantity) els.medQuantity.textContent = med.quantity || "—";
   if (els.medRefills) els.medRefills.textContent = med.refills || "—";
   if (els.medTiming) els.medTiming.textContent = med.timing || "—";
 
-  const confidence = Math.round(Number(med.confidence || 0) * 100);
-  if (els.medConfidence) els.medConfidence.textContent = med.confidence != null ? `${confidence}%` : "—";
+  const confidence = confidencePercent(med.confidence);
+  if (els.medConfidence) {
+    els.medConfidence.textContent = med.confidence != null ? `${confidence}%` : "—";
+  }
   if (els.medConfidenceWrap) {
     els.medConfidenceWrap.classList.toggle("is-low", confidence > 0 && confidence < 75);
     els.medConfidenceWrap.classList.toggle("is-high", confidence >= 75);
   }
   renderConfidenceGauge(med.confidence);
 
-  // Sig
   if (med.sig && els.medSig && els.sigSection) {
     els.medSig.replaceChildren(createElement("p", "", med.sig));
     els.sigSection.hidden = false;
@@ -356,30 +340,32 @@ function renderMedicationDetails() {
     els.sigSection.hidden = true;
   }
 
-  // Warnings
-  const warnings = (med.safety_flags || [])
-    .concat((med.critical_uncertainties || []).map((item) => `Uncertain: ${item}`))
-    .concat((med.uncertain_tokens || []).map((item) => `Token to verify: ${item}`))
-    .concat(med.requires_verification ? ["Human verification required for this medication."] : []);
-
+  const warnings = collectMedicationWarnings(med);
   if (warnings.length > 0) {
-    if (els.medWarnings) els.medWarnings.replaceChildren(...warnings.map((warning) => createElement("li", "", warning)));
+    if (els.medWarnings) {
+      els.medWarnings.replaceChildren(
+        ...warnings.map((warning) => createElement("li", "", warning))
+      );
+    }
     if (els.warningsSection) els.warningsSection.hidden = false;
   } else {
     if (els.medWarnings) els.medWarnings.replaceChildren();
     if (els.warningsSection) els.warningsSection.hidden = true;
   }
 
-  // Alternatives
   const alternatives = med.alternatives || [];
   if (alternatives.length > 0) {
-    if (els.medAlternatives) els.medAlternatives.replaceChildren(...alternatives.map((alt) =>
-      createElement(
-        "li",
-        "",
-        `${alt.text || ""} (${Math.round(Number(alt.confidence || 0) * 100)}%) - ${alt.reason || ""}`
-      )
-    ));
+    if (els.medAlternatives) {
+      els.medAlternatives.replaceChildren(
+        ...alternatives.map((alt) =>
+          createElement(
+            "li",
+            "",
+            `${alt.text || ""} (${Math.round(Number(alt.confidence || 0) * 100)}%) - ${alt.reason || ""}`
+          )
+        )
+      );
+    }
     if (els.alternativesSection) els.alternativesSection.hidden = false;
   } else {
     if (els.medAlternatives) els.medAlternatives.replaceChildren();
@@ -394,201 +380,37 @@ function renderMedicationDetails() {
     rawDetails.hidden = true;
   }
 
-  const regulatory = med.regulatory_status || {};
-  const regulatoryLists = {
-    fullyBannedCountries: regulatory.fully_banned_countries || [],
-    prescriptionOnlyCountries: regulatory.prescription_only_countries || [],
-    restrictedAgeGroups: regulatory.restricted_age_groups || [],
-    blackBoxWarnings: regulatory.black_box_warnings || [],
-    withdrawnFormulations: regulatory.withdrawn_formulations || [],
-    regulatoryAlerts: regulatory.recent_regulatory_alerts || []
-  };
+  renderInsightSections(med, els, renderTagList);
 
-  const hasRegulatoryInfo = Object.values(regulatoryLists).some((list) => list.length > 0);
-  if (els.medRegulatorySummary) {
-    els.medRegulatorySummary.textContent = hasRegulatoryInfo
-      ? "Regulatory information is available below."
-      : "No regulatory notes are available for this medication.";
+  renderOverviewCharts(med, state.schedule, chartInstances);
+
+  if (med._insightsLoaded) {
+    renderInsightCharts(med, chartInstances);
+  } else {
+    setChartsLoading(INSIGHT_CHART_IDS);
   }
-  renderList(
-    els.medFullyBannedCountries,
-    regulatoryLists.fullyBannedCountries,
-    "No countries listed."
-  );
-  renderList(
-    els.medPrescriptionOnlyCountries,
-    regulatoryLists.prescriptionOnlyCountries,
-    "No countries listed."
-  );
-  renderList(
-    els.medRestrictedAgeGroups,
-    regulatoryLists.restrictedAgeGroups,
-    "No age restrictions identified."
-  );
-  renderList(
-    els.medBlackBoxWarnings,
-    regulatoryLists.blackBoxWarnings,
-    "No black-box warnings identified."
-  );
-  renderList(
-    els.medWithdrawnFormulations,
-    regulatoryLists.withdrawnFormulations,
-    "No withdrawn formulations listed."
-  );
-  renderList(
-    els.medRegulatoryAlerts,
-    regulatoryLists.regulatoryAlerts,
-    "No recent alerts listed."
-  );
 
-  createPieChart('regulatoryGraph', [
-    { label: "Fully banned", value: regulatoryLists.fullyBannedCountries.length, title: "Number of fully banned countries" },
-    { label: "Rx-only", value: regulatoryLists.prescriptionOnlyCountries.length, title: "Number of prescription-only markets" },
-    { label: "Age restrictions", value: regulatoryLists.restrictedAgeGroups.length, title: "Number of restricted age groups" },
-    { label: "Black-box warnings", value: regulatoryLists.blackBoxWarnings.length, title: "Number of black-box warnings" },
-    { label: "Withdrawn", value: regulatoryLists.withdrawnFormulations.length, title: "Withdrawn formulations count" },
-    { label: "Alerts", value: regulatoryLists.regulatoryAlerts.length, title: "Recent regulatory alerts count" }
-  ], "Regulatory Status");
-
-  const ingredientData = med.ingredient_analysis || {};
-  const activeIngredient =
-    med.active_ingredient || ingredientData.active_ingredient || med.medication_name || "—";
-  const equivalentBrands =
-    med.equivalent_brands || ingredientData.equivalent_brands || [];
-  const combinationDrugs =
-    med.combination_drugs || ingredientData.combination_drugs || [];
-  const duplicateWarnings =
-    med.duplicate_ingredient_warnings || ingredientData.duplicate_ingredient_warnings || [];
-
-  if (els.medActiveIngredient) els.medActiveIngredient.textContent = activeIngredient;
-  renderList(els.medEquivalentBrands, equivalentBrands, "None identified.");
-  renderList(els.medCombinationDrugs, combinationDrugs, "None identified.");
-  renderList(
-    els.medDuplicateIngredientWarnings,
-    duplicateWarnings,
-    "No duplicate ingredient warnings."
-  );
-
-  createPieChart('ingredientGraph', [
-    { label: "Brands", value: equivalentBrands.length, title: "Equivalent brands identified" },
-    { label: "Combos", value: combinationDrugs.length, title: "Combination drugs identified" },
-    { label: "Duplicates", value: duplicateWarnings.length, title: "Duplicate ingredient warnings" }
-  ], "Ingredient Analysis");
-
-  const interactions = med.drug_interactions || {};
-  const interactingMeds = Array.isArray(interactions.common_interacting_medications)
-    ? interactions.common_interacting_medications
-    : [];
-  const foodSupplements = Array.isArray(interactions.food_supplements_to_avoid)
-    ? interactions.food_supplements_to_avoid
-    : [];
-  const contraindications = Array.isArray(interactions.contraindicated_conditions)
-    ? interactions.contraindicated_conditions
-    : [];
-
-  renderList(
-    els.medCommonInteractingMedications,
-    interactingMeds,
-    "No interacting medications identified."
-  );
-  renderList(
-    els.medFoodSupplementAvoidance,
-    foodSupplements,
-    "No foods or supplements identified."
-  );
-  renderList(
-    els.medContraindicatedConditions,
-    contraindications,
-    "No contraindicated conditions identified."
-  );
-  createBarChart('interactionGraph', [
-    { label: "Meds", value: interactingMeds.length, title: "Interacting medications" },
-    { label: "Foods / supplements", value: foodSupplements.length, title: "Food and supplement interactions" },
-    { label: "Contraindications", value: contraindications.length, title: "Contraindicated conditions" }
-  ], "Drug Interactions");
-
-  const safetyFlags = med.patient_safety_flags || {};
-  if (els.medPregnancyLactationCategory)
-    els.medPregnancyLactationCategory.textContent =
-      safetyFlags.pregnancy_lactation_category || "—";
-  if (els.medRenalHepaticDosingGuidance)
-    els.medRenalHepaticDosingGuidance.textContent =
-      safetyFlags.renal_hepatic_dosing_guidance || "—";
-  if (els.medAgePrecautions)
-    els.medAgePrecautions.textContent = safetyFlags.age_based_precautions || "—";
-  if (els.medAllergyRiskSummary)
-    els.medAllergyRiskSummary.textContent = safetyFlags.allergy_risk_summary || "—";
-
-  const sideEffects = med.side_effects || {};
-  const commonSideEffects = Array.isArray(sideEffects.common_side_effects)
-    ? sideEffects.common_side_effects
-    : [];
-  const seriousAdverseEvents = Array.isArray(sideEffects.serious_adverse_events)
-    ? sideEffects.serious_adverse_events
-    : [];
-
-  renderList(
-    els.medCommonSideEffects,
-    commonSideEffects,
-    "No common side effects identified."
-  );
-  renderList(
-    els.medSeriousAdverseEvents,
-    seriousAdverseEvents,
-    "No serious adverse events identified."
-  );
-  if (els.medMonitoringNotes)
-    els.medMonitoringNotes.textContent = sideEffects.monitoring_notes || "—";
-
-  createLineChart('sideEffectsGraph', [
-    { label: "Common", value: commonSideEffects.length, title: "Common side effects" },
-    { label: "Serious", value: seriousAdverseEvents.length, title: "Serious adverse events" }
-  ], "Side Effects");
-
-  const administration = med.administration || {};
-  if (els.medAdministrationGuidance)
-    els.medAdministrationGuidance.textContent =
-      administration.administration_guidance || med.administration_notes || "—";
-  if (els.medStorageInstructions)
-    els.medStorageInstructions.textContent = administration.storage_instructions || "—";
-  if (els.medMissedDoseGuidance)
-    els.medMissedDoseGuidance.textContent = administration.missed_dose_guidance || "—";
-
-  const marketStatus = med.market_status || {};
-  const recentRecalls = Array.isArray(marketStatus.recent_recalls)
-    ? marketStatus.recent_recalls
-    : [];
-  const countryRestrictions = Array.isArray(marketStatus.country_restrictions)
-    ? marketStatus.country_restrictions
-    : [];
-  const withdrawalHistory = Array.isArray(marketStatus.withdrawal_history)
-    ? marketStatus.withdrawal_history
-    : [];
-
-  renderList(
-    els.medRecentRecalls,
-    recentRecalls,
-    "No recent recalls identified."
-  );
-  renderList(
-    els.medCountryRestrictions,
-    countryRestrictions,
-    "No country restrictions identified."
-  );
-  renderList(
-    els.medWithdrawalHistory,
-    withdrawalHistory,
-    "No withdrawal history identified."
-  );
-  createPieChart('marketStatusGraph', [
-    { label: "Recalls", value: recentRecalls.length, title: "Recent recall events" },
-    { label: "Restrictions", value: countryRestrictions.length, title: "Country restrictions" },
-    { label: "Withdrawals", value: withdrawalHistory.length, title: "Withdrawal events" }
-  ], "Market Status");
+  syncChartReveal(chartInstances);
 
   loadMechanismSidebar(med.medication_name || "", els.mechanism);
-  if (!med.regulatory_status || !med.ingredient_analysis) {
-    loadMedicationInsights(med.medication_name || "", med.raw_text || "").catch((error) => {
+  ensureMedicationInsights(med);
+}
+
+function ensureMedicationInsights(med) {
+  if (!med || med._insightsLoaded || med._insightsLoading) return;
+  if (hasInsightPayload(med)) {
+    med._insightsLoaded = true;
+    renderInsightCharts(med, chartInstances);
+    return;
+  }
+
+  med._insightsLoading = true;
+  setChartsLoading(INSIGHT_CHART_IDS);
+
+  if (insightsRequest) return;
+
+  insightsRequest = loadMedicationInsights(med.medication_name || "", med.raw_text || "")
+    .catch((error) => {
       console.warn("Medication insights load failed:", error);
       if (els.medRegulatorySummary) {
         els.medRegulatorySummary.textContent = "Regulatory and ingredient information unavailable.";
@@ -596,20 +418,18 @@ function renderMedicationDetails() {
       if (els.medActiveIngredient) {
         els.medActiveIngredient.textContent = med.medication_name || "—";
       }
+    })
+    .finally(() => {
+      med._insightsLoading = false;
+      insightsRequest = null;
     });
-  }
 }
 
 async function loadMedicationInsights(medicationName, rawText) {
-  const payload = {
-    medication_name: medicationName,
-    raw_text: rawText
-  };
-
   const response = await fetch("/api/medication-insights", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(buildInsightsRequestBody(medicationName, rawText))
   });
 
   if (!response.ok) {
@@ -622,8 +442,9 @@ async function loadMedicationInsights(medicationName, rawText) {
     throw new Error("Invalid medication insights response");
   }
 
-  state.medication = { ...state.medication, ...insights };
+  state.medication = { ...state.medication, ...insights, _insightsLoaded: true };
   renderMedicationDetails();
+  return insights;
 }
 
 function renderHeroChips({ dose, frequency, route, duration }) {
@@ -658,7 +479,12 @@ function renderHeroChips({ dose, frequency, route, duration }) {
 function renderSchedule(schedule) {
   if (!els.medScheduleTimes) return;
 
-  if (!schedule || !schedule.schedule || !schedule.schedule.times || schedule.schedule.times.length === 0) {
+  if (
+    !schedule ||
+    !schedule.schedule ||
+    !schedule.schedule.times ||
+    schedule.schedule.times.length === 0
+  ) {
     els.medScheduleTimes.replaceChildren(
       createElement(
         "p",
@@ -694,247 +520,27 @@ function renderSchedule(schedule) {
   }
 }
 
-function renderList(el, values, emptyText) {
+function renderTagList(el, values, emptyText) {
   if (!el) return;
   const items = Array.isArray(values) ? values : [];
   if (items.length === 0) {
-    el.replaceChildren(createElement("li", "", emptyText));
+    el.replaceChildren(createElement("li", "med-tag med-tag--empty", emptyText));
     return;
   }
-  el.replaceChildren(
-    ...items.map((item) => createElement("li", "", String(item)))
-  );
-}
-
-function renderGraphBarRows(container, rows, emptyText) {
-  if (!container) return;
-  if (!Array.isArray(rows) || rows.length === 0) {
-    container.replaceChildren(createElement("p", "graph-empty", emptyText));
-    return;
-  }
-
-  const maxValue = Math.max(...rows.map((item) => item.value), 1);
-  container.replaceChildren(
-    ...rows.map((row) => {
-      const wrapper = createElement("div", "graph-row");
-      const label = createElement("div", "graph-row-label", row.label);
-      const bar = createElement("div", "graph-row-bar");
-      const fill = createElement("div", "graph-row-fill");
-      const value = createElement("div", "graph-row-value", String(row.value));
-      const fillWidth = Math.round((row.value / maxValue) * 100);
-      fill.style.width = `${fillWidth}%`;
-      if (row.color) {
-        fill.style.background = row.color;
-      }
-      if (row.title) {
-        wrapper.title = row.title;
-      }
-      bar.append(fill);
-      wrapper.append(label, bar, value);
-      return wrapper;
-    })
-  );
-}
-
-// Chart.js helper functions
-function destroyChart(chartId) {
-  if (chartInstances[chartId]) {
-    chartInstances[chartId].destroy();
-    delete chartInstances[chartId];
-  }
-}
-
-function createPieChart(canvasId, rows, title) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-
-  destroyChart(canvasId);
-
-  if (!Array.isArray(rows) || rows.length === 0) {
-    canvas.parentElement.innerHTML = `<p class="graph-empty">${title}: No data available.</p>`;
-    return;
-  }
-
-  const colors = [
-    '#10b981', '#059669', '#047857', '#065f46', '#064e3b',
-    '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'
-  ];
-
-  chartInstances[canvasId] = new Chart(canvas, {
-    type: 'doughnut',
-    data: {
-      labels: rows.map((r) => r.label),
-      datasets: [{
-        data: rows.map((r) => r.value),
-        backgroundColor: colors.slice(0, rows.length),
-        borderColor: '#ffffff',
-        borderWidth: 2,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            font: { size: 13, weight: '600' },
-            padding: 15,
-            usePointStyle: true,
-          },
-        },
-        tooltip: {
-          titleFont: { size: 13, weight: '600' },
-          bodyFont: { size: 12 },
-          padding: 10,
-          displayColors: true,
-        },
-      },
-    },
-  });
-}
-
-function createBarChart(canvasId, rows, title) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-
-  destroyChart(canvasId);
-
-  if (!Array.isArray(rows) || rows.length === 0) {
-    canvas.parentElement.innerHTML = `<p class="graph-empty">${title}: No data available.</p>`;
-    return;
-  }
-
-  chartInstances[canvasId] = new Chart(canvas, {
-    type: 'bar',
-    data: {
-      labels: rows.map((r) => r.label),
-      datasets: [{
-        label: title,
-        data: rows.map((r) => r.value),
-        backgroundColor: [
-          '#10b981', '#059669', '#047857', '#065f46', '#064e3b',
-          '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'
-        ],
-        borderRadius: 8,
-        borderWidth: 0,
-      }],
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: {
-          display: false,
-        },
-        tooltip: {
-          titleFont: { size: 13, weight: '600' },
-          bodyFont: { size: 12 },
-          padding: 10,
-          callbacks: {
-            label: (context) => `${context.parsed.x} items`,
-          },
-        },
-      },
-      scales: {
-        x: {
-          beginAtZero: true,
-          max: Math.max(...rows.map((r) => r.value), 5),
-          grid: {
-            color: 'rgba(5, 150, 105, 0.1)',
-          },
-          ticks: {
-            stepSize: 1,
-          },
-        },
-        y: {
-          grid: {
-            display: false,
-          },
-        },
-      },
-    },
-  });
-}
-
-function createLineChart(canvasId, rows, title) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-
-  destroyChart(canvasId);
-
-  if (!Array.isArray(rows) || rows.length === 0) {
-    canvas.parentElement.innerHTML = `<p class="graph-empty">${title}: No data available.</p>`;
-    return;
-  }
-
-  chartInstances[canvasId] = new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels: rows.map((r) => r.label),
-      datasets: [{
-        label: title,
-        data: rows.map((r) => r.value),
-        borderColor: '#059669',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 6,
-        pointBackgroundColor: '#059669',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointHoverRadius: 8,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: {
-          display: false,
-        },
-        tooltip: {
-          titleFont: { size: 13, weight: '600' },
-          bodyFont: { size: 12 },
-          padding: 10,
-          backgroundColor: 'rgba(5, 150, 105, 0.8)',
-          borderRadius: 8,
-        },
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: Math.max(...rows.map((r) => r.value), 5),
-          grid: {
-            color: 'rgba(5, 150, 105, 0.1)',
-          },
-        },
-        x: {
-          grid: {
-            display: false,
-          },
-        },
-      },
-    },
-  });
+  el.replaceChildren(...items.map((item) => createElement("li", "med-tag", String(item))));
 }
 
 function renderConfidenceGauge(confidence) {
   if (!els.medConfidenceGauge) return;
-  const percentage = Math.max(0, Math.min(100, Math.round(Number(confidence || 0) * 100)));
+  const percentage = confidencePercent(confidence);
   els.medConfidenceGauge.style.setProperty("--gauge", percentage);
   const color = percentage >= 75 ? "#10b981" : percentage >= 50 ? "#f59e0b" : "#ef4444";
   els.medConfidenceGauge.style.setProperty("--gauge-color", color);
   els.medConfidenceGauge.dataset.label = `${percentage}%`;
-}
-
-function formatNormalizedFrequency(frequency) {
-  if (!frequency || typeof frequency !== "object") return "";
-  return [frequency.abbreviation, frequency.expansion, frequency.timing]
-    .filter(Boolean)
-    .join(" · ");
+  if (els.medConfidence) els.medConfidence.textContent = `${percentage}%`;
+  if (els.medConfidenceWrap) {
+    els.medConfidenceWrap.setAttribute("aria-label", `Decode confidence ${percentage} percent`);
+  }
 }
 
 function openModal() {

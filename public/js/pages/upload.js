@@ -330,7 +330,7 @@ function handleWorkflowEvent(event, payload) {
       }
       updateProgressBar(0);
       initStepList();
-      setLoadingTitle("Deciphering hieroglyphics from your doctor (wish us luck)");
+      setLoadingTitle("Deciphering hieroglyphics from your doctor ... (wish us luck) ");
       setLoadingHint("Running multi-agent pipeline…");
       break;
     case "agent.start":
@@ -408,7 +408,7 @@ function setLoading(isLoading) {
   if (isLoading) {
     els.previewSection.hidden = true;
     if (els.sampleSection) els.sampleSection.hidden = true;
-    setLoadingTitle("Deciphering hieroglyphics from your doctor (wish us luck)");
+    setLoadingTitle("Deciphering hieroglyphics from your doctor ... (wish us luck)");
     setLoadingHint("Preparing image…");
     state.completedAgents = 0;
     updateProgressBar(0);

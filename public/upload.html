@@ -198,49 +198,39 @@
                 <span class="progress-text" id="progressText">0%</span>
               </div>
 
-      ```html
-<section class="loading-steps" aria-label="Analysis steps">
-  <p class="loading-steps-label">Analysis Pipeline</p>
-
-  <ul class="step-list" id="stepList">
-    <li class="step-item" data-step="image_quality">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Assessing Image Quality</span>
-    </li>
-
-    <li class="step-item" data-step="raw_transcription">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Extracting Prescription Text</span>
-    </li>
-
-    <li class="step-item" data-step="patient_header">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Identifying Patient Information</span>
-    </li>
-
-    <li class="step-item" data-step="medications">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Parsing Medications & Dosages</span>
-    </li>
-
-    <li class="step-item" data-step="clinical_context">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Analyzing Clinical Context</span>
-    </li>
-
-    <li class="step-item" data-step="safety_review">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Performing Safety Checks</span>
-    </li>
-
-    <li class="step-item step-item--full" data-step="synthesis">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Generating Structured Summary</span>
-    </li>
-  </ul>
-</section>
-```
-
+              <section class="loading-steps" aria-label="Analysis steps">
+                <p class="loading-steps-label">Pipeline</p>
+                <ul class="step-list" id="stepList">
+                  <li class="step-item" data-step="image_quality">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Image quality</span>
+                  </li>
+                  <li class="step-item" data-step="raw_transcription">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Transcription</span>
+                  </li>
+                  <li class="step-item" data-step="patient_header">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Patient info</span>
+                  </li>
+                  <li class="step-item" data-step="medications">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Medications</span>
+                  </li>
+                  <li class="step-item" data-step="clinical_context">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Clinical context</span>
+                  </li>
+                  <li class="step-item" data-step="safety_review">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Safety review</span>
+                  </li>
+                  <li class="step-item step-item--full" data-step="synthesis">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Summary</span>
+                  </li>
+                </ul>
+              </section>
 
               <p class="loading-joke"><span id="loadingJoke"></span></p>
             </div>
