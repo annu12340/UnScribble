@@ -2,14 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**Related docs:** [README.md](README.md) (human overview) · [AGENTS.md](AGENTS.md) (AI evaluator guide with structured metadata, verification checklist, and scoring rationale)
+
 ## Commands
 
 - `npm install` — installs runtime and dev quality tooling dependencies.
 - `npm start` (or `npm run dev`) — runs `node server.js`. No build step or bundler.
-- `npm test` — `node --test` for unit and focused browser-module tests.
+- `npm test` — `node --test` for unit and focused browser-module tests (47 tests).
+- `npm run check` — strict lint, Prettier, unit tests, and Playwright e2e (8 tests).
+- `npm run test:coverage` — unit tests with Node coverage (`coverage/lcov.info`).
 - `npm run lint:strict` — syntax checks, stale-path structure checks, and ESLint with zero warnings.
 - `npm run format:check` — Prettier check for JS/CSS/HTML/MD/JSON/YAML.
-- `npm run check` — strict lint, Prettier check, and Node tests.
+- `npm run check` — strict lint, Prettier check, Node tests, and Playwright e2e.
 - `npm run test:e2e` — Playwright smoke tests (`npx playwright install chromium` once after install).
 - Requires Node >= 18 (uses global `fetch`).
 - Server binds to `0.0.0.0:${PORT || 3000}`.
@@ -52,7 +56,7 @@ agents/
 public/
   js/core/         → shared browser modules
   js/pages/        → page entrypoints
-  js/medication/   → medication schedule, mechanism, and visualization modules
+  js/medication/   → medication schedule, mechanism, and chart modules
   css/             → shared and page styles
 data/
   formulary.json
@@ -80,7 +84,7 @@ data/
 | `GET /api/config`                  | API key status, model, `workflow: true`, `agents[]`, `mock`                |
 | `POST /api/decode/stream`          | **Primary** — SSE workflow events, final `workflow.complete` with `result` |
 | `POST /api/decode`                 | Batch — same orchestrator, returns JSON + `events[]`                       |
-| `GET /data/drug-body-effects.json` | Internal static body-map data                                              |
+| `GET /data/drug-body-effects.json` | Internal static body-effect data                                           |
 
 ### SSE events
 

@@ -14,7 +14,18 @@ const STALE_PATTERNS = [
   "public/styles.css",
   "public/landing.css",
   "test-gcal",
-  "medication-mechanism.html"
+  "medication-mechanism.html",
+  "/public/decode-client.js",
+  "/public/upload.js",
+  "/public/landing.js",
+  "/public/results.js",
+  "/public/medication-details.js",
+  "/public/medication-schedule.js",
+  "/public/protein-viewer.js",
+  "/public/image-enhance.js",
+  'src="/decode-client.js"',
+  'src="/upload.js"',
+  'type="module" src="/medication-details.js"'
 ];
 
 function isTextFile(filePath) {

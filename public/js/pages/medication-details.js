@@ -113,6 +113,7 @@ const els = {
 };
 
 let toastTimer = null;
+const chartInstances = {}; // Store Chart.js instances for cleanup
 
 init();
 
@@ -440,14 +441,14 @@ function renderMedicationDetails() {
     "No recent alerts listed."
   );
 
-  renderGraphBarRows(els.medRegulatoryGraph, [
+  createPieChart('regulatoryGraph', [
     { label: "Fully banned", value: regulatoryLists.fullyBannedCountries.length, title: "Number of fully banned countries" },
     { label: "Rx-only", value: regulatoryLists.prescriptionOnlyCountries.length, title: "Number of prescription-only markets" },
     { label: "Age restrictions", value: regulatoryLists.restrictedAgeGroups.length, title: "Number of restricted age groups" },
     { label: "Black-box warnings", value: regulatoryLists.blackBoxWarnings.length, title: "Number of black-box warnings" },
     { label: "Withdrawn", value: regulatoryLists.withdrawnFormulations.length, title: "Withdrawn formulations count" },
     { label: "Alerts", value: regulatoryLists.regulatoryAlerts.length, title: "Recent regulatory alerts count" }
-  ], "No regulatory chart data available.");
+  ], "Regulatory Status");
 
   const ingredientData = med.ingredient_analysis || {};
   const activeIngredient =
@@ -468,11 +469,11 @@ function renderMedicationDetails() {
     "No duplicate ingredient warnings."
   );
 
-  renderGraphBarRows(els.medIngredientGraph, [
+  createPieChart('ingredientGraph', [
     { label: "Brands", value: equivalentBrands.length, title: "Equivalent brands identified" },
     { label: "Combos", value: combinationDrugs.length, title: "Combination drugs identified" },
     { label: "Duplicates", value: duplicateWarnings.length, title: "Duplicate ingredient warnings" }
-  ], "No ingredient chart data available.");
+  ], "Ingredient Analysis");
 
   const interactions = med.drug_interactions || {};
   const interactingMeds = Array.isArray(interactions.common_interacting_medications)
@@ -500,11 +501,11 @@ function renderMedicationDetails() {
     contraindications,
     "No contraindicated conditions identified."
   );
-  renderGraphBarRows(els.medInteractionGraph, [
+  createBarChart('interactionGraph', [
     { label: "Meds", value: interactingMeds.length, title: "Interacting medications" },
     { label: "Foods / supplements", value: foodSupplements.length, title: "Food and supplement interactions" },
     { label: "Contraindications", value: contraindications.length, title: "Contraindicated conditions" }
-  ], "No interaction chart data available.");
+  ], "Drug Interactions");
 
   const safetyFlags = med.patient_safety_flags || {};
   if (els.medPregnancyLactationCategory)
@@ -539,10 +540,10 @@ function renderMedicationDetails() {
   if (els.medMonitoringNotes)
     els.medMonitoringNotes.textContent = sideEffects.monitoring_notes || "—";
 
-  renderGraphBarRows(els.medSideEffectsGraph, [
+  createLineChart('sideEffectsGraph', [
     { label: "Common", value: commonSideEffects.length, title: "Common side effects" },
     { label: "Serious", value: seriousAdverseEvents.length, title: "Serious adverse events" }
-  ], "No side effect chart data available.");
+  ], "Side Effects");
 
   const administration = med.administration || {};
   if (els.medAdministrationGuidance)
@@ -579,11 +580,11 @@ function renderMedicationDetails() {
     withdrawalHistory,
     "No withdrawal history identified."
   );
-  renderGraphBarRows(els.medMarketStatusGraph, [
+  createPieChart('marketStatusGraph', [
     { label: "Recalls", value: recentRecalls.length, title: "Recent recall events" },
     { label: "Restrictions", value: countryRestrictions.length, title: "Country restrictions" },
     { label: "Withdrawals", value: withdrawalHistory.length, title: "Withdrawal events" }
-  ], "No market status chart data available.");
+  ], "Market Status");
 
   loadMechanismSidebar(med.medication_name || "", els.mechanism);
   if (!med.regulatory_status || !med.ingredient_analysis) {
@@ -733,6 +734,191 @@ function renderGraphBarRows(container, rows, emptyText) {
       return wrapper;
     })
   );
+}
+
+// Chart.js helper functions
+function destroyChart(chartId) {
+  if (chartInstances[chartId]) {
+    chartInstances[chartId].destroy();
+    delete chartInstances[chartId];
+  }
+}
+
+function createPieChart(canvasId, rows, title) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  destroyChart(canvasId);
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    canvas.parentElement.innerHTML = `<p class="graph-empty">${title}: No data available.</p>`;
+    return;
+  }
+
+  const colors = [
+    '#10b981', '#059669', '#047857', '#065f46', '#064e3b',
+    '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'
+  ];
+
+  chartInstances[canvasId] = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: rows.map((r) => r.label),
+      datasets: [{
+        data: rows.map((r) => r.value),
+        backgroundColor: colors.slice(0, rows.length),
+        borderColor: '#ffffff',
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            font: { size: 13, weight: '600' },
+            padding: 15,
+            usePointStyle: true,
+          },
+        },
+        tooltip: {
+          titleFont: { size: 13, weight: '600' },
+          bodyFont: { size: 12 },
+          padding: 10,
+          displayColors: true,
+        },
+      },
+    },
+  });
+}
+
+function createBarChart(canvasId, rows, title) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  destroyChart(canvasId);
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    canvas.parentElement.innerHTML = `<p class="graph-empty">${title}: No data available.</p>`;
+    return;
+  }
+
+  chartInstances[canvasId] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: rows.map((r) => r.label),
+      datasets: [{
+        label: title,
+        data: rows.map((r) => r.value),
+        backgroundColor: [
+          '#10b981', '#059669', '#047857', '#065f46', '#064e3b',
+          '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'
+        ],
+        borderRadius: 8,
+        borderWidth: 0,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          titleFont: { size: 13, weight: '600' },
+          bodyFont: { size: 12 },
+          padding: 10,
+          callbacks: {
+            label: (context) => `${context.parsed.x} items`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: Math.max(...rows.map((r) => r.value), 5),
+          grid: {
+            color: 'rgba(5, 150, 105, 0.1)',
+          },
+          ticks: {
+            stepSize: 1,
+          },
+        },
+        y: {
+          grid: {
+            display: false,
+          },
+        },
+      },
+    },
+  });
+}
+
+function createLineChart(canvasId, rows, title) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  destroyChart(canvasId);
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    canvas.parentElement.innerHTML = `<p class="graph-empty">${title}: No data available.</p>`;
+    return;
+  }
+
+  chartInstances[canvasId] = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: rows.map((r) => r.label),
+      datasets: [{
+        label: title,
+        data: rows.map((r) => r.value),
+        borderColor: '#059669',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 6,
+        pointBackgroundColor: '#059669',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointHoverRadius: 8,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          titleFont: { size: 13, weight: '600' },
+          bodyFont: { size: 12 },
+          padding: 10,
+          backgroundColor: 'rgba(5, 150, 105, 0.8)',
+          borderRadius: 8,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: Math.max(...rows.map((r) => r.value), 5),
+          grid: {
+            color: 'rgba(5, 150, 105, 0.1)',
+          },
+        },
+        x: {
+          grid: {
+            display: false,
+          },
+        },
+      },
+    },
+  });
 }
 
 function renderConfidenceGauge(confidence) {

@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/rx-quirky.css" />
     <link rel="stylesheet" href="/css/medication-details.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
   </head>
   <body class="results-page rx-app medication-details-page">
     <div class="app-shell med-shell">
@@ -128,7 +129,7 @@
                     <span class="med-confidence-label">Decode confidence</span>
                     <span class="med-confidence-value" id="medConfidence">—</span>
                   </div>
-                  <div class="confidence-gauge" id="medConfidenceGauge" aria-hidden="true"></div>
+                
                   <button class="btn primary" id="addToCalendarBtn" type="button">
                     <svg
                       width="16"
@@ -313,7 +314,9 @@
                           <span class="subhead-icon" aria-hidden="true">⚠</span>
                           Regulatory status
                         </h3>
-                        <div class="section-chart" id="regulatoryGraph"></div>
+                        <div class="section-chart-container">
+                          <canvas id="regulatoryGraph"></canvas>
+                        </div>
                         <div class="section-summary-card">
                           <p class="section-summary-label">Regulatory highlights</p>
                           <p class="section-summary-text" id="medRegulatorySummary">
@@ -331,7 +334,9 @@
                           <span class="subhead-icon" aria-hidden="true">🧬</span>
                           Ingredient-level analysis
                         </h3>
-                        <div class="section-chart" id="ingredientGraph"></div>
+                        <div class="section-chart-container">
+                          <canvas id="ingredientGraph"></canvas>
+                        </div>
                         <div class="section-summary-card">
                           <p class="section-summary-label">Active ingredient</p>
                           <p id="medActiveIngredient">—</p>
@@ -340,7 +345,9 @@
 
                       <section class="med-page-section" id="section-interactions" aria-labelledby="interactions-heading">
                         <h2 id="interactions-heading" class="med-section-title">Drug interactions</h2>
-                        <div class="section-chart" id="interactionGraph"></div>
+                        <div class="section-chart-container">
+                          <canvas id="interactionGraph"></canvas>
+                        </div>
                       </section>
 
                       <section class="med-page-section" id="section-safety" aria-labelledby="safety-heading">
@@ -367,7 +374,9 @@
 
                       <section class="med-page-section" id="section-side-effects" aria-labelledby="side-effects-heading">
                         <h2 id="side-effects-heading" class="med-section-title">Side effects / monitoring</h2>
-                        <div class="section-chart" id="sideEffectsGraph"></div>
+                        <div class="section-chart-container">
+                          <canvas id="sideEffectsGraph"></canvas>
+                        </div>
                         <div class="section-summary-card">
                           <p class="section-summary-label">Monitoring notes</p>
                           <p id="medMonitoringNotes">—</p>
@@ -394,7 +403,9 @@
 
                       <section class="med-page-section" id="section-market-status" aria-labelledby="market-status-heading">
                         <h2 id="market-status-heading" class="med-section-title">Regulatory / market status</h2>
-                        <div class="section-chart" id="marketStatusGraph"></div>
+                        <div class="section-chart-container">
+                          <canvas id="marketStatusGraph"></canvas>
+                        </div>
                       </section>
 
                       <section

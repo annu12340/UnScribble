@@ -1,5 +1,7 @@
 # Google Calendar Setup
 
+> Optional integration. See also: [README.md](../README.md) · [AGENTS.md](../AGENTS.md)
+
 The **Add to Google Calendar** button on the results and medication-details pages is optional. Without it, you can still use **Export as ICS** to import the schedule into any calendar app — no setup required.
 
 To enable the in-app Google Calendar button you need a Google OAuth **Client ID**. The app uses Google Identity Services (token flow) in the browser with the `calendar.events` scope; there is no server-side Google credential and no client secret.

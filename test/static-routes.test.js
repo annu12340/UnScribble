@@ -3,7 +3,14 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("node:path");
-const { cacheControlFor, contentTypeFor, entityTagFor, resolveStaticFile } = require("../server");
+const {
+  cacheControlFor,
+  contentTypeFor,
+  entityTagFor,
+  resolveStaticFile,
+  listSampleImages,
+  formatSampleLabel
+} = require("../server");
 
 describe("static route helpers", () => {
   it("resolves moved browser assets under public/js", async () => {
@@ -21,5 +28,12 @@ describe("static route helpers", () => {
 
     const forbidden = await resolveStaticFile("/../server.js");
     assert.equal(forbidden.forbidden, true);
+  });
+
+  it("lists sample images and formats labels", async () => {
+    const names = await listSampleImages();
+    assert.ok(names.length >= 1);
+    assert.ok(names.every((name) => /\.(png|jpe?g|webp)$/i.test(name)));
+    assert.equal(formatSampleLabel("sample1.png"), "Sample1");
   });
 });

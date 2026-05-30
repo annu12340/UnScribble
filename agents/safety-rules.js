@@ -27,7 +27,7 @@ function applySafetyRules(input) {
 
   for (const med of result.medications || []) {
     const nameConf = Number(med.medication_name_confidence ?? 0);
-    if (nameConf > 0 && nameConf < 0.75) {
+    if (nameConf > 0 && nameConf < 0.7) {
       med.requires_verification = true;
       reasons.push(`Low confidence on medication line ${med.line_number || "?"}.`);
     }

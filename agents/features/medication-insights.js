@@ -56,7 +56,9 @@ function normalizeResult(result) {
       fully_banned_countries: Array.isArray(result.regulatory_status?.fully_banned_countries)
         ? result.regulatory_status.fully_banned_countries
         : [],
-      prescription_only_countries: Array.isArray(result.regulatory_status?.prescription_only_countries)
+      prescription_only_countries: Array.isArray(
+        result.regulatory_status?.prescription_only_countries
+      )
         ? result.regulatory_status.prescription_only_countries
         : [],
       restricted_age_groups: Array.isArray(result.regulatory_status?.restricted_age_groups)
@@ -71,48 +73,60 @@ function normalizeResult(result) {
       recent_regulatory_alerts: Array.isArray(result.regulatory_status?.recent_regulatory_alerts)
         ? result.regulatory_status.recent_regulatory_alerts
         : [],
-      summary: typeof result.regulatory_status?.summary === "string"
-        ? result.regulatory_status.summary
-        : DEFAULT_RESULT.regulatory_status.summary
+      summary:
+        typeof result.regulatory_status?.summary === "string"
+          ? result.regulatory_status.summary
+          : DEFAULT_RESULT.regulatory_status.summary
     },
     ingredient_analysis: {
-      active_ingredient: typeof result.ingredient_analysis?.active_ingredient === "string"
-        ? result.ingredient_analysis.active_ingredient
-        : "",
+      active_ingredient:
+        typeof result.ingredient_analysis?.active_ingredient === "string"
+          ? result.ingredient_analysis.active_ingredient
+          : "",
       equivalent_brands: Array.isArray(result.ingredient_analysis?.equivalent_brands)
         ? result.ingredient_analysis.equivalent_brands
         : [],
       combination_drugs: Array.isArray(result.ingredient_analysis?.combination_drugs)
         ? result.ingredient_analysis.combination_drugs
         : [],
-      duplicate_ingredient_warnings: Array.isArray(result.ingredient_analysis?.duplicate_ingredient_warnings)
+      duplicate_ingredient_warnings: Array.isArray(
+        result.ingredient_analysis?.duplicate_ingredient_warnings
+      )
         ? result.ingredient_analysis.duplicate_ingredient_warnings
         : []
     },
     drug_interactions: {
-      common_interacting_medications: Array.isArray(result.drug_interactions?.common_interacting_medications)
+      common_interacting_medications: Array.isArray(
+        result.drug_interactions?.common_interacting_medications
+      )
         ? result.drug_interactions.common_interacting_medications
         : [],
       food_supplements_to_avoid: Array.isArray(result.drug_interactions?.food_supplements_to_avoid)
         ? result.drug_interactions.food_supplements_to_avoid
         : [],
-      contraindicated_conditions: Array.isArray(result.drug_interactions?.contraindicated_conditions)
+      contraindicated_conditions: Array.isArray(
+        result.drug_interactions?.contraindicated_conditions
+      )
         ? result.drug_interactions.contraindicated_conditions
         : []
     },
     patient_safety_flags: {
-      pregnancy_lactation_category: typeof result.patient_safety_flags?.pregnancy_lactation_category === "string"
-        ? result.patient_safety_flags.pregnancy_lactation_category
-        : "",
-      renal_hepatic_dosing_guidance: typeof result.patient_safety_flags?.renal_hepatic_dosing_guidance === "string"
-        ? result.patient_safety_flags.renal_hepatic_dosing_guidance
-        : "",
-      age_based_precautions: typeof result.patient_safety_flags?.age_based_precautions === "string"
-        ? result.patient_safety_flags.age_based_precautions
-        : "",
-      allergy_risk_summary: typeof result.patient_safety_flags?.allergy_risk_summary === "string"
-        ? result.patient_safety_flags.allergy_risk_summary
-        : ""
+      pregnancy_lactation_category:
+        typeof result.patient_safety_flags?.pregnancy_lactation_category === "string"
+          ? result.patient_safety_flags.pregnancy_lactation_category
+          : "",
+      renal_hepatic_dosing_guidance:
+        typeof result.patient_safety_flags?.renal_hepatic_dosing_guidance === "string"
+          ? result.patient_safety_flags.renal_hepatic_dosing_guidance
+          : "",
+      age_based_precautions:
+        typeof result.patient_safety_flags?.age_based_precautions === "string"
+          ? result.patient_safety_flags.age_based_precautions
+          : "",
+      allergy_risk_summary:
+        typeof result.patient_safety_flags?.allergy_risk_summary === "string"
+          ? result.patient_safety_flags.allergy_risk_summary
+          : ""
     },
     side_effects: {
       common_side_effects: Array.isArray(result.side_effects?.common_side_effects)
@@ -121,20 +135,24 @@ function normalizeResult(result) {
       serious_adverse_events: Array.isArray(result.side_effects?.serious_adverse_events)
         ? result.side_effects.serious_adverse_events
         : [],
-      monitoring_notes: typeof result.side_effects?.monitoring_notes === "string"
-        ? result.side_effects.monitoring_notes
-        : ""
+      monitoring_notes:
+        typeof result.side_effects?.monitoring_notes === "string"
+          ? result.side_effects.monitoring_notes
+          : ""
     },
     administration: {
-      administration_guidance: typeof result.administration?.administration_guidance === "string"
-        ? result.administration.administration_guidance
-        : "",
-      storage_instructions: typeof result.administration?.storage_instructions === "string"
-        ? result.administration.storage_instructions
-        : "",
-      missed_dose_guidance: typeof result.administration?.missed_dose_guidance === "string"
-        ? result.administration.missed_dose_guidance
-        : ""
+      administration_guidance:
+        typeof result.administration?.administration_guidance === "string"
+          ? result.administration.administration_guidance
+          : "",
+      storage_instructions:
+        typeof result.administration?.storage_instructions === "string"
+          ? result.administration.storage_instructions
+          : "",
+      missed_dose_guidance:
+        typeof result.administration?.missed_dose_guidance === "string"
+          ? result.administration.missed_dose_guidance
+          : ""
     },
     market_status: {
       recent_recalls: Array.isArray(result.market_status?.recent_recalls)
@@ -151,49 +169,79 @@ function normalizeResult(result) {
 }
 
 function getMockMedicationInsights(medicationName) {
-  const key = String(medicationName || "").trim().toLowerCase();
+  const key = String(medicationName || "")
+    .trim()
+    .toLowerCase();
   if (key.includes("amoxicillin")) {
     return {
       regulatory_status: {
-        summary: "Amoxicillin is generally prescription-only in most countries and has a limited liver toxicity warning in rare cases.",
+        summary:
+          "Amoxicillin is generally prescription-only in most countries and has a limited liver toxicity warning in rare cases.",
         fully_banned_countries: [],
         prescription_only_countries: ["United States", "United Kingdom", "India"],
         restricted_age_groups: ["Under 1 month"],
         black_box_warnings: ["Banned because of liver toxicity"],
-        withdrawn_formulations: ["Amoxicillin oral suspension 400 mg/5 mL (discontinued in some markets)"],
+        withdrawn_formulations: [
+          "Amoxicillin oral suspension 400 mg/5 mL (discontinued in some markets)"
+        ],
         recent_regulatory_alerts: ["Restricted during pregnancy"]
       },
       ingredient_analysis: {
         active_ingredient: "Amoxicillin",
         equivalent_brands: ["Moxatag", "Trimox"],
         combination_drugs: ["Amoxicillin/Clavulanate"],
-        duplicate_ingredient_warnings: ["Contains penicillin-class antibiotic; avoid duplicate penicillin agents."]
+        duplicate_ingredient_warnings: [
+          "Contains penicillin-class antibiotic; avoid duplicate penicillin agents."
+        ]
       },
       drug_interactions: {
         common_interacting_medications: ["Methotrexate", "Warfarin", "Oral contraceptives"],
-        food_supplements_to_avoid: ["High-dose vitamin C", "Alcohol", "Probiotics (may alter absorption)"],
-        contraindicated_conditions: ["Mononucleosis", "Severe renal impairment", "Penicillin allergy"]
+        food_supplements_to_avoid: [
+          "High-dose vitamin C",
+          "Alcohol",
+          "Probiotics (may alter absorption)"
+        ],
+        contraindicated_conditions: [
+          "Mononucleosis",
+          "Severe renal impairment",
+          "Penicillin allergy"
+        ]
       },
       patient_safety_flags: {
         pregnancy_lactation_category: "Category B (use only if clearly needed)",
-        renal_hepatic_dosing_guidance: "Reduce dose in severe renal impairment; monitor kidney function.",
-        age_based_precautions: "Use caution in neonates and infants under 1 month due to immature renal clearance.",
-        allergy_risk_summary: "Patients with penicillin allergy may experience rash, swelling, or anaphylaxis."
+        renal_hepatic_dosing_guidance:
+          "Reduce dose in severe renal impairment; monitor kidney function.",
+        age_based_precautions:
+          "Use caution in neonates and infants under 1 month due to immature renal clearance.",
+        allergy_risk_summary:
+          "Patients with penicillin allergy may experience rash, swelling, or anaphylaxis."
       },
       side_effects: {
         common_side_effects: ["Nausea", "Diarrhea", "Rash"],
-        serious_adverse_events: ["Severe allergic reaction", "Clostridioides difficile infection", "Liver injury"],
-        monitoring_notes: "Monitor for fever, persistent diarrhea, jaundice, or difficulty breathing."
+        serious_adverse_events: [
+          "Severe allergic reaction",
+          "Clostridioides difficile infection",
+          "Liver injury"
+        ],
+        monitoring_notes:
+          "Monitor for fever, persistent diarrhea, jaundice, or difficulty breathing."
       },
       administration: {
-        administration_guidance: "Take with or without food, ideally evenly spaced throughout the day.",
+        administration_guidance:
+          "Take with or without food, ideally evenly spaced throughout the day.",
         storage_instructions: "Store at room temperature away from moisture and heat.",
-        missed_dose_guidance: "If you miss a dose, take it as soon as possible unless it is near the next dose; do not double dose."
+        missed_dose_guidance:
+          "If you miss a dose, take it as soon as possible unless it is near the next dose; do not double dose."
       },
       market_status: {
         recent_recalls: ["Recall of select lots due to particulate contamination"],
-        country_restrictions: ["Prescription-only in most markets", "Restricted during pregnancy in some regions"],
-        withdrawal_history: ["Some older oral suspension formulations were withdrawn after post-market stability concerns."]
+        country_restrictions: [
+          "Prescription-only in most markets",
+          "Restricted during pregnancy in some regions"
+        ],
+        withdrawal_history: [
+          "Some older oral suspension formulations were withdrawn after post-market stability concerns."
+        ]
       }
     };
   }
@@ -323,11 +371,7 @@ Return only valid JSON that matches the requested schema. If information is not 
           serious_adverse_events: { type: "array", items: { type: "string" } },
           monitoring_notes: { type: "string" }
         },
-        required: [
-          "common_side_effects",
-          "serious_adverse_events",
-          "monitoring_notes"
-        ]
+        required: ["common_side_effects", "serious_adverse_events", "monitoring_notes"]
       },
       administration: {
         type: "object",
@@ -335,13 +379,9 @@ Return only valid JSON that matches the requested schema. If information is not 
         properties: {
           administration_guidance: { type: "string" },
           storage_instructions: { type: "string" },
-          missed_dose_guidance: { type: "string" } 
+          missed_dose_guidance: { type: "string" }
         },
-        required: [
-          "administration_guidance",
-          "storage_instructions",
-          "missed_dose_guidance"
-        ]
+        required: ["administration_guidance", "storage_instructions", "missed_dose_guidance"]
       },
       market_status: {
         type: "object",
@@ -351,11 +391,7 @@ Return only valid JSON that matches the requested schema. If information is not 
           country_restrictions: { type: "array", items: { type: "string" } },
           withdrawal_history: { type: "array", items: { type: "string" } }
         },
-        required: [
-          "recent_recalls",
-          "country_restrictions",
-          "withdrawal_history"
-        ]
+        required: ["recent_recalls", "country_restrictions", "withdrawal_history"]
       }
     },
     required: [

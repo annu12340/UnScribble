@@ -18,6 +18,8 @@ const { getMedicationInsights } = require("./agents/features/medication-insights
 
 const PUBLIC_DIR = path.join(ROOT, "public");
 const DATA_DIR = path.join(ROOT, "data");
+const SAMPLES_DIR = path.join(ROOT, "samples");
+const SAMPLE_IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp"]);
 const MAX_BODY_BYTES = 32 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
@@ -108,6 +110,18 @@ function createAppServer() {
         requestUrl.pathname === "/data/drug-body-effects.json"
       ) {
         return await serveDataFile(req, res, "drug-body-effects.json");
+      }
+
+      if (req.method === "GET" && requestUrl.pathname === "/api/samples") {
+        return await handleListSamples(res);
+      }
+
+      if (
+        (req.method === "GET" || req.method === "HEAD") &&
+        requestUrl.pathname.startsWith("/samples/")
+      ) {
+        const fileName = decodeURIComponent(requestUrl.pathname.slice("/samples/".length));
+        return await serveSampleFile(req, res, fileName);
       }
 
       // Static file routes
@@ -427,6 +441,61 @@ async function serveDataFile(req, res, fileName) {
   sendFile(req, res, filePath, stat, "no-store");
 }
 
+async function listSampleImages() {
+  const entries = await fsp.readdir(SAMPLES_DIR, { withFileTypes: true }).catch(() => []);
+  return entries
+    .filter((entry) => {
+      if (!entry.isFile()) return false;
+      return SAMPLE_IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase());
+    })
+    .map((entry) => entry.name)
+    .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
+}
+
+async function handleListSamples(res) {
+  const names = await listSampleImages();
+  sendJson(res, 200, {
+    samples: names.map((name) => ({
+      name,
+      url: `/samples/${encodeURIComponent(name)}`,
+      label: formatSampleLabel(name)
+    }))
+  });
+}
+
+function formatSampleLabel(fileName) {
+  const base = path.basename(fileName, path.extname(fileName));
+  return base.replace(/[-_]+/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+async function serveSampleFile(req, res, fileName) {
+  const safeName = path.basename(String(fileName || ""));
+  if (!safeName || safeName !== fileName) {
+    sendJson(res, 403, { error: "Forbidden" });
+    return;
+  }
+
+  const ext = path.extname(safeName).toLowerCase();
+  if (!SAMPLE_IMAGE_EXTENSIONS.has(ext)) {
+    sendJson(res, 404, { error: "Not found" });
+    return;
+  }
+
+  const filePath = path.join(SAMPLES_DIR, safeName);
+  if (!filePath.startsWith(SAMPLES_DIR + path.sep)) {
+    sendJson(res, 403, { error: "Forbidden" });
+    return;
+  }
+
+  const stat = await fsp.stat(filePath).catch(() => null);
+  if (!stat?.isFile()) {
+    sendJson(res, 404, { error: "Not found" });
+    return;
+  }
+
+  sendFile(req, res, filePath, stat, "public, max-age=3600");
+}
+
 async function serveStatic(req, res, pathname) {
   let resolved = await resolveStaticFile(pathname);
 
@@ -552,5 +621,7 @@ module.exports = {
   cacheControlFor,
   contentTypeFor,
   entityTagFor,
-  resolveStaticFile
+  resolveStaticFile,
+  listSampleImages,
+  formatSampleLabel
 };

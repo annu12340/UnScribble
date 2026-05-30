@@ -16,8 +16,8 @@ module.exports = defineConfig({
   },
   webServer: {
     command: `WORKFLOW_MOCK=1 PORT=${PORT} npm start`,
-    url: `http://127.0.0.1:${PORT}/landing.html`,
-    reuseExistingServer: !process.env.CI,
+    url: `http://127.0.0.1:${PORT}/api/samples`,
+    reuseExistingServer: false,
     timeout: 30_000
   },
   projects: [

@@ -72,6 +72,17 @@ test("upload page renders preview controls", async ({ page }) => {
   await expect(page.locator("input[name='enhance'][value='contrast']")).toBeChecked();
 });
 
+test("upload page loads sample thumbnails", async ({ page }) => {
+  await page.goto("/upload.html");
+  await expect(page.locator("#sampleSection")).toBeVisible();
+  const sampleButton = page.locator('.sample-thumb[data-name="sample4.jpeg"]');
+  await expect(sampleButton).toBeVisible();
+  await sampleButton.click();
+  await expect(page.locator("#previewSection")).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator("#fileName")).toHaveText("sample4.jpeg");
+  await expect(sampleButton).toHaveClass(/is-selected/);
+});
+
 test("mock decode reaches results", async ({ page }) => {
   await page.goto("/upload.html");
   await page.locator("#fileInput").setInputFiles({
@@ -125,4 +136,18 @@ test("medication details do not auto-enter demo mode", async ({ page }) => {
 
   await expect(page.locator("#noDataState")).toBeVisible();
   await expect(page.locator("#medicationDetailsContent")).toBeHidden();
+});
+
+test("medication details render overview chart shells", async ({ page }) => {
+  await page.addInitScript((medication) => {
+    window.sessionStorage.setItem("selectedMedication", JSON.stringify(medication));
+  }, sampleMedication);
+
+  await page.goto("/medication-details.html");
+  await expect(page.locator("#medicationDetailsContent")).toBeVisible();
+  await expect(page.locator("#dosageScheduleGraph")).toBeVisible();
+  await expect(page.locator("#medProfileGraph")).toBeVisible();
+  await expect(
+    page.locator(".section-chart-container[data-chart-id='regulatoryGraph']")
+  ).toBeVisible();
 });

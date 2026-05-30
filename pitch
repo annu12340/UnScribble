@@ -1,0 +1,80 @@
+UnScribble — Because "I Think That Says Amoxicillin" Is Not a Medical Standard
+
+---
+
+THE PROBLEM
+
+Every year, roughly 7,000 Americans die from medication errors caused by illegible handwriting.
+
+Not a rare disease. Not a complex drug interaction. A bad loop on the letter "a."
+
+The IOM flagged this in 1999. The fax machine was already 15 years old. The internet existed. And people were still dying because a pharmacist had to guess.
+
+Electronic prescriptions exist now — but 30% of prescriptions in the US are still handwritten. Rural clinics. Urgent care. Developing countries. The problem didn't go away. We just stopped talking about it.
+
+---
+
+THE SOLUTION
+
+UnScribble takes a photo of a handwritten prescription and returns structured, verified, human-readable data — streamed live while you watch seven AI agents work through the chaos.
+
+Not raw OCR. Not "here's some text, good luck." A full extraction pipeline with patient info, medications, dosages, schedules, safety flags, and a plain-English summary — all in strict JSON with a schema that doesn't let the model freestyle.
+
+
+HOW IT WORKS
+
+Take a photo of a handwritten prescription. UnScribble runs it through a 7-agent AI pipeline and returns structured, validated medication data — patient info, drug names, dosages, frequencies, safety flags — in seconds.
+
+Not a text dump. Not raw OCR. A clean JSON contract with confidence scores, formulary-validated drug names, and explicit flags for anything a human should double-check before dispensing.
+
+
+THE PIPELINE
+
+Seven agents. Each one does one job.
+
+The first agent looks at the image and decides if it's even worth processing. Bad lighting, motion blur, too much glare — it exits early rather than hallucinate through unusable input.
+
+The second agent reads the raw text. It also infers regional handwriting style, because "QD" means something different depending on where the prescription was written.
+
+Three agents run in parallel: one extracts patient demographics, one parses medication lines, one pulls allergies and clinical notes. Parallel because waiting is waste.
+
+If the medication agent isn't confident enough in its own output — below 0.7 — it runs again. The two passes get merged using a self-consistency algorithm that picks the higher-confidence reading for each field.
+
+Then a safety agent runs deterministic rules. Not vibes. Rules. LASA pair detection, controlled substance flags, completeness checks, structured human-review reasons.
+
+Finally, a synthesis agent writes a plain-English summary a patient can actually read.
+
+---
+
+THE SAFETY LAYER
+
+The hardest part of medical AI isn't extraction. It's knowing when not to trust the extraction.
+
+UnScribble keeps the original OCR text alongside every corrected drug name. It fuzzy-matches against 864 formulary entries and auto-corrects only when the match is unambiguous. It blocks look-alike/sound-alike drug pairs — Metformin and Metronidazole are not interchangeable, and the system knows that.
+
+When something is uncertain, it doesn't guess silently. It sets requires_human_review: true and tells you exactly why.
+
+---
+
+BEYOND THE DECODE
+
+Once the prescription is decoded, the patient gets more than a list of drug names.
+
+A visual medication schedule shows when to take what, with Google Calendar and ICS export. An interactive body map shows where each drug acts. A mechanism explorer explains what the drug actually does in plain language.
+
+The goal isn't just to read the prescription. It's to make the prescription useful to the person it was written for.
+
+---
+
+THE BUILD
+
+Vanilla JS. Node.js. One runtime dependency. No bundler, no framework, no build step.
+
+46 unit tests. 7 end-to-end smoke tests. A mock mode that runs the full UI without an API key. A content-hash LRU cache that skips reprocessing identical images.
+
+SSE streaming so every agent's progress is visible in real time — because in healthcare, transparency isn't optional.
+
+
+Built solo. NVIDIA NIM. Vanilla JS. Seven agents. One dependency. One weekend.
+
+And a 25-year-old statistic that really should have been fixed by now.

@@ -41,6 +41,29 @@ const observeChapters = () => {
   chapters.forEach((chapter) => observer.observe(chapter));
 };
 
+// Pipeline step stagger
+const observePipeline = () => {
+  const steps = document.querySelectorAll(".pipeline-step");
+  if (!steps.length) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          steps.forEach((step, i) => {
+            window.setTimeout(() => step.classList.add("visible"), i * 120);
+          });
+          observer.disconnect();
+        }
+      });
+    },
+    { threshold: 0.4 }
+  );
+
+  const pipeline = document.querySelector(".journey-pipeline");
+  if (pipeline) observer.observe(pipeline);
+};
+
 // Struggle Items Animation
 const observeStruggleItems = () => {
   const items = document.querySelectorAll(".struggle-item");
@@ -163,7 +186,7 @@ const setupScrollHint = () => {
   scrollHint.addEventListener("click", () => {
     const chapter2 = document.querySelector(".chapter-2");
     if (chapter2) {
-      chapter2.scrollIntoView({ behavior: "smooth" });
+      chapter2.scrollIntoView();
     }
   });
 };
@@ -365,6 +388,7 @@ const setupConfetti = () => {
 // Initialize everything
 const init = () => {
   observeChapters();
+  observePipeline();
   observeStruggleItems();
   observeMagicItems();
   setupDemoControls();
@@ -397,13 +421,12 @@ if (document.readyState === "loading") {
   init();
 }
 
-// Add smooth scroll behavior
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
   anchor.addEventListener("click", function (e) {
     e.preventDefault();
     const target = document.querySelector(this.getAttribute("href"));
     if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      target.scrollIntoView({ block: "start" });
     }
   });
 });

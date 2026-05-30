@@ -1,18 +1,13 @@
 import { MAX_EDGE, JPEG_QUALITY, enhanceImageData } from "../core/image-enhance.js";
 import { buildDecodeRequestBody, decodePrescriptionStream } from "../core/decode-client.js";
-
-const MEDICAL_JOKES = [
-  "Why did the prescription go to therapy? It had too many issues to refill...",
-  "Why don't doctors trust stairs? They're always up to something...",
-  "What did the doctor say to the rocket ship? Time to get your booster shot!",
-  "Why was the medicine always calm? It had good patient-ce!",
-  "What do you call a doctor who fixes websites? A URLologist!",
-  "Why don't medications ever get lost? They always follow the directions!",
-  "What did one prescription say to the other? Take it easy, don't overdose on stress!",
-  "Why was the antibiotic so popular? It was a real culture killer!",
-  "Why was the medicine bottle always happy? It was filled with good spirits!",
-  "What's a doctor's favorite instrument? The organ!"
-];
+import {
+  agentLabel,
+  formatWorkflowError,
+  isImageMimeType,
+  pickMedicalJoke,
+  shortModelName,
+  workflowProgressPercent
+} from "../core/upload-workflow.js";
 
 const state = {
   file: null,
@@ -30,6 +25,8 @@ const els = {
   statusText: document.querySelector("#modelStatus .status-text"),
   fileInput: document.querySelector("#fileInput"),
   dropzone: document.querySelector("#dropzone"),
+  sampleSection: document.querySelector("#sampleSection"),
+  sampleGrid: document.querySelector("#sampleGrid"),
   fileName: document.querySelector("#fileName"),
   previewSection: document.querySelector("#previewSection"),
   previewCanvas: document.querySelector("#previewCanvas"),
@@ -50,7 +47,7 @@ init();
 
 async function init() {
   bindEvents();
-  await loadConfig();
+  await Promise.all([loadConfig(), loadSamples()]);
 }
 
 function bindEvents() {
@@ -91,6 +88,7 @@ function bindEvents() {
   els.retryBtn.addEventListener("click", () => {
     els.errorCard.hidden = true;
     els.previewSection.hidden = false;
+    if (els.sampleSection) els.sampleSection.hidden = false;
   });
 }
 
@@ -120,28 +118,102 @@ function setStatusText(text) {
   }
 }
 
-function shortModelName(model) {
-  const id = String(model || "");
-  if (!id) return "model";
-  const parts = id.split("/");
-  return parts[parts.length - 1] || id;
-}
-
-async function handleFile(file) {
-  if (!file.type.startsWith("image/")) {
+async function handleFile(file, { keepSampleSelection = false } = {}) {
+  if (!isImageMimeType(file.type)) {
     showError("Please select an image file (PNG, JPG, or WEBP).");
     return;
   }
 
+  if (!keepSampleSelection) {
+    clearSampleSelection();
+  }
+
+  await loadSelectedImage(file);
+}
+
+async function loadSelectedImage(file) {
   state.file = file;
   state.originalImage = await loadImage(file);
 
-  // Hide the dropzone after upload
   els.dropzone.style.display = "none";
 
   els.fileName.textContent = file.name;
   els.previewSection.hidden = false;
+  els.errorCard.hidden = true;
   await renderPreview();
+}
+
+async function loadSamples() {
+  if (!els.sampleGrid) return;
+
+  try {
+    const response = await fetch("/api/samples");
+    if (!response.ok) throw new Error("Unable to load samples");
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) throw new Error("Invalid samples response");
+    const payload = await response.json();
+    const samples = Array.isArray(payload.samples) ? payload.samples : [];
+    if (!samples.length) {
+      if (els.sampleSection) els.sampleSection.hidden = true;
+      return;
+    }
+
+    els.sampleGrid.replaceChildren();
+    for (const sample of samples) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "sample-thumb";
+      button.dataset.url = sample.url;
+      button.dataset.name = sample.name;
+      button.setAttribute("role", "option");
+      button.setAttribute("aria-label", `Use sample ${sample.label || sample.name}`);
+
+      const image = document.createElement("img");
+      image.src = sample.url;
+      image.alt = "";
+      image.loading = "lazy";
+      image.width = 92;
+      image.height = 74;
+
+      const label = document.createElement("span");
+      label.className = "sample-thumb-label";
+      label.textContent = sample.label || sample.name;
+
+      button.append(image, label);
+      button.addEventListener("click", () => selectSample(button));
+      els.sampleGrid.append(button);
+    }
+  } catch {
+    if (els.sampleSection) els.sampleSection.hidden = true;
+  }
+}
+
+async function selectSample(button) {
+  const url = button.dataset.url;
+  const name = button.dataset.name;
+  if (!url || !name) return;
+
+  document.querySelectorAll(".sample-thumb").forEach((item) => {
+    item.classList.toggle("is-selected", item === button);
+    item.setAttribute("aria-selected", item === button ? "true" : "false");
+  });
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to load sample");
+    const blob = await response.blob();
+    const file = new File([blob], name, { type: blob.type || "image/jpeg" });
+    await handleFile(file, { keepSampleSelection: true });
+  } catch {
+    showError("Unable to load the selected sample image.");
+  }
+}
+
+function clearSampleSelection() {
+  document.querySelectorAll(".sample-thumb").forEach((item) => {
+    item.classList.remove("is-selected");
+    item.setAttribute("aria-selected", "false");
+  });
 }
 
 function loadImage(file) {
@@ -258,29 +330,28 @@ function handleWorkflowEvent(event, payload) {
       }
       updateProgressBar(0);
       initStepList();
-      setLoadingTitle("Decoding prescription ... ");
+      setLoadingTitle("Deciphering hieroglyphics from your doctor ... (wish us luck) ");
       setLoadingHint("Running multi-agent pipeline…");
       break;
     case "agent.start":
-      setLoadingHint(payload.label || agentLabel(payload.id));
+      setLoadingHint(payload.label || agentLabel(state.workflowAgents, payload.id));
       updateStepStatus(payload.id, "active");
       break;
     case "agent.complete":
       {
         state.completedAgents++;
-        const progress = Math.round((state.completedAgents / state.totalAgents) * 100);
-        updateProgressBar(progress);
+        updateProgressBar(workflowProgressPercent(state.completedAgents, state.totalAgents));
         updateStepStatus(payload.id, "completed");
         if (payload.summary) {
-          setLoadingHint(`${agentLabel(payload.id)} done`);
+          setLoadingHint(`${agentLabel(state.workflowAgents, payload.id)} done`);
         }
       }
       break;
     case "agent.error":
       updateStepStatus(payload.id, "error");
-      throw new Error(formatWorkflowError(payload.id, payload));
+      throw new Error(formatWorkflowError(payload.id, payload, state.workflowAgents));
     case "workflow.error":
-      throw new Error(formatWorkflowError(payload.agentId, payload));
+      throw new Error(formatWorkflowError(payload.agentId, payload, state.workflowAgents));
     default:
       break;
   }
@@ -323,19 +394,6 @@ function updateProgressBar(percentage) {
   }
 }
 
-function agentLabel(id) {
-  const found = (state.workflowAgents || []).find((a) => a.id === id);
-  return found?.label || id;
-}
-
-function formatWorkflowError(agentId, payload) {
-  const label = agentId ? agentLabel(agentId) : "Workflow";
-  const message = payload?.message || "failed";
-  const parts = [`${label}: ${message}`];
-  if (payload?.detail && payload.detail !== message) parts.push(payload.detail);
-  return parts.join("\n");
-}
-
 function setLoadingHint(text) {
   if (els.loadingHint) els.loadingHint.textContent = text;
 }
@@ -349,11 +407,12 @@ function setLoading(isLoading) {
   els.processBtn.disabled = isLoading;
   if (isLoading) {
     els.previewSection.hidden = true;
-    setLoadingTitle("Decoding prescription ...");
+    if (els.sampleSection) els.sampleSection.hidden = true;
+    setLoadingTitle("Deciphering hieroglyphics from your doctor ... (wish us luck)");
     setLoadingHint("Preparing image…");
     state.completedAgents = 0;
     updateProgressBar(0);
-    const currentJoke = MEDICAL_JOKES[Math.floor(Math.random() * MEDICAL_JOKES.length)];
+    const currentJoke = pickMedicalJoke();
     const jokeElement = document.querySelector("#loadingJoke");
     if (jokeElement) {
       jokeElement.textContent = currentJoke;
@@ -366,6 +425,7 @@ function showError(message) {
   els.errorMessage.textContent = message;
   els.previewSection.hidden = true;
   els.loadingOverlay.hidden = true;
+  if (els.sampleSection && state.file) els.sampleSection.hidden = false;
 }
 
 function resetUpload() {
@@ -376,9 +436,10 @@ function resetUpload() {
   els.fileInput.value = "";
   els.previewSection.hidden = true;
   els.errorCard.hidden = true;
+  clearSampleSelection();
 
-  // Show the dropzone again
   els.dropzone.style.display = "";
+  if (els.sampleSection) els.sampleSection.hidden = false;
 }
 
 function syncSegmentedControls() {

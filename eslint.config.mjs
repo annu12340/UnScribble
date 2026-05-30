@@ -49,7 +49,8 @@ export default [
         google: "readonly",
         gapi: "readonly",
         THREE: "readonly",
-        ProteinViewer: "readonly"
+        ProteinViewer: "readonly",
+        Chart: "readonly"
       }
     },
     rules: {
