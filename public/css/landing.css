@@ -48,6 +48,7 @@
 
 html {
   font-size: 15px;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -58,6 +59,7 @@ body {
   color: var(--text);
   line-height: var(--leading-body);
   overflow-x: hidden;
+  overscroll-behavior-y: contain;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings:
@@ -148,6 +150,11 @@ body {
 }
 
 /* Chapter Layout — each section sets --section-inline and --section-max */
+html {
+  scroll-snap-type: y mandatory;
+  scroll-padding-top: 88px;
+}
+
 .chapter {
   min-height: 100vh;
   display: flex;
@@ -161,6 +168,8 @@ body {
   transition:
     opacity 0.8s ease,
     transform 0.8s ease;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .chapter.visible {

@@ -141,7 +141,15 @@ describe("HTTP reliability", () => {
     const payload = JSON.parse(res.body);
     assert.ok(payload.regulatory_status);
     assert.ok(payload.ingredient_analysis);
+    assert.ok(payload.drug_interactions);
+    assert.ok(payload.patient_safety_flags);
+    assert.ok(payload.side_effects);
+    assert.ok(payload.administration);
+    assert.ok(payload.market_status);
     assert.ok(Array.isArray(payload.regulatory_status.prescription_only_countries));
     assert.ok(Array.isArray(payload.ingredient_analysis.equivalent_brands));
+    assert.ok(Array.isArray(payload.drug_interactions.common_interacting_medications));
+    assert.equal(typeof payload.patient_safety_flags.pregnancy_lactation_category, "string");
+    assert.equal(typeof payload.administration.storage_instructions, "string");
   });
 });

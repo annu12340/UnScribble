@@ -128,6 +128,7 @@
                     <span class="med-confidence-label">Decode confidence</span>
                     <span class="med-confidence-value" id="medConfidence">—</span>
                   </div>
+                  <div class="confidence-gauge" id="medConfidenceGauge" aria-hidden="true"></div>
                   <button class="btn primary" id="addToCalendarBtn" type="button">
                     <svg
                       width="16"
@@ -167,6 +168,36 @@
                     <a href="#section-ingredients" class="med-side-nav-link" id="navIngredientsLink">
                       <span class="med-side-nav-icon" aria-hidden="true">🧬</span>
                       Ingredient analysis
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#section-interactions" class="med-side-nav-link" id="navInteractionsLink">
+                      <span class="med-side-nav-icon" aria-hidden="true">⚠</span>
+                      Drug interactions
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#section-safety" class="med-side-nav-link" id="navSafetyLink">
+                      <span class="med-side-nav-icon" aria-hidden="true">🛡</span>
+                      Safety flags
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#section-side-effects" class="med-side-nav-link" id="navSideEffectsLink">
+                      <span class="med-side-nav-icon" aria-hidden="true">⚡</span>
+                      Side effects
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#section-administration" class="med-side-nav-link" id="navAdministrationLink">
+                      <span class="med-side-nav-icon" aria-hidden="true">🧴</span>
+                      Administration
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#section-market-status" class="med-side-nav-link" id="navMarketStatusLink">
+                      <span class="med-side-nav-icon" aria-hidden="true">🌍</span>
+                      Market status
                     </a>
                   </li>
                   <li>
@@ -282,34 +313,12 @@
                           <span class="subhead-icon" aria-hidden="true">⚠</span>
                           Regulatory status
                         </h3>
-                        <p class="regulatory-summary" id="medRegulatorySummary">
-                          No regulatory notes are available for this medication.
-                        </p>
-                        <div class="regulatory-grid">
-                          <div class="regulatory-card">
-                            <h4>Fully banned countries</h4>
-                            <ul class="regulatory-list" id="medFullyBannedCountries"></ul>
-                          </div>
-                          <div class="regulatory-card">
-                            <h4>Prescription-only countries</h4>
-                            <ul class="regulatory-list" id="medPrescriptionOnlyCountries"></ul>
-                          </div>
-                          <div class="regulatory-card">
-                            <h4>Restricted age groups</h4>
-                            <ul class="regulatory-list" id="medRestrictedAgeGroups"></ul>
-                          </div>
-                          <div class="regulatory-card">
-                            <h4>Black-box warnings</h4>
-                            <ul class="regulatory-list" id="medBlackBoxWarnings"></ul>
-                          </div>
-                          <div class="regulatory-card">
-                            <h4>Withdrawn formulations</h4>
-                            <ul class="regulatory-list" id="medWithdrawnFormulations"></ul>
-                          </div>
-                          <div class="regulatory-card">
-                            <h4>Recent regulatory alerts</h4>
-                            <ul class="regulatory-list" id="medRegulatoryAlerts"></ul>
-                          </div>
+                        <div class="section-chart" id="regulatoryGraph"></div>
+                        <div class="section-summary-card">
+                          <p class="section-summary-label">Regulatory highlights</p>
+                          <p class="section-summary-text" id="medRegulatorySummary">
+                            No regulatory notes are available for this medication.
+                          </p>
                         </div>
                       </section>
 
@@ -322,24 +331,70 @@
                           <span class="subhead-icon" aria-hidden="true">🧬</span>
                           Ingredient-level analysis
                         </h3>
-                        <div class="ingredient-grid">
-                          <div class="ingredient-item">
-                            <h4>Active ingredient</h4>
-                            <p id="medActiveIngredient">—</p>
-                          </div>
-                          <div class="ingredient-item">
-                            <h4>Equivalent brands</h4>
-                            <ul class="ingredient-list" id="medEquivalentBrands"></ul>
-                          </div>
-                          <div class="ingredient-item">
-                            <h4>Combination drugs</h4>
-                            <ul class="ingredient-list" id="medCombinationDrugs"></ul>
-                          </div>
-                          <div class="ingredient-item">
-                            <h4>Duplicate ingredient warnings</h4>
-                            <ul class="ingredient-list" id="medDuplicateIngredientWarnings"></ul>
-                          </div>
+                        <div class="section-chart" id="ingredientGraph"></div>
+                        <div class="section-summary-card">
+                          <p class="section-summary-label">Active ingredient</p>
+                          <p id="medActiveIngredient">—</p>
                         </div>
+                      </section>
+
+                      <section class="med-page-section" id="section-interactions" aria-labelledby="interactions-heading">
+                        <h2 id="interactions-heading" class="med-section-title">Drug interactions</h2>
+                        <div class="section-chart" id="interactionGraph"></div>
+                      </section>
+
+                      <section class="med-page-section" id="section-safety" aria-labelledby="safety-heading">
+                        <h2 id="safety-heading" class="med-section-title">Patient safety flags</h2>
+                        <div class="med-content-grid">
+                          <section class="med-content-col section-card">
+                            <h3 class="med-panel-title">Pregnancy / lactation category</h3>
+                            <p id="medPregnancyLactationCategory">—</p>
+                          </section>
+                          <section class="med-content-col section-card">
+                            <h3 class="med-panel-title">Renal / hepatic dosing</h3>
+                            <p id="medRenalHepaticDosingGuidance">—</p>
+                          </section>
+                          <section class="med-content-col section-card">
+                            <h3 class="med-panel-title">Age-based precautions</h3>
+                            <p id="medAgePrecautions">—</p>
+                          </section>
+                          <section class="med-content-col section-card">
+                            <h3 class="med-panel-title">Allergy risk summary</h3>
+                            <p id="medAllergyRiskSummary">—</p>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="med-page-section" id="section-side-effects" aria-labelledby="side-effects-heading">
+                        <h2 id="side-effects-heading" class="med-section-title">Side effects / monitoring</h2>
+                        <div class="section-chart" id="sideEffectsGraph"></div>
+                        <div class="section-summary-card">
+                          <p class="section-summary-label">Monitoring notes</p>
+                          <p id="medMonitoringNotes">—</p>
+                        </div>
+                      </section>
+
+                      <section class="med-page-section" id="section-administration" aria-labelledby="administration-heading">
+                        <h2 id="administration-heading" class="med-section-title">Administration & storage</h2>
+                        <div class="med-content-grid">
+                          <section class="med-content-col section-card">
+                            <h3 class="med-panel-title">How to take it</h3>
+                            <p id="medAdministrationGuidance">—</p>
+                          </section>
+                          <section class="med-content-col section-card">
+                            <h3 class="med-panel-title">Storage instructions</h3>
+                            <p id="medStorageInstructions">—</p>
+                          </section>
+                          <section class="med-content-col section-card">
+                            <h3 class="med-panel-title">Missed dose guidance</h3>
+                            <p id="medMissedDoseGuidance">—</p>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="med-page-section" id="section-market-status" aria-labelledby="market-status-heading">
+                        <h2 id="market-status-heading" class="med-section-title">Regulatory / market status</h2>
+                        <div class="section-chart" id="marketStatusGraph"></div>
                       </section>
 
                       <section

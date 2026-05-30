@@ -78,6 +78,27 @@ const els = {
   medEquivalentBrands: document.querySelector("#medEquivalentBrands"),
   medCombinationDrugs: document.querySelector("#medCombinationDrugs"),
   medDuplicateIngredientWarnings: document.querySelector("#medDuplicateIngredientWarnings"),
+  medRegulatoryGraph: document.querySelector("#regulatoryGraph"),
+  medIngredientGraph: document.querySelector("#ingredientGraph"),
+  medInteractionGraph: document.querySelector("#interactionGraph"),
+  medSideEffectsGraph: document.querySelector("#sideEffectsGraph"),
+  medMarketStatusGraph: document.querySelector("#marketStatusGraph"),
+  medCommonInteractingMedications: document.querySelector("#medCommonInteractingMedications"),
+  medFoodSupplementAvoidance: document.querySelector("#medFoodSupplementAvoidance"),
+  medContraindicatedConditions: document.querySelector("#medContraindicatedConditions"),
+  medPregnancyLactationCategory: document.querySelector("#medPregnancyLactationCategory"),
+  medRenalHepaticDosingGuidance: document.querySelector("#medRenalHepaticDosingGuidance"),
+  medAgePrecautions: document.querySelector("#medAgePrecautions"),
+  medAllergyRiskSummary: document.querySelector("#medAllergyRiskSummary"),
+  medCommonSideEffects: document.querySelector("#medCommonSideEffects"),
+  medSeriousAdverseEvents: document.querySelector("#medSeriousAdverseEvents"),
+  medMonitoringNotes: document.querySelector("#medMonitoringNotes"),
+  medAdministrationGuidance: document.querySelector("#medAdministrationGuidance"),
+  medStorageInstructions: document.querySelector("#medStorageInstructions"),
+  medMissedDoseGuidance: document.querySelector("#medMissedDoseGuidance"),
+  medRecentRecalls: document.querySelector("#medRecentRecalls"),
+  medCountryRestrictions: document.querySelector("#medCountryRestrictions"),
+  medWithdrawalHistory: document.querySelector("#medWithdrawalHistory"),
   medRawText: document.querySelector("#medRawText"),
   addToCalendarBtn: document.querySelector("#addToCalendarBtn"),
   toast: document.querySelector("#toast"),
@@ -123,6 +144,11 @@ function bindSideNav() {
     "section-overview",
     "section-regulatory",
     "section-ingredients",
+    "section-interactions",
+    "section-safety",
+    "section-side-effects",
+    "section-administration",
+    "section-market-status",
     "section-mechanism"
   ];
   const sections = sectionIds.map((id) => document.getElementById(id)).filter(Boolean);
@@ -319,6 +345,7 @@ function renderMedicationDetails() {
     els.medConfidenceWrap.classList.toggle("is-low", confidence > 0 && confidence < 75);
     els.medConfidenceWrap.classList.toggle("is-high", confidence >= 75);
   }
+  renderConfidenceGauge(med.confidence);
 
   // Sig
   if (med.sig && els.medSig && els.sigSection) {
@@ -413,6 +440,15 @@ function renderMedicationDetails() {
     "No recent alerts listed."
   );
 
+  renderGraphBarRows(els.medRegulatoryGraph, [
+    { label: "Fully banned", value: regulatoryLists.fullyBannedCountries.length, title: "Number of fully banned countries" },
+    { label: "Rx-only", value: regulatoryLists.prescriptionOnlyCountries.length, title: "Number of prescription-only markets" },
+    { label: "Age restrictions", value: regulatoryLists.restrictedAgeGroups.length, title: "Number of restricted age groups" },
+    { label: "Black-box warnings", value: regulatoryLists.blackBoxWarnings.length, title: "Number of black-box warnings" },
+    { label: "Withdrawn", value: regulatoryLists.withdrawnFormulations.length, title: "Withdrawn formulations count" },
+    { label: "Alerts", value: regulatoryLists.regulatoryAlerts.length, title: "Recent regulatory alerts count" }
+  ], "No regulatory chart data available.");
+
   const ingredientData = med.ingredient_analysis || {};
   const activeIngredient =
     med.active_ingredient || ingredientData.active_ingredient || med.medication_name || "—";
@@ -431,6 +467,123 @@ function renderMedicationDetails() {
     duplicateWarnings,
     "No duplicate ingredient warnings."
   );
+
+  renderGraphBarRows(els.medIngredientGraph, [
+    { label: "Brands", value: equivalentBrands.length, title: "Equivalent brands identified" },
+    { label: "Combos", value: combinationDrugs.length, title: "Combination drugs identified" },
+    { label: "Duplicates", value: duplicateWarnings.length, title: "Duplicate ingredient warnings" }
+  ], "No ingredient chart data available.");
+
+  const interactions = med.drug_interactions || {};
+  const interactingMeds = Array.isArray(interactions.common_interacting_medications)
+    ? interactions.common_interacting_medications
+    : [];
+  const foodSupplements = Array.isArray(interactions.food_supplements_to_avoid)
+    ? interactions.food_supplements_to_avoid
+    : [];
+  const contraindications = Array.isArray(interactions.contraindicated_conditions)
+    ? interactions.contraindicated_conditions
+    : [];
+
+  renderList(
+    els.medCommonInteractingMedications,
+    interactingMeds,
+    "No interacting medications identified."
+  );
+  renderList(
+    els.medFoodSupplementAvoidance,
+    foodSupplements,
+    "No foods or supplements identified."
+  );
+  renderList(
+    els.medContraindicatedConditions,
+    contraindications,
+    "No contraindicated conditions identified."
+  );
+  renderGraphBarRows(els.medInteractionGraph, [
+    { label: "Meds", value: interactingMeds.length, title: "Interacting medications" },
+    { label: "Foods / supplements", value: foodSupplements.length, title: "Food and supplement interactions" },
+    { label: "Contraindications", value: contraindications.length, title: "Contraindicated conditions" }
+  ], "No interaction chart data available.");
+
+  const safetyFlags = med.patient_safety_flags || {};
+  if (els.medPregnancyLactationCategory)
+    els.medPregnancyLactationCategory.textContent =
+      safetyFlags.pregnancy_lactation_category || "—";
+  if (els.medRenalHepaticDosingGuidance)
+    els.medRenalHepaticDosingGuidance.textContent =
+      safetyFlags.renal_hepatic_dosing_guidance || "—";
+  if (els.medAgePrecautions)
+    els.medAgePrecautions.textContent = safetyFlags.age_based_precautions || "—";
+  if (els.medAllergyRiskSummary)
+    els.medAllergyRiskSummary.textContent = safetyFlags.allergy_risk_summary || "—";
+
+  const sideEffects = med.side_effects || {};
+  const commonSideEffects = Array.isArray(sideEffects.common_side_effects)
+    ? sideEffects.common_side_effects
+    : [];
+  const seriousAdverseEvents = Array.isArray(sideEffects.serious_adverse_events)
+    ? sideEffects.serious_adverse_events
+    : [];
+
+  renderList(
+    els.medCommonSideEffects,
+    commonSideEffects,
+    "No common side effects identified."
+  );
+  renderList(
+    els.medSeriousAdverseEvents,
+    seriousAdverseEvents,
+    "No serious adverse events identified."
+  );
+  if (els.medMonitoringNotes)
+    els.medMonitoringNotes.textContent = sideEffects.monitoring_notes || "—";
+
+  renderGraphBarRows(els.medSideEffectsGraph, [
+    { label: "Common", value: commonSideEffects.length, title: "Common side effects" },
+    { label: "Serious", value: seriousAdverseEvents.length, title: "Serious adverse events" }
+  ], "No side effect chart data available.");
+
+  const administration = med.administration || {};
+  if (els.medAdministrationGuidance)
+    els.medAdministrationGuidance.textContent =
+      administration.administration_guidance || med.administration_notes || "—";
+  if (els.medStorageInstructions)
+    els.medStorageInstructions.textContent = administration.storage_instructions || "—";
+  if (els.medMissedDoseGuidance)
+    els.medMissedDoseGuidance.textContent = administration.missed_dose_guidance || "—";
+
+  const marketStatus = med.market_status || {};
+  const recentRecalls = Array.isArray(marketStatus.recent_recalls)
+    ? marketStatus.recent_recalls
+    : [];
+  const countryRestrictions = Array.isArray(marketStatus.country_restrictions)
+    ? marketStatus.country_restrictions
+    : [];
+  const withdrawalHistory = Array.isArray(marketStatus.withdrawal_history)
+    ? marketStatus.withdrawal_history
+    : [];
+
+  renderList(
+    els.medRecentRecalls,
+    recentRecalls,
+    "No recent recalls identified."
+  );
+  renderList(
+    els.medCountryRestrictions,
+    countryRestrictions,
+    "No country restrictions identified."
+  );
+  renderList(
+    els.medWithdrawalHistory,
+    withdrawalHistory,
+    "No withdrawal history identified."
+  );
+  renderGraphBarRows(els.medMarketStatusGraph, [
+    { label: "Recalls", value: recentRecalls.length, title: "Recent recall events" },
+    { label: "Restrictions", value: countryRestrictions.length, title: "Country restrictions" },
+    { label: "Withdrawals", value: withdrawalHistory.length, title: "Withdrawal events" }
+  ], "No market status chart data available.");
 
   loadMechanismSidebar(med.medication_name || "", els.mechanism);
   if (!med.regulatory_status || !med.ingredient_analysis) {
@@ -550,6 +703,45 @@ function renderList(el, values, emptyText) {
   el.replaceChildren(
     ...items.map((item) => createElement("li", "", String(item)))
   );
+}
+
+function renderGraphBarRows(container, rows, emptyText) {
+  if (!container) return;
+  if (!Array.isArray(rows) || rows.length === 0) {
+    container.replaceChildren(createElement("p", "graph-empty", emptyText));
+    return;
+  }
+
+  const maxValue = Math.max(...rows.map((item) => item.value), 1);
+  container.replaceChildren(
+    ...rows.map((row) => {
+      const wrapper = createElement("div", "graph-row");
+      const label = createElement("div", "graph-row-label", row.label);
+      const bar = createElement("div", "graph-row-bar");
+      const fill = createElement("div", "graph-row-fill");
+      const value = createElement("div", "graph-row-value", String(row.value));
+      const fillWidth = Math.round((row.value / maxValue) * 100);
+      fill.style.width = `${fillWidth}%`;
+      if (row.color) {
+        fill.style.background = row.color;
+      }
+      if (row.title) {
+        wrapper.title = row.title;
+      }
+      bar.append(fill);
+      wrapper.append(label, bar, value);
+      return wrapper;
+    })
+  );
+}
+
+function renderConfidenceGauge(confidence) {
+  if (!els.medConfidenceGauge) return;
+  const percentage = Math.max(0, Math.min(100, Math.round(Number(confidence || 0) * 100)));
+  els.medConfidenceGauge.style.setProperty("--gauge", percentage);
+  const color = percentage >= 75 ? "#10b981" : percentage >= 50 ? "#f59e0b" : "#ef4444";
+  els.medConfidenceGauge.style.setProperty("--gauge-color", color);
+  els.medConfidenceGauge.dataset.label = `${percentage}%`;
 }
 
 function formatNormalizedFrequency(frequency) {

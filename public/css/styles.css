@@ -2103,16 +2103,15 @@ pre {
   margin-bottom: 1.5rem;
   padding: 0;
   position: relative;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
+  max-width: none;
 }
 
 .progress-line {
   position: absolute;
   top: 11px;
-  left: 15%;
-  right: 15%;
+  left: var(--page-inline, 24px);
+  right: var(--page-inline, 24px);
   height: 2px;
   background: var(--line-strong);
   z-index: 0;

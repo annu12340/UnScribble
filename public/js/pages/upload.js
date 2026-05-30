@@ -258,7 +258,7 @@ function handleWorkflowEvent(event, payload) {
       }
       updateProgressBar(0);
       initStepList();
-      setLoadingTitle("Decoding prescription");
+      setLoadingTitle("Decoding prescription ... ");
       setLoadingHint("Running multi-agent pipeline…");
       break;
     case "agent.start":
@@ -349,7 +349,7 @@ function setLoading(isLoading) {
   els.processBtn.disabled = isLoading;
   if (isLoading) {
     els.previewSection.hidden = true;
-    setLoadingTitle("Decoding prescription");
+    setLoadingTitle("Decoding prescription ...");
     setLoadingHint("Preparing image…");
     state.completedAgents = 0;
     updateProgressBar(0);
