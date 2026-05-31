@@ -1,91 +1,5 @@
 /** Pure chart row builders (no DOM / Chart.js). */
 
-import { PALETTE } from "./chart-constants.js";
-
-/**
- * @param {Array<[string, unknown[], string]>} entries
- */
-export function countRows(entries) {
-  return entries.map(([label, items, color]) => ({
-    label,
-    value: items.length,
-    items,
-    color,
-    detail: items.slice(0, 3).join(" · ")
-  }));
-}
-
-export function scoreBucket(count, max = 6) {
-  if (!count) return 8;
-  return Math.min(100, Math.round((count / max) * 100));
-}
-
-export function textScore(text) {
-  return text && String(text).trim() && String(text).trim() !== "—" ? 88 : 12;
-}
-
-/**
- * @param {Record<string, unknown>} med
- */
-export function buildProfileRows(med) {
-  const regulatory = med.regulatory_status || {};
-  const interactions = med.drug_interactions || {};
-  const sideEffects = med.side_effects || {};
-  const safety = med.patient_safety_flags || {};
-  const market = med.market_status || {};
-
-  const regCount =
-    (regulatory.prescription_only_countries?.length || 0) +
-    (regulatory.black_box_warnings?.length || 0) +
-    (regulatory.recent_regulatory_alerts?.length || 0);
-  const interactionCount =
-    (interactions.common_interacting_medications?.length || 0) +
-    (interactions.contraindicated_conditions?.length || 0);
-  const sideEffectCount =
-    (sideEffects.common_side_effects?.length || 0) +
-    (sideEffects.serious_adverse_events?.length || 0);
-
-  return [
-    {
-      label: "Decode confidence",
-      value: Math.round(Number(med.confidence || 0) * 100) || 12,
-      detail: "Prescription extraction confidence"
-    },
-    {
-      label: "Regulatory depth",
-      value: scoreBucket(regCount),
-      detail: regulatory.summary || "Regulatory footprint"
-    },
-    {
-      label: "Interaction map",
-      value: scoreBucket(interactionCount),
-      detail: "Known drug and food interactions"
-    },
-    {
-      label: "Side-effect catalog",
-      value: scoreBucket(sideEffectCount),
-      detail: sideEffects.monitoring_notes || "Reported effects"
-    },
-    {
-      label: "Safety guidance",
-      value: Math.round(
-        (textScore(safety.pregnancy_lactation_category) +
-          textScore(safety.allergy_risk_summary) +
-          textScore(safety.age_based_precautions)) /
-          3
-      ),
-      detail: "Patient safety flags"
-    },
-    {
-      label: "Market signals",
-      value: scoreBucket(
-        (market.recent_recalls?.length || 0) + (market.country_restrictions?.length || 0)
-      ),
-      detail: "Recalls and market restrictions"
-    }
-  ];
-}
-
 export function parseHour(time) {
   if (!time || typeof time !== "string" || !time.includes(":")) return null;
   const [hours, minutes] = time.split(":").map(Number);
@@ -93,47 +7,125 @@ export function parseHour(time) {
   return hours + (Number.isNaN(minutes) ? 0 : minutes / 60);
 }
 
-/**
- * @param {{ schedule?: { times?: Array<{ time?: string, label?: string }> } }} [schedule]
- */
-export function buildScheduleRows(schedule) {
-  const times = schedule?.schedule?.times || [];
-  if (!times.length) return null;
-
-  return times.map((slot, index) => {
-    const hour = parseHour(slot.time);
-    const label = slot.label || slot.time || `Dose ${index + 1}`;
-    return {
-      label,
-      value: hour != null ? hour : index + 1,
-      detail: slot.time ? `Scheduled around ${slot.time}` : label,
-      items: [label]
-    };
-  });
+export function formatHour(hour) {
+  const h = ((Math.round(hour) % 24) + 24) % 24;
+  const suffix = h < 12 ? "AM" : "PM";
+  const display = h % 12 === 0 ? 12 : h % 12;
+  return `${display} ${suffix}`;
 }
 
-export function ingredientBubbleRows(equivalentBrands, combinationDrugs, duplicateWarnings) {
-  return [
-    ...equivalentBrands.map((item) => ({
-      label: String(item),
-      value: 1.6,
-      group: "Brands",
-      color: PALETTE.emerald[1],
-      items: [String(item)]
-    })),
-    ...combinationDrugs.map((item) => ({
-      label: String(item),
-      value: 1.8,
-      group: "Combos",
-      color: PALETTE.violet[1],
-      items: [String(item)]
-    })),
-    ...duplicateWarnings.map((item) => ({
-      label: String(item),
-      value: 2,
-      group: "Warnings",
-      color: PALETTE.amber[1],
-      items: [String(item)]
-    }))
+/**
+ * Single-dose concentration shape (0–100), rising to the peak then decaying.
+ */
+function concentrationAt(tau, peak, duration) {
+  if (tau <= 0 || tau > duration) return 0;
+  if (tau <= peak) return 100 * Math.sin((tau / peak) * (Math.PI / 2));
+  const k = Math.log(10) / Math.max(0.1, duration - peak);
+  return 100 * Math.exp(-k * (tau - peak));
+}
+
+/** Single-dose peak is normalized to 100; the toxic ceiling sits above it (illustrative). */
+const TOXIC_LEVEL = 130;
+
+function resolvePk(pk) {
+  const duration = Number(pk?.duration_hours) || 0;
+  if (duration <= 0) return null;
+  const peakRaw = Number(pk?.peak_hours) || duration * 0.25;
+  const peak = Math.min(Math.max(peakRaw, 0.1), duration * 0.9);
+  const onsetRaw = Number(pk?.onset_hours) || peak * 0.3;
+  const onset = Math.min(Math.max(onsetRaw, 0), peak);
+  // Drug becomes active when it crosses the minimum effective concentration, i.e. at onset.
+  const mec = Number(concentrationAt(onset, peak, duration).toFixed(1));
+  return { onset, peak, duration, mec, toxic: TOXIC_LEVEL };
+}
+
+/**
+ * Single-dose "when it kicks in, peaks, wears off" curve.
+ * @returns {{ points: Array<{x:number,y:number}>, markers: Array<{x:number,y:number,label:string}>, mec: number, toxic: number } | null}
+ */
+export function buildPkCurvePoints(pk) {
+  const resolved = resolvePk(pk);
+  if (!resolved) return null;
+  const { onset, peak, duration, mec, toxic } = resolved;
+
+  const steps = 48;
+  const points = [];
+  for (let i = 0; i <= steps; i += 1) {
+    const t = (duration / steps) * i;
+    points.push({
+      x: Number(t.toFixed(2)),
+      y: Number(concentrationAt(t, peak, duration).toFixed(1)),
+    });
+  }
+
+  const markers = [
+    { x: onset, y: concentrationAt(onset, peak, duration), label: "Kicks in" },
+    { x: peak, y: 100, label: "Peak effect" },
+    {
+      x: duration,
+      y: concentrationAt(duration, peak, duration),
+      label: "Wears off",
+    },
   ];
+
+  return { points, markers, mec, toxic };
+}
+
+/**
+ * Steady-state effect across a 24h day: stacks one dose curve per scheduled time.
+ * @returns {{ points: Array<{x:number,y:number}>, doseHours: number[], mec: number, toxic: number } | null}
+ */
+export function buildSteadyStatePoints(pk, schedule) {
+  const resolved = resolvePk(pk);
+  if (!resolved) return null;
+
+  const times = schedule?.schedule?.times || [];
+  const doseHours = times
+    .map((slot) => parseHour(slot.time))
+    .filter((h) => h != null);
+  if (!doseHours.length) return null;
+
+  const { peak, duration, mec, toxic } = resolved;
+  const points = [];
+  for (let t = 0; t <= 24; t += 0.5) {
+    let total = 0;
+    for (const dose of doseHours) {
+      total += concentrationAt(t - dose, peak, duration);
+    }
+    points.push({ x: t, y: Number(total.toFixed(1)) });
+  }
+
+  return { points, doseHours, mec, toxic };
+}
+
+/**
+ * Drug-interaction nodes grouped by clinical severity tier.
+ * @param {Record<string, unknown>} interactions
+ */
+export function buildInteractionNodes(interactions = {}, limitPerTier = 4) {
+  const tiers = [
+    {
+      tier: "severe",
+      label: "Avoid",
+      items: interactions.contraindicated_conditions || [],
+    },
+    {
+      tier: "moderate",
+      label: "Caution",
+      items: interactions.common_interacting_medications || [],
+    },
+    {
+      tier: "mild",
+      label: "Watch",
+      items: interactions.food_supplements_to_avoid || [],
+    },
+  ];
+
+  return tiers.map(({ tier, label, items }) => ({
+    tier,
+    label,
+    total: items.length,
+    items: items.slice(0, limitPerTier).map(String),
+    overflow: Math.max(0, items.length - limitPerTier),
+  }));
 }

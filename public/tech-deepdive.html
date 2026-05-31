@@ -1,0 +1,1614 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UnScribble — Technical Deep-Dive</title>
+    <meta
+      name="description"
+      content="Engineering deep-dive into UnScribble: a staged multi-agent NVIDIA NIM pipeline that decodes handwritten prescriptions into review-ready JSON."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #059669;
+        --primary-light: #34d399;
+        --primary-dark: #047857;
+        --secondary: #0d9488;
+        --text: #0f172a;
+        --text-light: #64748b;
+        --text-lighter: #94a3b8;
+        --bg: #ffffff;
+        --bg-alt: #f8fafc;
+        --bg-card: #ffffff;
+        --border: #e2e8f0;
+        --border-light: #f1f5f9;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+        --font-display: "Outfit", system-ui, sans-serif;
+        --font-hand: "Caveat", cursive;
+        --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+        --maxw: 980px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 90px;
+      }
+
+      body {
+        font-family: var(--font-body);
+        color: var(--text);
+        background: var(--bg);
+        line-height: 1.65;
+        font-size: 1.02rem;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* progress bar */
+      .progress-track {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        z-index: 60;
+        background: transparent;
+      }
+      .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        transition: width 0.1s linear;
+      }
+
+      /* nav */
+      .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        background: rgba(255, 255, 255, 0.82);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: var(--text);
+        text-decoration: none;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      .nav-links a {
+        color: var(--text-light);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--primary);
+      }
+      .btn-nav {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff !important;
+        padding: 9px 18px;
+        border-radius: 999px;
+        box-shadow: var(--shadow);
+      }
+      @media (max-width: 760px) {
+        .nav-links a:not(.btn-nav) {
+          display: none;
+        }
+      }
+
+      /* hero */
+      .hero {
+        padding: 150px 24px 70px;
+        text-align: center;
+        background:
+          radial-gradient(
+            60% 80% at 50% 0%,
+            rgba(5, 150, 105, 0.07),
+            transparent 70%
+          ),
+          var(--bg-alt);
+        border-bottom: 1px solid var(--border);
+      }
+      .eyebrow {
+        display: inline-block;
+        font-family: var(--font-hand);
+        font-size: 1.5rem;
+        color: var(--primary);
+        transform: rotate(-2deg);
+        margin-bottom: 6px;
+      }
+      .hero h1 {
+        font-family: var(--font-display);
+        font-size: clamp(2.2rem, 6vw, 3.6rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+        margin-bottom: 18px;
+      }
+      .hero h1 .accent {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .hero p {
+        max-width: 620px;
+        margin: 0 auto;
+        color: var(--text-light);
+        font-size: 1.12rem;
+      }
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 9px;
+        margin-top: 26px;
+      }
+      .badge {
+        font-family: var(--font-mono);
+        font-size: 0.76rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        padding: 7px 13px;
+        border-radius: 999px;
+        background: rgba(5, 150, 105, 0.08);
+        color: var(--primary-dark);
+        border: 1px solid rgba(5, 150, 105, 0.2);
+      }
+
+      /* stats */
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+        margin-top: 34px;
+      }
+      .stat {
+        min-width: 130px;
+        padding: 18px 24px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+      }
+      .stat-num {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .stat-label {
+        font-size: 0.74rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 700;
+        margin-top: 6px;
+      }
+
+      /* layout: sticky toc + content */
+      .layout {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 230px minmax(0, 1fr);
+        gap: 48px;
+      }
+      .toc {
+        position: sticky;
+        top: 90px;
+        align-self: start;
+        max-height: calc(100vh - 110px);
+        overflow-y: auto;
+        padding: 24px 0;
+        font-size: 0.88rem;
+      }
+      .toc-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-lighter);
+        margin-bottom: 10px;
+      }
+      .toc a {
+        display: block;
+        padding: 5px 12px;
+        color: var(--text-light);
+        text-decoration: none;
+        border-left: 2px solid var(--border);
+        transition: all 0.18s;
+      }
+      .toc a:hover,
+      .toc a.active {
+        color: var(--primary-dark);
+        border-left-color: var(--primary);
+        background: rgba(5, 150, 105, 0.05);
+      }
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .toc {
+          display: none;
+        }
+      }
+
+      .content {
+        padding: 56px 0 90px;
+        min-width: 0;
+      }
+      section.block {
+        margin-bottom: 60px;
+        scroll-margin-top: 90px;
+      }
+      .kicker {
+        font-family: var(--font-mono);
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--primary);
+      }
+      .content h2 {
+        font-family: var(--font-display);
+        font-size: 1.9rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        margin: 6px 0 14px;
+      }
+      .content h3 {
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 30px 0 10px;
+      }
+      .content p {
+        color: var(--text-light);
+        margin-bottom: 14px;
+      }
+      .content p strong,
+      .content li strong {
+        color: var(--text);
+        font-weight: 700;
+      }
+      .content ul {
+        margin: 0 0 16px 1.1rem;
+        color: var(--text-light);
+      }
+      .content li {
+        margin-bottom: 6px;
+      }
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.85em;
+        background: var(--border-light);
+        color: var(--primary-dark);
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+
+      /* lede / callouts */
+      .lede {
+        font-size: 1.18rem;
+        color: var(--text);
+        border-left: 4px solid var(--primary);
+        padding-left: 18px;
+        line-height: 1.6;
+      }
+      .callout {
+        background: rgba(5, 150, 105, 0.06);
+        border: 1px solid rgba(5, 150, 105, 0.18);
+        border-radius: 14px;
+        padding: 16px 20px;
+        margin: 18px 0;
+      }
+      .callout.warn {
+        background: rgba(234, 179, 8, 0.08);
+        border-color: rgba(234, 179, 8, 0.3);
+      }
+      .callout .callout-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      /* tables */
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: var(--shadow-sm);
+        margin: 18px 0;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--border-light);
+        vertical-align: top;
+      }
+      th {
+        background: var(--bg-alt);
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-light);
+      }
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: rgba(5, 150, 105, 0.03);
+      }
+      td code {
+        white-space: nowrap;
+      }
+
+      /* diagram cards */
+      .diagram {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: var(--shadow-sm);
+        margin: 18px 0;
+        overflow-x: auto;
+      }
+      .diagram .mermaid {
+        text-align: center;
+      }
+      .diagram pre.mermaid {
+        background: #ffffff;
+        color: var(--text);
+        padding: 24px;
+      }
+      .diagram-cap {
+        font-size: 0.82rem;
+        color: var(--text-lighter);
+        text-align: center;
+        margin-top: 10px;
+        font-style: italic;
+      }
+
+      /* code block */
+      pre {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 14px;
+        padding: 18px 20px;
+        overflow-x: auto;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        line-height: 1.55;
+        margin: 16px 0;
+      }
+      pre code {
+        background: none;
+        color: inherit;
+        padding: 0;
+      }
+
+      /* feature grid */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin: 18px 0;
+      }
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--shadow-sm);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+      }
+      .card-num {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 0.85rem;
+        color: var(--primary);
+      }
+      .card h4 {
+        font-family: var(--font-display);
+        font-size: 1.05rem;
+        margin: 6px 0 8px;
+      }
+      .card p {
+        font-size: 0.92rem;
+        margin: 0;
+      }
+      .card .evidence {
+        font-family: var(--font-mono);
+        font-size: 0.74rem;
+        color: var(--text-lighter);
+        margin-top: 10px;
+        display: block;
+        word-break: break-word;
+      }
+
+      /* pill tag */
+      .pill {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 2px 9px;
+        border-radius: 999px;
+      }
+      .pill.yes {
+        background: rgba(220, 38, 38, 0.1);
+        color: #b91c1c;
+      }
+      .pill.no {
+        background: rgba(100, 116, 139, 0.12);
+        color: var(--text-light);
+      }
+      .pill.det {
+        background: rgba(13, 148, 136, 0.12);
+        color: var(--secondary);
+      }
+
+      footer {
+        background: var(--bg-alt);
+        border-top: 1px solid var(--border);
+        padding: 40px 24px;
+        text-align: center;
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+      footer a {
+        color: var(--primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      /* Agents flow section */
+      .agents-flow {
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        padding: 48px 24px;
+      }
+      .agents-flow-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .agents-flow-inner > .kicker {
+        text-align: center;
+        display: block;
+      }
+      .agents-flow-inner > h2 {
+        font-family: var(--font-display);
+        font-size: clamp(1.7rem, 4vw, 2.3rem);
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        margin: 6px 0 10px;
+        text-align: center;
+      }
+      .agents-flow-inner > p {
+        max-width: 680px;
+        margin: 0 auto 28px;
+        color: var(--text-light);
+        font-size: 1rem;
+        text-align: center;
+      }
+      .agents-timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        position: relative;
+      }
+      .agents-stage {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        position: relative;
+        padding-bottom: 16px;
+      }
+      .agents-stage:last-child {
+        padding-bottom: 0;
+      }
+      .stage-indicator {
+        width: 38px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .stage-num {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff;
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        position: relative;
+        z-index: 2;
+      }
+      .stage-line {
+        width: 3px;
+        flex: 1;
+        background: linear-gradient(180deg, var(--primary), var(--secondary));
+        margin-top: 5px;
+        border-radius: 2px;
+        min-height: 16px;
+      }
+      .agents-stage:last-child .stage-line {
+        display: none;
+      }
+      .stage-content {
+        flex: 1;
+        padding-top: 2px;
+      }
+      .stage-label {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+      .stage-label .parallel-badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: rgba(13, 148, 136, 0.12);
+        color: var(--secondary);
+        margin-left: 10px;
+        vertical-align: middle;
+      }
+      .agent-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .agent-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 14px;
+        min-width: 180px;
+        flex: 1;
+        max-width: 280px;
+        box-shadow: var(--shadow-sm);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .agent-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+      }
+      .agent-card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 5px;
+      }
+      .agent-icon {
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+      .agent-icon.vision {
+        background: rgba(5, 150, 105, 0.12);
+      }
+      .agent-icon.text {
+        background: rgba(13, 148, 136, 0.12);
+      }
+      .agent-icon.deterministic {
+        background: rgba(234, 179, 8, 0.12);
+      }
+      .agent-card-name {
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .agent-card-desc {
+        font-size: 0.82rem;
+        color: var(--text-light);
+        line-height: 1.4;
+        margin: 0 0 7px;
+      }
+      .agent-type-badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .agent-type-badge.vision {
+        background: rgba(5, 150, 105, 0.1);
+        color: var(--primary-dark);
+      }
+      .agent-type-badge.text {
+        background: rgba(13, 148, 136, 0.1);
+        color: var(--secondary);
+      }
+      .agent-type-badge.deterministic {
+        background: rgba(234, 179, 8, 0.1);
+        color: #b45309;
+      }
+      .agent-type-badge.critical {
+        background: rgba(220, 38, 38, 0.1);
+        color: #b91c1c;
+      }
+      .agents-legend {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        margin-top: 32px;
+        flex-wrap: wrap;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.82rem;
+        color: var(--text-light);
+      }
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .legend-dot.vision {
+        background: var(--primary);
+      }
+      .legend-dot.text {
+        background: var(--secondary);
+      }
+      .legend-dot.deterministic {
+        background: #eab308;
+      }
+      @media (max-width: 700px) {
+        .agent-cards {
+          flex-direction: column;
+        }
+        .agent-card {
+          max-width: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="progress-track">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-container">
+        <a href="/landing.html" class="nav-logo">
+          <svg
+            width="34"
+            height="34"
+            viewBox="0 0 40 40"
+            fill="none"
+            aria-hidden="true"
+          >
+            <rect width="40" height="40" rx="10" fill="url(#lg)" />
+            <path
+              d="M12 14h16M12 20h16M12 26h10"
+              stroke="white"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+            <circle cx="28" cy="26" r="3" fill="white" />
+            <defs>
+              <linearGradient id="lg" x1="0" y1="0" x2="40" y2="40">
+                <stop offset="0%" stop-color="#059669" />
+                <stop offset="100%" stop-color="#0d9488" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <span>UnScribble</span>
+        </a>
+        <div class="nav-links">
+          <a href="/landing.html">Story</a>
+          <a href="#pipeline">Pipeline</a>
+          <a href="#agents">Agents</a>
+          <a href="#safety">Safety</a>
+          <a href="/upload.html" class="btn-nav">Try it</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+      <span class="eyebrow">technical deep-dive</span>
+      <h1>Under the <span class="accent">hood</span></h1>
+      <p>
+        A staged multi-agent pipeline that turns photos of handwritten
+        prescriptions into structured, review-ready JSON on NVIDIA NIM — with
+        confidence scores, deterministic safety gates, and formulary validation.
+      </p>
+      <div class="badge-row">
+        <span class="badge">Node ≥ 18</span>
+        <span class="badge">Vanilla ES modules</span>
+        <span class="badge">NVIDIA NIM</span>
+        <span class="badge">openai/openai/gpt-5.5</span>
+        <span class="badge">SSE streaming</span>
+        <span class="badge">Stateless · Render-ready</span>
+        <span class="badge">1 runtime dependency</span>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num">7</div>
+          <div class="stat-label">Agents</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">864</div>
+          <div class="stat-label">Formulary entries</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">55</div>
+          <div class="stat-label">Tests (47 unit · 8 e2e)</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">4</div>
+          <div class="stat-label">Stages + post</div>
+        </div>
+      </div>
+    </header>
+
+
+    <div class="layout">
+      <!-- TOC -->
+      <aside class="toc">
+        <div class="toc-title">On this page</div>
+
+        <a href="#summary">Executive summary</a>
+        <a href="#why">Why it wins</a>
+        <a href="#context">System context</a>
+        <a href="#pipeline">Decode pipeline</a>
+        <a href="#sse">Request / response (SSE)</a>
+        <a href="#agents">Agent design</a>
+        <a href="#safety">Safety architecture</a>
+        <a href="#frontend">User journey</a>
+        <a href="#api">API surface</a>
+        <a href="#deploy">Deployment</a>
+        <a href="#testing">Testing strategy</a>
+      </aside>
+
+      <main class="content">
+        <!-- 1. EXECUTIVE SUMMARY -->
+        <section class="block" id="summary">
+          <span class="kicker">01 · Overview</span>
+          <h2>Executive summary</h2>
+          <div class="callout">
+            <div class="callout-title">TL;DR</div>
+            <p style="margin: 0">
+              <strong>Problem:</strong> handwritten prescriptions are illegible
+              and cause medication errors. <strong>Solution:</strong> a 7-agent
+              NVIDIA NIM pipeline converts photos into strict JSON with safety
+              gates, formulary validation, and human-review flags — streamed
+              live via SSE. <strong>Differentiator:</strong> medical-domain
+              orchestration (not generic OCR) — self-consistency re-runs, LASA
+              blocking, deterministic safety rules, and zero-hallucination
+              formulary matching.
+            </p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <tbody>
+                <tr>
+                  <th>Runtime</th>
+                  <td>Node.js ≥ 18 (no bundler, no build step)</td>
+                </tr>
+                <tr>
+                  <th>AI provider</th>
+                  <td>NVIDIA NIM (OpenAI-compatible Responses API)</td>
+                </tr>
+                <tr>
+                  <th>Default model</th>
+                  <td><code>openai/openai/gpt-5.5</code></td>
+                </tr>
+                <tr>
+                  <th>Agents</th>
+                  <td>
+                    7 specialized steps (5 vision/text LLM, 2 deterministic)
+                  </td>
+                </tr>
+                <tr>
+                  <th>Frontend</th>
+                  <td>Vanilla ES modules in <code>public/</code></td>
+                </tr>
+                <tr>
+                  <th>Deployment</th>
+                  <td>
+                    Stateless HTTP server (<code>server.js</code>), Render-ready
+                  </td>
+                </tr>
+                <tr>
+                  <th>Primary API</th>
+                  <td><code>POST /api/decode/stream</code> (SSE)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- WHY IT WINS -->
+        <section class="block" id="why">
+          <span class="kicker">Why it wins</span>
+          <h2>What makes UnScribble different</h2>
+          <div class="grid">
+            <div class="card">
+              <span class="card-num">01</span>
+              <h4>Domain-aware, not just pixel-aware</h4>
+              <p>
+                It is not just OCR. Prescription-trained AI agents understand
+                medications, schedules, abbreviations, allergies, and patient
+                context — not just text on a page.
+              </p>
+            </div>
+            <div class="card">
+              <span class="card-num">02</span>
+              <h4>Safety-first medical AI</h4>
+              <p>
+                Medical-grade safeguards combine confidence scoring,
+                fuzzy-match, formulary validation, LASA protection, and full OCR
+                traceability to prevent silent errors.
+              </p>
+            </div>
+            <div class="card">
+              <span class="card-num">03</span>
+              <h4>Multi-pass intelligence</h4>
+              <p>
+                Low-confidence medications are automatically re-verified through
+                self-consistency checks and formulary-aware validation instead of
+                relying on a single AI guess.
+              </p>
+            </div>
+            <div class="card">
+              <span class="card-num">04</span>
+              <h4>Deterministic safety controls</h4>
+              <p>
+                Rule-based safety review independent of the LLM, automatic
+                detection of missing or uncertain medication details, high-risk
+                abbreviation checks, and mandatory human-review escalation when
+                needed.
+              </p>
+            </div>
+            <div class="card">
+              <span class="card-num">05</span>
+              <h4>AI flexibility + deterministic safety</h4>
+              <p>
+                Legibility gates, confidence thresholds, and deterministic
+                <code>safety_review</code> rules decide
+                <code>requires_human_review</code> — the model never gets the
+                final say.
+              </p>
+            </div>
+            <div class="card">
+              <span class="card-num">06</span>
+              <h4>Built like production software</h4>
+              <p>
+                55 tests, single runtime dependency, no build step,
+                cache-optimized by content-hash LRU cache, dependency-light.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. SYSTEM CONTEXT -->
+        <section class="block" id="context">
+          <span class="kicker">02 · Topology</span>
+          <h2>System context</h2>
+          <p>
+            A thin Node.js server fronts a browser client and orchestrates the
+            agent pipeline. External dependencies are limited to the NVIDIA NIM
+            Responses API and an optional Google Calendar OAuth integration for
+            medication schedule export.
+          </p>
+          <div class="diagram">
+            <pre class="mermaid">
+flowchart TB
+    subgraph Client["Browser (public/)"]
+        Landing["landing.html"]
+        Upload["upload.html"]
+        Results["results.html"]
+        Details["medication-details.html"]
+        Worker["image-enhance.worker.js"]
+    end
+    subgraph Server["Node.js (server.js)"]
+        HTTP["HTTP router + static files"]
+        Orchestrator["orchestrator.js"]
+        Features["protein-mechanism · medication-insights"]
+    end
+    subgraph Agents["agents/"]
+        Runners["runners/* (7 agents)"]
+        NIM["nim-client.js"]
+        Merger["merger.js"]
+        Formulary["formulary.js"]
+        Safety["safety-rules.js"]
+        Cache["workflow-cache.js"]
+    end
+    subgraph External["External services"]
+        NVIDIA["NVIDIA NIM Responses API"]
+        Google["Google Calendar OAuth (optional)"]
+    end
+    subgraph Data["data/"]
+        FormularyJSON["formulary.json (864 entries)"]
+        BodyEffects["drug-body-effects.json"]
+    end
+    Upload --> Worker
+    Upload -->|SSE POST| HTTP
+    HTTP --> Orchestrator
+    Orchestrator --> Runners
+    Runners --> NIM
+    NIM --> NVIDIA
+    Orchestrator --> Merger
+    Orchestrator --> Safety
+    Orchestrator --> Formulary
+    Orchestrator --> Cache
+    Formulary --> FormularyJSON
+    Details --> BodyEffects
+    Details --> Google
+    HTTP --> Results
+    Landing --> Upload
+    Upload --> Results
+    Results --> Details
+            </pre>
+          </div>
+        </section>
+
+        <!-- 4. PIPELINE -->
+        <section class="block" id="pipeline">
+          <span class="kicker">04 · Workflow</span>
+          <h2>Decode pipeline</h2>
+          <p>
+            The orchestrator runs agents in <strong>stages</strong>. Parallel
+            stages use <code>Promise.all</code>. Critical agents
+            (<code>raw_transcription</code>, <code>medications</code>) fail the
+            entire workflow on error; others degrade with empty sections.
+          </p>
+          <div class="diagram">
+            <pre class="mermaid">
+flowchart TD
+    Start([POST /api/decode/stream]) --> CacheCheck{Cache hit?}
+    CacheCheck -->|Yes| CacheReturn[Emit workflow.start + workflow.complete cached=true]
+    CacheCheck -->|No| S1
+    S1["Stage 1: image_quality (vision)"]
+    S1 --> Legible{legibility == unusable?}
+    Legible -->|Yes| EarlyExit["buildEarlyExit()"]
+    EarlyExit --> S3Early["Stage 3: safety_review (deterministic)"]
+    S3Early --> FormEarly["validateAgainstFormulary()"]
+    FormEarly --> DoneEarly([workflow.complete])
+    Legible -->|No| S1b["Stage 1b: raw_transcription (vision)"]
+    S1b --> S2
+    S2["Stage 2 (parallel)"]
+    S2 --> PH["patient_header"]
+    S2 --> Med["medications"]
+    S2 --> CC["clinical_context"]
+    PH --> S2Done
+    Med --> S2Done
+    CC --> S2Done
+    S2Done["Stage 2 complete"] --> S2b{Low-confidence meds?}
+    S2b -->|"Yes, ≤6 rows"| Rerun["Stage 2b: medications re-run + mergeMedicationRuns"]
+    S2b -->|"No or >6 rows"| Merge
+    Rerun --> Merge
+    Merge["mergeArtifacts()"] --> S3["Stage 3: safety_review (deterministic)"]
+    S3 --> S4{Synthesis skipped?}
+    S4 -->|WORKFLOW_SKIP_SYNTHESIS=1| DetSum["buildDeterministicSummary()"]
+    S4 -->|No| Synth["Stage 4: synthesis (text LLM)"]
+    DetSum --> Form
+    Synth --> Form
+    Form["validateAgainstFormulary()"] --> StoreCache[setCached if enabled]
+    StoreCache --> Done([workflow.complete])
+            </pre>
+          </div>
+
+          <h3>Stage reference</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Stage</th>
+                  <th>Agents</th>
+                  <th>Execution</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td><code>image_quality</code></td>
+                  <td>Sequential</td>
+                  <td>Quality gate; early exit on unusable images</td>
+                </tr>
+                <tr>
+                  <td>1b</td>
+                  <td><code>raw_transcription</code></td>
+                  <td>Sequential</td>
+                  <td>OCR + <code>region_hint</code> inference</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>
+                    <code>patient_header</code>, <code>medications</code>,
+                    <code>clinical_context</code>
+                  </td>
+                  <td><strong>Parallel</strong></td>
+                  <td>
+                    Structured extraction using transcription + region bias
+                  </td>
+                </tr>
+                <tr>
+                  <td>2b</td>
+                  <td><code>medications</code></td>
+                  <td>Conditional</td>
+                  <td>
+                    Self-consistency re-run when confidence &lt; 0.7 or
+                    uncertainty markers
+                  </td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td><code>safety_review</code></td>
+                  <td>Sequential</td>
+                  <td>
+                    <span class="pill det">deterministic</span> rules (not
+                    LLM-only)
+                  </td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td><code>synthesis</code></td>
+                  <td>Sequential</td>
+                  <td>Plain-language summary (LLM or template)</td>
+                </tr>
+                <tr>
+                  <td>Post</td>
+                  <td>—</td>
+                  <td>Sequential</td>
+                  <td>Formulary dedup, fuzzy match, auto-correct</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+       
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Condition</th>
+                  <th>Outcome</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Names agree</td>
+                  <td>Keep row, <code>confidence = max(a, b)</code></td>
+                </tr>
+                <tr>
+                  <td>Disagree, second higher + in formulary</td>
+                  <td>Take second pass</td>
+                </tr>
+                <tr>
+                  <td>Otherwise</td>
+                  <td>
+                    Keep first, flag <code>low-confidence: runs disagree</code>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 5. SSE -->
+        <section class="block" id="sse">
+          <span class="kicker">05 · Transport</span>
+          <h2>Request / response flow (SSE)</h2>
+          <p>
+            The upload page enhances the image on a canvas, then POSTs to the
+            streaming endpoint. The orchestrator emits granular progress events
+            so users see per-agent status during multi-second inference.
+          </p>
+          <div class="diagram">
+            <pre class="mermaid">
+sequenceDiagram
+    participant U as Upload page
+    participant S as server.js
+    participant O as orchestrator
+    participant A as Agent runner
+    participant N as NVIDIA NIM
+    U->>U: Canvas enhancement (original/contrast/mono)
+    U->>S: POST /api/decode/stream { imageDataUrl, originalImageDataUrl?, enhancementMode }
+    S->>S: validateDecodeBody, initSseResponse
+    S->>O: runWorkflow(body, emit)
+    O-->>U: event: workflow.start { workflowId, agents[] }
+    loop Each agent
+        O-->>U: event: agent.start { id, label }
+        O->>A: agent.run(ctx)
+        A->>N: POST /responses (json_schema strict)
+        N-->>A: structured JSON
+        O-->>U: event: agent.complete { id, durationMs, summary }
+    end
+    O->>O: mergeArtifacts → safety → synthesis → formulary
+    O-->>U: event: workflow.complete { result, workflow }
+    S-->>U: res.end()
+    U->>U: sessionStorage → navigate to results.html
+            </pre>
+          </div>
+        </section>
+
+        <!-- 6. AGENT DESIGN -->
+        <section class="block" id="agents">
+          <span class="kicker">06 · Intelligence</span>
+          <h2>Agent design</h2>
+          <p>
+            Each agent exports
+            <code>{ id, label, critical?, deterministic?, run(ctx) }</code> and
+            delegates through shared helpers rather than calling the NVIDIA
+            client directly.
+          </p>
+          <div class="diagram">
+            <pre class="mermaid">
+flowchart LR
+    subgraph Runner["runners/*.js"]
+        R1["Build prompt lines"]
+        R2["regionDirective / lasaBlockFor"]
+    end
+    subgraph Shared["run-agent.js"]
+        V["runVisionAgent"]
+        T["runTextAgent"]
+    end
+    subgraph NIMClient["nim-client.js"]
+        B["buildRequestBody"]
+        C["callResponses"]
+        P["Parse + validate JSON"]
+    end
+    Runner --> Shared
+    Shared --> NIMClient
+    NIMClient --> API["NVIDIA /v1/responses"]
+            </pre>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>Type</th>
+                  <th>Critical</th>
+                  <th>Input</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>image_quality</code></td>
+                  <td>Vision</td>
+                  <td><span class="pill no">No</span></td>
+                  <td>Prescription image</td>
+                </tr>
+                <tr>
+                  <td><code>raw_transcription</code></td>
+                  <td>Vision</td>
+                  <td><span class="pill yes">Yes</span></td>
+                  <td>Image + quality context</td>
+                </tr>
+                <tr>
+                  <td><code>patient_header</code></td>
+                  <td>Vision</td>
+                  <td><span class="pill no">No</span></td>
+                  <td>Image + raw transcription</td>
+                </tr>
+                <tr>
+                  <td><code>medications</code></td>
+                  <td>Vision</td>
+                  <td><span class="pill yes">Yes</span></td>
+                  <td>Image + med lines + region hint</td>
+                </tr>
+                <tr>
+                  <td><code>clinical_context</code></td>
+                  <td>Vision</td>
+                  <td><span class="pill no">No</span></td>
+                  <td>Image + transcription</td>
+                </tr>
+                <tr>
+                  <td><code>safety_review</code></td>
+                  <td>Deterministic</td>
+                  <td><span class="pill no">No</span></td>
+                  <td>Merged artifacts</td>
+                </tr>
+                <tr>
+                  <td><code>synthesis</code></td>
+                  <td>Text</td>
+                  <td><span class="pill no">No</span></td>
+                  <td>Merged JSON summary input</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout">
+            <div class="callout-title">Prompt cache optimization</div>
+            <p style="margin: 0">
+              Region directives and user context
+              (<code>buildUserContextBlock</code>) are appended to
+              <strong>user content</strong>, not system instructions, so system
+              prompts stay stable across requests and the prompt cache stays
+              warm.
+            </p>
+          </div>
+          <div class="callout">
+            <div class="callout-title">Structured output</div>
+            <p style="margin: 0">
+              All LLM calls use
+              <code>text.format.type = "json_schema"</code> with
+              <code>strict: true</code>. Reasoning tokens are intentionally
+              omitted on structured calls to avoid consuming
+              <code>max_output_tokens</code> before JSON is emitted.
+            </p>
+          </div>
+        </section>
+
+        <!-- 7. SAFETY -->
+        <section class="block" id="safety">
+          <span class="kicker">08 · Trust</span>
+          <h2>Safety architecture</h2>
+          <p>
+            Safety is layered — no single LLM output is trusted without
+            deterministic checks. Quality gates, extraction safeguards,
+            deterministic rules, and post-processing each add a verification
+            layer.
+          </p>
+          <div class="diagram">
+            <pre class="mermaid">
+flowchart TB
+    subgraph Gates["Quality gates"]
+        IQ["image_quality legibility"]
+        EE["Early exit on unusable"]
+    end
+    subgraph Extraction["Extraction safeguards"]
+        RT["Raw transcription preserved"]
+        SC["Self-consistency re-run"]
+        LASA["LASA pair blocking in prompts"]
+        RH["region_hint biasing"]
+    end
+    subgraph Deterministic["Deterministic rules (safety-rules.js)"]
+        LC["Low medication_name_confidence"]
+        MD["Missing strength/dose/frequency"]
+        UT["Uncertain tokens"]
+        HR["High-risk abbreviations STAT/SOS/QID/..."]
+        TR["Unresolved [?] in transcription"]
+    end
+    subgraph Post["Post-processing"]
+        FM["Formulary fuzzy match"]
+        RV["requires_human_review + review_reason"]
+    end
+    Gates --> Extraction
+    Extraction --> Deterministic
+    Deterministic --> Post
+            </pre>
+          </div>
+        </section>
+
+        <!-- 9. FRONTEND -->
+        <section class="block" id="frontend">
+          <span class="kicker">09 · Client</span>
+          <h2>User journey</h2>
+          <div class="diagram">
+            <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Landing: GET /landing.html
+    Landing --> Upload: Try demo / upload
+    Upload --> Enhancing: Select file
+    Enhancing --> Decoding: Choose enhancement mode
+    Decoding --> Results: workflow.complete
+    Results --> Details: Click medication row
+    Details --> Upload: New prescription
+    Results --> Upload: New prescription
+            </pre>
+          </div>
+        </section>
+
+        <!-- 9. API -->
+        <section class="block" id="api">
+          <span class="kicker">11 · Interface</span>
+          <h2>API surface</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Route</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>GET</code></td>
+                  <td><code>/api/config</code></td>
+                  <td>Key status, model, agent list, mock flag</td>
+                </tr>
+                <tr>
+                  <td><code>POST</code></td>
+                  <td><code>/api/decode/stream</code></td>
+                  <td>
+                    <strong>Primary</strong> — SSE workflow + final result
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>POST</code></td>
+                  <td><code>/api/decode</code></td>
+                  <td>Batch decode; JSON + <code>events[]</code></td>
+                </tr>
+                <tr>
+                  <td><code>POST</code></td>
+                  <td><code>/api/protein-mechanism</code></td>
+                  <td>Protein target + mechanism explanation</td>
+                </tr>
+                <tr>
+                  <td><code>POST</code></td>
+                  <td><code>/api/medication-insights</code></td>
+                  <td>Supplementary medication insights</td>
+                </tr>
+                <tr>
+                  <td><code>GET</code></td>
+                  <td><code>/data/drug-body-effects.json</code></td>
+                  <td>Body-effect reference data</td>
+                </tr>
+                <tr>
+                  <td><code>GET</code></td>
+                  <td><code>/api/samples</code></td>
+                  <td>List sample prescription images</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+      
+        </section>
+
+        <!-- 10. DEPLOY -->
+        <section class="block" id="deploy">
+          <span class="kicker">13 · Operations</span>
+          <h2>Deployment topology</h2>
+          <div class="diagram">
+            <pre class="mermaid">
+flowchart TB
+    subgraph Render["Render / similar PaaS"]
+        Node["node server.js"]
+        Env["Environment variables"]
+    end
+    subgraph ClientBrowser["End user browser"]
+        Static["Served from public/"]
+    end
+    subgraph NVIDIACloud["NVIDIA NIM"]
+        Responses["/v1/responses"]
+    end
+    ClientBrowser -->|HTTPS| Node
+    Node --> Static
+    Node -->|HTTPS + API key| Responses
+    Env --> Node
+            </pre>
+          </div>
+          <ul>
+            <li>
+              <strong>Stateless:</strong> no database; in-memory workflow cache
+              only (per instance).
+            </li>
+            <li>
+              <strong>Security headers:</strong> CSP,
+              <code>X-Frame-Options: DENY</code>,
+              <code>X-Content-Type-Options: nosniff</code>.
+            </li>
+            <li><strong>Limits:</strong> max body 32 MB; max image 10 MB.</li>
+            <li>
+              <strong>CI:</strong> GitHub Actions — lint, Prettier, 47 unit
+              tests, 8 Playwright e2e tests (<code>WORKFLOW_MOCK=1</code>).
+            </li>
+          </ul>
+        </section>
+
+        <!-- 14. TESTING -->
+        <section class="block" id="testing">
+          <span class="kicker">14 · Quality</span>
+          <h2>Testing strategy</h2>
+          <div class="diagram">
+            <pre class="mermaid">
+flowchart LR
+    Unit["node --test (47 tests)"] --> Agents
+    Unit --> Merger
+    Unit --> Formulary
+    Unit --> Safety
+    Unit --> HTTP
+    E2E["Playwright smoke (8 tests)"] --> MockServer["WORKFLOW_MOCK=1 server"]
+    Check["npm run check"] --> Unit
+    Check --> E2E
+    Check --> Lint["lint:strict + format:check"]
+            </pre>
+          </div>
+          <p>
+            Mock fixtures live in <code>agents/mock-fixtures.js</code> and
+            mirror the strict result contract — so the full pipeline is
+            verifiable without an API key.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Check</th>
+                  <th>Command</th>
+                  <th>Expected</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Install</td>
+                  <td><code>npm install</code></td>
+                  <td>Exit 0</td>
+                </tr>
+                <tr>
+                  <td>Unit tests</td>
+                  <td><code>npm test</code></td>
+                  <td>47 pass, 0 fail</td>
+                </tr>
+                <tr>
+                  <td>Coverage</td>
+                  <td><code>npm run test:coverage</code></td>
+                  <td>LCOV at <code>coverage/lcov.info</code></td>
+                </tr>
+                <tr>
+                  <td>Lint + format + tests</td>
+                  <td><code>npm run check</code></td>
+                  <td>Exit 0</td>
+                </tr>
+                <tr>
+                  <td>Mock server</td>
+                  <td><code>WORKFLOW_MOCK=1 npm start</code></td>
+                  <td>Serves on <code>:3000</code></td>
+                </tr>
+                <tr>
+                  <td>E2E smoke</td>
+                  <td><code>npm run test:e2e</code></td>
+                  <td>8 pass (uses mock)</td>
+                </tr>
+                <tr>
+                  <td>Config endpoint</td>
+                  <td><code>curl localhost:3000/api/config</code></td>
+                  <td>JSON with <code>workflow: true</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer>
+      <p>
+        UnScribble — AI-powered handwritten prescription decoder ·
+        <a href="/landing.html">Story</a> · <a href="/upload.html">Try it</a> ·
+        Built on NVIDIA NIM
+      </p>
+    </footer>
+
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: "base",
+        themeVariables: {
+          background: "#ffffff",
+          primaryColor: "#ecfdf5",
+          primaryBorderColor: "#059669",
+          primaryTextColor: "#0f172a",
+          secondaryColor: "#f0fdf4",
+          tertiaryColor: "#ffffff",
+          lineColor: "#0d9488",
+          fontFamily: "Plus Jakarta Sans, system-ui, sans-serif",
+          fontSize: "14px",
+        },
+        flowchart: { curve: "basis", useMaxWidth: true },
+        sequence: { useMaxWidth: true },
+      });
+    </script>
+
+    <script>
+      // Scroll progress bar
+      const bar = document.getElementById("progressBar");
+      const onScroll = () => {
+        const h = document.documentElement;
+        const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+        bar.style.width = (scrolled * 100).toFixed(1) + "%";
+      };
+      document.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+
+      // TOC active-section highlight
+      const tocLinks = [...document.querySelectorAll(".toc a")];
+      const map = new Map(
+        tocLinks.map((a) => [a.getAttribute("href").slice(1), a]),
+      );
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              tocLinks.forEach((a) => a.classList.remove("active"));
+              map.get(e.target.id)?.classList.add("active");
+            }
+          });
+        },
+        { rootMargin: "-80px 0px -65% 0px" },
+      );
+      document
+        .querySelectorAll("section.block")
+        .forEach((s) => observer.observe(s));
+    </script>
+  </body>
+</html>

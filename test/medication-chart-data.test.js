@@ -12,7 +12,7 @@ const modulePath = path.join(
   "js",
   "medication",
   "charts",
-  "chart-data.js"
+  "chart-data.js",
 );
 const moduleUrl = pathToFileURL(modulePath).href;
 
@@ -20,51 +20,56 @@ async function chartData() {
   return import(moduleUrl);
 }
 
+const PK = { onset_hours: 0.5, peak_hours: 1.5, duration_hours: 8 };
+
 describe("medication chart data helpers", () => {
-  it("countRows maps list lengths to chart values", async () => {
-    const { countRows } = await chartData();
-    const rows = countRows([["Recalls", ["a", "b"], "#f00"]]);
-    assert.equal(rows[0].value, 2);
-    assert.equal(rows[0].label, "Recalls");
+  it("parseHour converts HH:MM to fractional hours", async () => {
+    const { parseHour } = await chartData();
+    assert.equal(parseHour("08:30"), 8.5);
+    assert.equal(parseHour(null), null);
+    assert.equal(parseHour("as needed"), null);
   });
 
-  it("buildProfileRows includes confidence and safety dimensions", async () => {
-    const { buildProfileRows } = await chartData();
-    const rows = buildProfileRows({
-      confidence: 0.82,
-      regulatory_status: { prescription_only_countries: ["US"] },
-      drug_interactions: { contraindicated_conditions: ["asthma"] },
-      side_effects: { common_side_effects: ["nausea"] },
-      patient_safety_flags: { allergy_risk_summary: "Penicillin class" },
-      market_status: { recent_recalls: [] }
+  it("buildPkCurvePoints rises to a peak then decays", async () => {
+    const { buildPkCurvePoints } = await chartData();
+    const curve = buildPkCurvePoints(PK);
+    assert.ok(curve.points.length > 10);
+    const max = Math.max(...curve.points.map((p) => p.y));
+    assert.ok(max >= 99 && max <= 100);
+    assert.equal(curve.markers.length, 3);
+    assert.equal(curve.markers[1].label, "Peak effect");
+    assert.equal(buildPkCurvePoints({ duration_hours: 0 }), null);
+  });
+
+  it("buildPkCurvePoints derives MEC from the onset and a toxic ceiling", async () => {
+    const { buildPkCurvePoints } = await chartData();
+    const curve = buildPkCurvePoints(PK);
+    // The "Kicks in" marker sits on the MEC line by construction.
+    assert.ok(Math.abs(curve.mec - curve.markers[0].y) < 0.1);
+    assert.ok(curve.toxic > 100);
+  });
+
+  it("buildSteadyStatePoints stacks one curve per dose across 24h", async () => {
+    const { buildSteadyStatePoints } = await chartData();
+    const result = buildSteadyStatePoints(PK, {
+      schedule: { times: [{ time: "08:00" }, { time: "20:00" }] },
     });
-
-    assert.equal(rows.length, 6);
-    assert.equal(rows[0].label, "Decode confidence");
-    assert.equal(rows[0].value, 82);
+    assert.equal(result.doseHours.length, 2);
+    assert.equal(result.points[0].x, 0);
+    assert.equal(result.points[result.points.length - 1].x, 24);
+    assert.equal(buildSteadyStatePoints(PK, { schedule: { times: [] } }), null);
   });
 
-  it("buildScheduleRows parses dose times", async () => {
-    const { buildScheduleRows } = await chartData();
-    const rows = buildScheduleRows({
-      schedule: {
-        times: [
-          { time: "08:00", label: "Morning" },
-          { time: "20:00", label: "Night" }
-        ]
-      }
+  it("buildInteractionNodes groups items into severity tiers", async () => {
+    const { buildInteractionNodes } = await chartData();
+    const nodes = buildInteractionNodes({
+      contraindicated_conditions: ["asthma", "renal failure"],
+      common_interacting_medications: ["warfarin"],
+      food_supplements_to_avoid: [],
     });
-
-    assert.equal(rows.length, 2);
-    assert.equal(rows[0].value, 8);
-    assert.match(rows[1].detail, /20:00/);
-  });
-
-  it("ingredientBubbleRows groups brands and warnings", async () => {
-    const { ingredientBubbleRows } = await chartData();
-    const rows = ingredientBubbleRows(["Brand A"], [], ["dup"]);
-    assert.equal(rows.length, 2);
-    assert.equal(rows[0].group, "Brands");
-    assert.equal(rows[1].group, "Warnings");
+    assert.equal(nodes.length, 3);
+    assert.equal(nodes[0].tier, "severe");
+    assert.equal(nodes[0].total, 2);
+    assert.equal(nodes[2].total, 0);
   });
 });

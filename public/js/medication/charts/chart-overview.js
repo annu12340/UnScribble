@@ -1,21 +1,5 @@
-import { buildProfileRows, buildScheduleRows } from "./chart-data.js";
-import { chartLib } from "./chart-dom.js";
-import { createLine, createRadar } from "./chart-factory.js";
+import { renderScheduleClock } from "./schedule-clock.js";
 
-export function renderOverviewCharts(med, schedule, instances) {
-  if (!chartLib()) return;
-
-  createLine(
-    instances,
-    "dosageScheduleGraph",
-    buildScheduleRows(schedule) || [],
-    "Daily dosing rhythm"
-  );
-
-  createRadar(
-    instances,
-    "medProfileGraph",
-    buildProfileRows(med),
-    "Medication intelligence profile"
-  );
+export function renderOverviewCharts(_med, schedule) {
+  renderScheduleClock(schedule);
 }

@@ -16,7 +16,7 @@ const sampleMedication = {
   normalized_frequency: {
     abbreviation: "TID",
     expansion: "three times daily",
-    timing: "morning, afternoon, night"
+    timing: "morning, afternoon, night",
   },
   duration: "5 days",
   quantity: "",
@@ -30,7 +30,7 @@ const sampleMedication = {
   alternatives: [],
   critical_uncertainties: [],
   uncertain_tokens: [],
-  requires_verification: false
+  requires_verification: false,
 };
 
 const sampleResultPayload = {
@@ -44,12 +44,14 @@ const sampleResultPayload = {
       {
         line_number: 1,
         section: "medication",
-        text: "Tab Amoxicillin 500mg TID x 5d"
-      }
+        text: "Tab Amoxicillin 500mg TID x 5d",
+      },
     ],
     medications: [sampleMedication],
-    abbreviations: [{ abbreviation: "Tab", likely_expansion: "Tablet", confidence: 0.95 }]
-  }
+    abbreviations: [
+      { abbreviation: "Tab", likely_expansion: "Tablet", confidence: 0.95 },
+    ],
+  },
 };
 
 test("landing page loads core assets", async ({ page }) => {
@@ -64,12 +66,14 @@ test("upload page renders preview controls", async ({ page }) => {
   await page.locator("#fileInput").setInputFiles({
     name: "prescription.png",
     mimeType: "image/png",
-    buffer: Buffer.from(PNG_1X1, "base64")
+    buffer: Buffer.from(PNG_1X1, "base64"),
   });
 
   await expect(page.locator("#previewSection")).toBeVisible();
   await page.locator(".segmented label", { hasText: "Contrast" }).click();
-  await expect(page.locator("input[name='enhance'][value='contrast']")).toBeChecked();
+  await expect(
+    page.locator("input[name='enhance'][value='contrast']"),
+  ).toBeChecked();
 });
 
 test("upload page loads sample thumbnails", async ({ page }) => {
@@ -78,7 +82,9 @@ test("upload page loads sample thumbnails", async ({ page }) => {
   const sampleButton = page.locator('.sample-thumb[data-name="sample4.jpeg"]');
   await expect(sampleButton).toBeVisible();
   await sampleButton.click();
-  await expect(page.locator("#previewSection")).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator("#previewSection")).toBeVisible({
+    timeout: 15_000,
+  });
   await expect(page.locator("#fileName")).toHaveText("sample4.jpeg");
   await expect(sampleButton).toHaveClass(/is-selected/);
 });
@@ -88,27 +94,38 @@ test("mock decode reaches results", async ({ page }) => {
   await page.locator("#fileInput").setInputFiles({
     name: "prescription.png",
     mimeType: "image/png",
-    buffer: Buffer.from(PNG_1X1, "base64")
+    buffer: Buffer.from(PNG_1X1, "base64"),
   });
 
   await page.locator("#processBtn").click();
   await page.waitForURL("**/results.html", { timeout: 15_000 });
-  await expect(page.locator("#summaryText")).toContainText(/Mock workflow|medication/i);
-  await expect(page.locator("#medicationsTableBody")).toContainText("Amoxicillin");
+  await expect(page.locator("#summaryText")).toContainText(
+    /Mock workflow|medication/i,
+  );
+  await expect(page.locator("#medicationsTableBody")).toContainText(
+    "Amoxicillin",
+  );
 });
 
 test("results page renders seeded prescription data", async ({ page }) => {
   await page.addInitScript((payload) => {
-    window.sessionStorage.setItem("prescriptionResult", JSON.stringify(payload));
+    window.sessionStorage.setItem(
+      "prescriptionResult",
+      JSON.stringify(payload),
+    );
   }, sampleResultPayload);
 
   await page.goto("/results.html");
   await expect(page.locator("#resultsContent")).toBeVisible();
   await expect(page.locator("#summaryText")).toContainText("Mock prescription");
-  await expect(page.locator("#medicationsTableBody")).toContainText("Amoxicillin");
+  await expect(page.locator("#medicationsTableBody")).toContainText(
+    "Amoxicillin",
+  );
 });
 
-test("medication details render schedule and mechanism fallback", async ({ page }) => {
+test("medication details render schedule and mechanism fallback", async ({
+  page,
+}) => {
   await page.route("**/api/protein-mechanism", async (route) => {
     await route.fulfill({
       status: 200,
@@ -116,19 +133,26 @@ test("medication details render schedule and mechanism fallback", async ({ page 
       body: JSON.stringify({
         medication: "Amoxicillin",
         hasProteinData: false,
-        message: "Protein target data not available for this medication"
-      })
+        message: "Protein target data not available for this medication",
+      }),
     });
   });
   await page.addInitScript((medication) => {
-    window.sessionStorage.setItem("selectedMedication", JSON.stringify(medication));
+    window.sessionStorage.setItem(
+      "selectedMedication",
+      JSON.stringify(medication),
+    );
   }, sampleMedication);
 
   await page.goto("/medication-details.html");
   await expect(page.locator("#medicationDetailsContent")).toBeVisible();
-  await expect(page.locator("#medScheduleTimes")).toContainText(/Morning|Afternoon|Night/);
+  await expect(page.locator("#medScheduleTimes")).toContainText(
+    /Morning|Afternoon|Night/,
+  );
   await expect(page.locator("#mechanismSidebar")).toBeVisible();
-  await expect(page.locator("#mechanismTargetProtein")).toContainText(/not available/i);
+  await expect(page.locator("#mechanismTargetProtein")).toContainText(
+    /not available/i,
+  );
 });
 
 test("medication details do not auto-enter demo mode", async ({ page }) => {
@@ -140,14 +164,23 @@ test("medication details do not auto-enter demo mode", async ({ page }) => {
 
 test("medication details render overview chart shells", async ({ page }) => {
   await page.addInitScript((medication) => {
-    window.sessionStorage.setItem("selectedMedication", JSON.stringify(medication));
+    window.sessionStorage.setItem(
+      "selectedMedication",
+      JSON.stringify(medication),
+    );
   }, sampleMedication);
 
   await page.goto("/medication-details.html");
   await expect(page.locator("#medicationDetailsContent")).toBeVisible();
-  await expect(page.locator("#dosageScheduleGraph")).toBeVisible();
-  await expect(page.locator("#medProfileGraph")).toBeVisible();
   await expect(
-    page.locator(".section-chart-container[data-chart-id='regulatoryGraph']")
+    page.locator(".section-chart-container[data-chart-id='scheduleClock']"),
+  ).toBeVisible();
+  await expect(
+    page.locator(".section-chart-container[data-chart-id='pkCurveGraph']"),
+  ).toBeVisible();
+  await expect(
+    page.locator(
+      ".section-chart-container[data-chart-id='interactionDiagram']",
+    ),
   ).toBeVisible();
 });

@@ -1,60 +1,30 @@
-import { PALETTE, DEFAULT_OPTIONS } from "./chart-constants.js";
+import { DEFAULT_OPTIONS } from "./chart-constants.js";
+import { formatHour } from "./chart-data.js";
 import {
   chartLib,
   clearLoadingState,
   destroyChart,
   ensureCanvas,
-  showDetail,
-  showEmptyState
+  showEmptyState,
 } from "./chart-dom.js";
 
-function basePlugins(title, legend = true) {
+function baseTitle(title) {
   return {
-    legend: legend
-      ? {
-          position: "bottom",
-          labels: {
-            font: { size: 11, weight: "600", family: "Manrope, sans-serif" },
-            padding: 12,
-            usePointStyle: true,
-            boxWidth: 8
-          },
-          onClick(_event, legendItem, legendRef) {
-            const chart = legendRef.chart;
-            const index = legendItem.index;
-            if (typeof chart.toggleDataVisibility === "function") {
-              chart.toggleDataVisibility(index);
-            }
-            chart.update();
-          }
-        }
-      : { display: false },
-    title: {
-      display: Boolean(title),
-      text: title,
-      font: { size: 13, weight: "700", family: "Outfit, sans-serif" },
-      color: "#065f46",
-      padding: { bottom: 10 }
-    },
-    tooltip: {
-      titleFont: { size: 12, weight: "700" },
-      bodyFont: { size: 11 },
-      padding: 10,
-      cornerRadius: 10
-    }
+    display: Boolean(title),
+    text: title,
+    font: { size: 13, weight: "700", family: "Outfit, sans-serif" },
+    color: "#065f46",
+    padding: { bottom: 10 },
   };
 }
 
-function attachSegmentClick(chart, canvasId, rows, noteField = "detail") {
-  chart.options.onClick = (_event, elements) => {
-    if (!elements.length) return;
-    const row = rows[elements[0].index];
-    if (!row) return;
-    showDetail(canvasId, row.label, row.items || [], row[noteField] || row.detail || "");
-  };
-
-  chart.options.onHover = (_event, elements) => {
-    chart.canvas.style.cursor = elements.length ? "pointer" : "default";
+function baseTooltip(extra = {}) {
+  return {
+    titleFont: { size: 12, weight: "700" },
+    bodyFont: { size: 11 },
+    padding: 10,
+    cornerRadius: 10,
+    ...extra,
   };
 }
 
@@ -62,454 +32,167 @@ function makeChart(Chart, canvasId, config, instances) {
   const canvas = ensureCanvas(canvasId);
   if (!canvas) return null;
 
-  config.options = {
-    ...config.options,
-    animation: false
-  };
-
+  config.options = { ...config.options, animation: false };
   const chart = new Chart(canvas, config);
   instances[canvasId] = chart;
   return chart;
 }
 
-export function createRadar(instances, canvasId, rows, title, fill = "rgba(16, 185, 129, 0.24)") {
-  const Chart = chartLib();
-  if (!Chart) return;
-
-  clearLoadingState(canvasId);
-  destroyChart(instances, canvasId);
-
-  const filtered = (rows || []).filter((row) => row.value > 0);
-  if (filtered.length < 3) {
-    showEmptyState(instances, canvasId, title, `${title}: Not enough dimensions to chart yet.`);
-    return;
-  }
-
-  const chart = makeChart(
-    Chart,
-    canvasId,
-    {
-      type: "radar",
-      data: {
-        labels: filtered.map((row) => row.label),
-        datasets: [
-          {
-            label: title,
-            data: filtered.map((row) => row.value),
-            backgroundColor: fill,
-            borderColor: "#059669",
-            borderWidth: 2,
-            pointBackgroundColor: PALETTE.emerald,
-            pointRadius: 4,
-            pointHoverRadius: 7
-          }
-        ]
-      },
-      options: {
-        ...DEFAULT_OPTIONS,
-        scales: {
-          r: {
-            beginAtZero: true,
-            suggestedMax: 100,
-            ticks: { stepSize: 20, backdropColor: "transparent", display: false },
-            grid: { color: "rgba(5, 150, 105, 0.12)" },
-            angleLines: { color: "rgba(5, 150, 105, 0.12)" },
-            pointLabels: { font: { size: 10, weight: "600" }, color: "#065f46" }
-          }
-        },
-        plugins: {
-          ...basePlugins(title, false),
-          tooltip: {
-            callbacks: {
-              label(context) {
-                const row = filtered[context.dataIndex];
-                return `${row.label}: ${row.value}% · ${row.detail || ""}`;
-              }
-            }
-          }
-        }
-      }
-    },
-    instances
-  );
-
-  if (chart) attachSegmentClick(chart, canvasId, filtered);
+function refLine(label, value, spanEnd, dash, color) {
+  return {
+    label,
+    data: [
+      { x: 0, y: value },
+      { x: spanEnd, y: value },
+    ],
+    borderColor: color,
+    borderDash: dash,
+    borderWidth: 1.5,
+    pointRadius: 0,
+    pointHoverRadius: 0,
+    fill: false,
+    tension: 0,
+  };
 }
 
-export function createPolarArea(instances, canvasId, rows, title) {
-  const Chart = chartLib();
-  if (!Chart) return;
-
-  clearLoadingState(canvasId);
-  destroyChart(instances, canvasId);
-
-  const filtered = (rows || []).filter((row) => row.value > 0);
-  if (!filtered.length) {
-    showEmptyState(instances, canvasId, title, `${title}: No signals detected.`);
-    return;
-  }
-
-  const colors = filtered.map(
-    (row, index) => row.color || PALETTE.emerald[index % PALETTE.emerald.length]
-  );
-
-  const chart = makeChart(
-    Chart,
-    canvasId,
-    {
-      type: "polarArea",
-      data: {
-        labels: filtered.map((row) => row.label),
-        datasets: [
-          {
-            data: filtered.map((row) => row.value),
-            backgroundColor: colors.map((color) => `${color}cc`),
-            borderColor: "#ffffff",
-            borderWidth: 2
-          }
-        ]
-      },
-      options: {
-        ...DEFAULT_OPTIONS,
-        scales: {
-          r: {
-            beginAtZero: true,
-            grid: { color: "rgba(5, 150, 105, 0.1)" },
-            ticks: { stepSize: 1, backdropColor: "transparent" }
-          }
-        },
-        plugins: {
-          ...basePlugins(title),
-          tooltip: {
-            callbacks: {
-              label(context) {
-                const row = filtered[context.dataIndex];
-                return `${row.label}: ${row.value} · ${row.detail || ""}`;
-              }
-            }
-          }
-        }
-      }
-    },
-    instances
-  );
-
-  if (chart) attachSegmentClick(chart, canvasId, filtered);
+function clockTicks() {
+  return {
+    stepSize: 6,
+    callback: (value) => formatHour(value),
+    color: "#065f46",
+    font: { weight: "600", size: 10 },
+  };
 }
 
-export function createBubble(instances, canvasId, rows, title) {
+/**
+ * Smooth concentration/effect curve over time.
+ * @param {{ points: Array<{x:number,y:number}>, markers?: Array<{x:number,y:number,label:string}> }} data
+ */
+export function createValueLine(
+  instances,
+  canvasId,
+  data,
+  title,
+  options = {},
+) {
   const Chart = chartLib();
   if (!Chart) return;
 
   clearLoadingState(canvasId);
   destroyChart(instances, canvasId);
 
-  const filtered = (rows || []).filter((row) => row.value > 0);
-  if (!filtered.length) {
-    showEmptyState(instances, canvasId, title, `${title}: No ingredient signals found.`);
+  if (!data || !data.points || !data.points.length) {
+    showEmptyState(
+      instances,
+      canvasId,
+      title,
+      `${title}: timing data not available for this drug.`,
+    );
     return;
   }
 
-  const groups = [...new Set(filtered.map((row) => row.group || "Item"))];
-  const datasets = groups.map((group, groupIndex) => {
-    const color = filtered.find((row) => row.group === group)?.color || PALETTE.emerald[groupIndex];
-    return {
-      label: group,
-      data: filtered
-        .filter((row) => row.group === group)
-        .map((row, index) => ({
-          x: groupIndex + 1,
-          y: index + 1,
-          r: Math.max(8, Math.min(22, row.value * 10)),
-          label: row.label,
-          items: row.items
-        })),
-      backgroundColor: `${color}88`,
+  const { color = "#0ea5e9", xUnit = "elapsed", yMax } = options;
+  const ticks =
+    xUnit === "clock"
+      ? clockTicks()
+      : {
+          callback: (value) => `${value}h`,
+          color: "#065f46",
+          font: { weight: "600", size: 10 },
+        };
+
+  const datasets = [
+    {
+      label: title,
+      data: data.points,
       borderColor: color,
-      borderWidth: 2
-    };
-  });
-
-  const chart = makeChart(
-    Chart,
-    canvasId,
-    {
-      type: "bubble",
-      data: { datasets },
-      options: {
-        ...DEFAULT_OPTIONS,
-        scales: {
-          x: {
-            min: 0.5,
-            max: groups.length + 0.5,
-            ticks: {
-              callback(value) {
-                return groups[Math.round(Number(value)) - 1] || "";
-              },
-              color: "#065f46",
-              font: { weight: "600", size: 10 }
-            },
-            grid: { display: false }
-          },
-          y: { display: false, min: 0, max: Math.max(...filtered.map((_, i) => i + 2), 3) },
-          r: { display: false }
-        },
-        plugins: {
-          ...basePlugins(title),
-          tooltip: {
-            callbacks: {
-              label(context) {
-                const point = context.raw;
-                return point.label || context.dataset.label;
-              }
-            }
-          }
-        }
-      }
+      backgroundColor: `${color}22`,
+      fill: true,
+      tension: 0.4,
+      pointRadius: 0,
+      borderWidth: 2.5,
     },
-    instances
-  );
+  ];
 
-  if (chart) {
-    chart.options.onClick = (_event, elements) => {
-      if (!elements.length) return;
-      const element = elements[0];
-      const point = chart.data.datasets[element.datasetIndex].data[element.index];
-      showDetail(
-        canvasId,
-        point.label || chart.data.datasets[element.datasetIndex].label,
-        point.items || [point.label]
-      );
-    };
-  }
-}
-
-export function createLine(instances, canvasId, rows, title, color = "#059669") {
-  const Chart = chartLib();
-  if (!Chart) return;
-
-  clearLoadingState(canvasId);
-  destroyChart(instances, canvasId);
-
-  const filtered = (rows || []).filter((row) => row.value > 0);
-  if (!filtered.length) {
-    showEmptyState(instances, canvasId, title, `${title}: No schedule times parsed yet.`);
-    return;
+  if (data.markers && data.markers.length) {
+    datasets.push({
+      label: "Key points",
+      data: data.markers,
+      showLine: false,
+      pointRadius: 6,
+      pointHoverRadius: 9,
+      pointBackgroundColor: "#e11d48",
+      pointBorderColor: "#fff",
+      pointBorderWidth: 2,
+    });
   }
 
-  const chart = makeChart(
-    Chart,
-    canvasId,
-    {
-      type: "line",
-      data: {
-        labels: filtered.map((row) => row.label),
-        datasets: [
-          {
-            label: "Dose intensity",
-            data: filtered.map(() => 1),
-            borderColor: color,
-            backgroundColor: `${color}22`,
-            fill: true,
-            tension: 0.35,
-            pointRadius: 6,
-            pointHoverRadius: 9,
-            pointBackgroundColor: color,
-            pointBorderColor: "#fff",
-            pointBorderWidth: 2
-          }
-        ]
-      },
-      options: {
-        ...DEFAULT_OPTIONS,
-        plugins: {
-          ...basePlugins(title, false),
-          tooltip: {
-            callbacks: {
-              label(context) {
-                const row = filtered[context.dataIndex];
-                return row.detail || row.label;
-              }
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 1.4,
-            display: false,
-            grid: { display: false }
-          },
-          x: {
-            grid: { color: "rgba(5, 150, 105, 0.08)" },
-            ticks: { color: "#065f46", font: { weight: "600", size: 10 } }
-          }
-        }
-      }
-    },
-    instances
-  );
-
-  if (chart) attachSegmentClick(chart, canvasId, filtered);
-}
-
-export function createVerticalBar(instances, canvasId, rows, title, palette = PALETTE.emerald) {
-  const Chart = chartLib();
-  if (!Chart) return;
-
-  clearLoadingState(canvasId);
-  destroyChart(instances, canvasId);
-
-  const filtered = (rows || []).filter((row) => row.value > 0);
-  if (!filtered.length) {
-    showEmptyState(instances, canvasId, title, `${title}: No data to compare.`);
-    return;
+  const spanEnd = options.xMax ?? data.points[data.points.length - 1].x;
+  const hasThresholds = data.mec != null && data.toxic != null;
+  if (hasThresholds) {
+    datasets.push(
+      refLine("Min. effective", data.mec, spanEnd, [4, 4], "#059669"),
+    );
+    datasets.push(
+      refLine("Toxic level", data.toxic, spanEnd, [6, 6], "#e11d48"),
+    );
   }
 
-  const colors = filtered.map((row, index) => row.color || palette[index % palette.length]);
-  const chart = makeChart(
-    Chart,
-    canvasId,
-    {
-      type: "bar",
-      data: {
-        labels: filtered.map((row) => row.label),
-        datasets: [
-          {
-            label: title,
-            data: filtered.map((row) => row.value),
-            backgroundColor: colors,
-            borderRadius: 10,
-            borderSkipped: false
-          }
-        ]
-      },
-      options: {
-        ...DEFAULT_OPTIONS,
-        plugins: {
-          ...basePlugins("", false),
-          tooltip: {
-            callbacks: {
-              label(context) {
-                const row = filtered[context.dataIndex];
-                return `${row.label}: ${row.value} · ${row.detail || ""}`;
-              }
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { stepSize: 1, color: "#065f46" },
-            grid: { color: "rgba(5, 150, 105, 0.08)" }
-          },
-          x: {
-            grid: { display: false },
-            ticks: { color: "#065f46", font: { weight: "600", size: 10 } }
-          }
-        }
-      }
-    },
-    instances
-  );
-
-  if (chart) attachSegmentClick(chart, canvasId, filtered);
-}
-
-export function createGroupedBar(instances, canvasId, datasets, labels, title) {
-  const Chart = chartLib();
-  if (!Chart) return;
-
-  clearLoadingState(canvasId);
-  destroyChart(instances, canvasId);
-
-  const hasValues = datasets.some((dataset) => dataset.data.some((value) => value > 0));
-  if (!hasValues) {
-    showEmptyState(instances, canvasId, title, `${title}: No side-effect categories charted yet.`);
-    return;
-  }
+  const computedMax = hasThresholds
+    ? Math.ceil(
+        (Math.max(...data.points.map((p) => p.y), data.toxic) + 12) / 10,
+      ) * 10
+    : yMax;
 
   makeChart(
     Chart,
     canvasId,
     {
-      type: "bar",
-      data: {
-        labels,
-        datasets: datasets.map((dataset, index) => ({
-          ...dataset,
-          backgroundColor: dataset.backgroundColor || PALETTE.amber[index],
-          borderRadius: 8,
-          borderSkipped: false
-        }))
-      },
+      type: "line",
+      data: { datasets },
       options: {
         ...DEFAULT_OPTIONS,
-        plugins: basePlugins(title),
         scales: {
+          x: {
+            type: "linear",
+            min: 0,
+            max: options.xMax,
+            ticks,
+            grid: { color: "rgba(5, 150, 105, 0.08)" },
+          },
           y: {
             beginAtZero: true,
-            ticks: { stepSize: 1 },
-            grid: { color: "rgba(5, 150, 105, 0.08)" }
+            max: computedMax,
+            ticks: { display: false },
+            grid: { color: "rgba(5, 150, 105, 0.08)" },
           },
-          x: { grid: { display: false } }
-        }
-      }
-    },
-    instances
-  );
-}
-
-export function createDoughnut(instances, canvasId, rows, title) {
-  const Chart = chartLib();
-  if (!Chart) return;
-
-  clearLoadingState(canvasId);
-  destroyChart(instances, canvasId);
-
-  const filtered = (rows || []).filter((row) => row.value > 0);
-  if (!filtered.length) {
-    showEmptyState(instances, canvasId, title, `${title}: No categories to visualize.`);
-    return;
-  }
-
-  const colors = filtered.map((row, index) => row.color || PALETTE.sky[index % PALETTE.sky.length]);
-
-  const chart = makeChart(
-    Chart,
-    canvasId,
-    {
-      type: "doughnut",
-      data: {
-        labels: filtered.map((row) => row.label),
-        datasets: [
-          {
-            data: filtered.map((row) => row.value),
-            backgroundColor: colors,
-            borderColor: "#ffffff",
-            borderWidth: 3,
-            hoverOffset: 12
-          }
-        ]
-      },
-      options: {
-        ...DEFAULT_OPTIONS,
-        cutout: "62%",
+        },
         plugins: {
-          ...basePlugins(title),
-          tooltip: {
+          legend: hasThresholds
+            ? {
+                display: true,
+                position: "bottom",
+                labels: {
+                  filter: (item) => item.text && item.text !== "Key points",
+                  boxWidth: 24,
+                  font: { size: 10, weight: "600" },
+                  color: "#065f46",
+                },
+              }
+            : { display: false },
+          title: baseTitle(title),
+          tooltip: baseTooltip({
             callbacks: {
               label(context) {
-                const row = filtered[context.dataIndex];
-                return `${row.label}: ${row.value} · ${row.detail || ""}`;
-              }
-            }
-          }
-        }
-      }
+                const point = context.raw;
+                if (point.label) return point.label;
+                return `${context.parsed.y}% at ${xUnit === "clock" ? formatHour(point.x) : `${point.x}h`}`;
+              },
+            },
+          }),
+        },
+      },
     },
-    instances
+    instances,
   );
-
-  if (chart) attachSegmentClick(chart, canvasId, filtered);
 }

@@ -20,7 +20,13 @@
       <header class="topbar med-topbar">
         <a href="/landing.html" class="brand brand-link">
           <div class="brand-mark rx-logo" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 40 40"
+              fill="none"
+              aria-hidden="true"
+            >
               <path
                 d="M12 14h16M12 20h16M12 26h10"
                 stroke="white"
@@ -109,7 +115,7 @@
           <div class="med-page" id="medicationDetailsContent" hidden>
             <p class="demo-banner" id="demoBanner" hidden></p>
 
-            <header class="med-hero">
+            <header class="med-hero" hidden>
               <div class="med-hero-badge">
                 <span class="sticker sticker-tilt-left">deep dive</span>
               </div>
@@ -120,14 +126,19 @@
                   <h2 class="med-hero-title" id="medName">Medication Name</h2>
                   <p class="medication-meta" id="medMeta">
                     <span id="medStrength"></span
-                    ><span class="meta-sep" id="medMetaSep" aria-hidden="true"> · </span
+                    ><span class="meta-sep" id="medMetaSep" aria-hidden="true">
+                      · </span
                     ><span id="medForm"></span>
                   </p>
                 </div>
                 <div class="med-hero-aside">
                   <div class="med-confidence is-high" id="medConfidenceWrap">
                     <span class="med-confidence-label">Decode confidence</span>
-                    <span class="med-confidence-value visually-hidden" id="medConfidence">—</span>
+                    <span
+                      class="med-confidence-value visually-hidden"
+                      id="medConfidence"
+                      >—</span
+                    >
                     <div
                       class="confidence-gauge"
                       id="medConfidenceGauge"
@@ -136,7 +147,11 @@
                     ></div>
                   </div>
 
-                  <button class="btn primary" id="addToCalendarBtn" type="button">
+                  <button
+                    class="btn primary"
+                    id="addToCalendarBtn"
+                    type="button"
+                  >
                     <svg
                       width="16"
                       height="16"
@@ -165,77 +180,136 @@
                 <p class="med-side-nav-label">Sections</p>
                 <ul class="med-side-nav-list">
                   <li>
-                    <a href="#section-overview" class="med-side-nav-link is-active">
-                      <span class="med-side-nav-icon" aria-hidden="true">◉</span>
-                      Overview
+                    <a href="#tierOne" class="med-side-nav-link is-active">
+                      <span class="med-side-nav-icon" aria-hidden="true">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path
+                            d="M10.5 20.5L3.5 13.5c-1.5-1.5-1.5-4 0-5.5l8-8c1.5-1.5 4-1.5 5.5 0l7 7c1.5 1.5 1.5 4 0 5.5l-8 8c-1.5 1.5-4 1.5-5.5 0z"
+                          />
+                          <path d="M8.5 8.5l7 7" />
+                        </svg>
+                      </span>
+                      Snapshot
                     </a>
                   </li>
                   <li>
-                    <a href="#section-regulatory" class="med-side-nav-link" id="navRegulatoryLink">
-                      <span class="med-side-nav-icon" aria-hidden="true">⚠</span>
-                      Regulatory status
+                    <a href="#todaysSchedule" class="med-side-nav-link">
+                      <span class="med-side-nav-icon" aria-hidden="true">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                      </span>
+                      Schedule
                     </a>
                   </li>
                   <li>
-                    <a
-                      href="#section-ingredients"
-                      class="med-side-nav-link"
-                      id="navIngredientsLink"
-                    >
-                      <span class="med-side-nav-icon" aria-hidden="true">🧬</span>
-                      Ingredient analysis
+                    <a href="#sideEffectsCard" class="med-side-nav-link">
+                      <span class="med-side-nav-icon" aria-hidden="true">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <polygon
+                            points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+                          />
+                        </svg>
+                      </span>
+                      Side Effects
                     </a>
                   </li>
                   <li>
-                    <a
-                      href="#section-interactions"
-                      class="med-side-nav-link"
-                      id="navInteractionsLink"
-                    >
-                      <span class="med-side-nav-icon" aria-hidden="true">⚠</span>
-                      Drug interactions
+                    <a href="#lifestyleCard" class="med-side-nav-link">
+                      <span class="med-side-nav-icon" aria-hidden="true">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+                          <path d="M7 2v20" />
+                          <path
+                            d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"
+                          />
+                        </svg>
+                      </span>
+                      Lifestyle
                     </a>
                   </li>
                   <li>
-                    <a href="#section-safety" class="med-side-nav-link" id="navSafetyLink">
-                      <span class="med-side-nav-icon" aria-hidden="true">🛡</span>
-                      Safety flags
+                    <a href="#interactionsCard" class="med-side-nav-link">
+                      <span class="med-side-nav-icon" aria-hidden="true">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path
+                            d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                          />
+                          <path
+                            d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                          />
+                        </svg>
+                      </span>
+                      Interactions
                     </a>
                   </li>
                   <li>
-                    <a
-                      href="#section-side-effects"
-                      class="med-side-nav-link"
-                      id="navSideEffectsLink"
-                    >
-                      <span class="med-side-nav-icon" aria-hidden="true">⚡</span>
-                      Side effects
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#section-administration"
-                      class="med-side-nav-link"
-                      id="navAdministrationLink"
-                    >
-                      <span class="med-side-nav-icon" aria-hidden="true">🧴</span>
-                      Administration
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#section-market-status"
-                      class="med-side-nav-link"
-                      id="navMarketStatusLink"
-                    >
-                      <span class="med-side-nav-icon" aria-hidden="true">🌍</span>
-                      Market status
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#section-mechanism" class="med-side-nav-link" id="navMechanismLink">
-                      <span class="med-side-nav-icon" aria-hidden="true">⬡</span>
-                      How it works
+                    <a href="#tierThree" class="med-side-nav-link">
+                      <span class="med-side-nav-icon" aria-hidden="true">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M10 2v7.31" />
+                          <path d="M14 9.3V1.99" />
+                          <path d="M8.5 2h7" />
+                          <path d="M14 9.3a6.5 6.5 0 1 1-4 0" />
+                          <path d="M5.52 16h12.96" />
+                        </svg>
+                      </span>
+                      Advanced
                     </a>
                   </li>
                 </ul>
@@ -243,515 +317,983 @@
 
               <div class="med-page-main">
                 <div class="med-dashboard">
+                  <!-- ══════════════════════════════════════════════════
+                       TIER 1: Above the Fold (Immediate Attention)
+                       ══════════════════════════════════════════════════ -->
                   <section
-                    class="med-page-section"
-                    id="section-overview"
-                    aria-labelledby="overview-heading"
+                    class="tier-1"
+                    id="tierOne"
+                    aria-label="Critical medication information"
                   >
-                    <h2 id="overview-heading" class="med-section-title">Overview</h2>
+                    <!-- Medication Snapshot Card -->
+                    <article class="snapshot-card" id="snapshotCard">
+                      <div class="snapshot-header">
+                        <div class="snapshot-title-group">
+                          <p class="snapshot-eyebrow">Medication</p>
+                          <h2 class="snapshot-name" id="snapshotName">—</h2>
+                          <p class="snapshot-meta" id="snapshotMeta"></p>
+                        </div>
+                        <span
+                          class="snapshot-confidence"
+                          id="snapshotConfidence"
+                        >
+                          <span id="snapshotConfidenceValue">—</span> confidence
+                        </span>
+                      </div>
 
-                    <div class="med-overview-stack">
-                      <div
-                        class="med-stats-band"
-                        id="section-dosage"
-                        aria-labelledby="dosage-heading"
-                      >
-                        <h3 id="dosage-heading" class="med-subsection-title">Dosage at a glance</h3>
-                        <div class="med-stats-grid">
-                          <div class="med-stat">
-                            <span class="med-stat-label">Dose</span>
-                            <span class="med-stat-value" id="medDose">—</span>
-                          </div>
-                          <div class="med-stat">
-                            <span class="med-stat-label">Frequency</span>
-                            <span class="med-stat-value" id="medFrequency">—</span>
-                          </div>
-                          <div class="med-stat">
-                            <span class="med-stat-label">Duration</span>
-                            <span class="med-stat-value" id="medDuration">—</span>
-                          </div>
-                          <div class="med-stat">
-                            <span class="med-stat-label">Route</span>
-                            <span class="med-stat-value" id="medRoute">—</span>
-                          </div>
+                      <div class="snapshot-stats" id="snapshotStats">
+                        <div class="snapshot-stat">
+                          <span class="snapshot-stat-value" id="medDose"
+                            >—</span
+                          >
+                          <span class="snapshot-stat-label">per dose</span>
+                        </div>
+                        <div class="snapshot-stat">
+                          <span class="snapshot-stat-value" id="medFrequency"
+                            >—</span
+                          >
+                          <span class="snapshot-stat-label">frequency</span>
+                        </div>
+                        <div class="snapshot-stat">
+                          <span class="snapshot-stat-value" id="medDuration"
+                            >—</span
+                          >
+                          <span class="snapshot-stat-label">duration</span>
                         </div>
                       </div>
 
-                      <div class="med-chart-grid med-chart-grid--overview">
-                        <article class="med-chart-card">
+                      <div
+                        class="snapshot-progress"
+                        id="snapshotProgress"
+                        hidden
+                      >
+                        <div class="snapshot-progress-header">
+                          <span
+                            class="snapshot-progress-label"
+                            id="snapshotProgressLabel"
+                            >Day 1 of 5</span
+                          >
+                          <span
+                            class="snapshot-progress-percent"
+                            id="snapshotProgressPercent"
+                            >80% remaining</span
+                          >
+                        </div>
+                        <div class="snapshot-progress-bar">
+                          <div
+                            class="snapshot-progress-fill"
+                            id="snapshotProgressFill"
+                            style="width: 20%"
+                          ></div>
+                        </div>
+                      </div>
+
+                      <div
+                        class="snapshot-next-dose"
+                        id="snapshotNextDose"
+                        hidden
+                      >
+                        <span class="snapshot-next-dose-icon" aria-hidden="true"
+                          >⏰</span
+                        >
+                        <div class="snapshot-next-dose-text">
+                          <span class="snapshot-next-dose-label"
+                            >Next dose</span
+                          >
+                          <span
+                            class="snapshot-next-dose-time"
+                            id="snapshotNextDoseTime"
+                            >2:00 PM</span
+                          >
+                        </div>
+                        <span
+                          class="snapshot-next-dose-countdown"
+                          id="snapshotNextDoseCountdown"
+                          >in 2h 15m</span
+                        >
+                      </div>
+                    </article>
+
+                    <!-- Alerts Section -->
+                    <div class="alerts-section" id="alertsSection" hidden>
+                      <div
+                        class="alert-card alert-card--danger"
+                        id="alertDanger"
+                        hidden
+                      >
+                        <span class="alert-card-icon" aria-hidden="true"
+                          >🚨</span
+                        >
+                        <div class="alert-card-content">
+                          <h3 class="alert-card-title">Emergency</h3>
+                          <ul class="alert-card-list" id="alertDangerList"></ul>
+                        </div>
+                      </div>
+                      <div
+                        class="alert-card alert-card--warning"
+                        id="alertWarning"
+                        hidden
+                      >
+                        <span class="alert-card-icon" aria-hidden="true"
+                          >⚠️</span
+                        >
+                        <div class="alert-card-content">
+                          <h3 class="alert-card-title">Caution</h3>
+                          <ul
+                            class="alert-card-list"
+                            id="alertWarningList"
+                          ></ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Today's Schedule -->
+                    <section
+                      class="todays-schedule"
+                      id="todaysSchedule"
+                      aria-label="Today's medication schedule"
+                    >
+                      <h3 class="todays-schedule-title">Today's Schedule</h3>
+                      <div class="schedule-blocks" id="scheduleBlocks">
+                        <p class="schedule-empty">
+                          No schedule times available
+                        </p>
+                      </div>
+                      <p
+                        class="schedule-now-indicator"
+                        id="scheduleNowIndicator"
+                        hidden
+                      ></p>
+                    </section>
+                  </section>
+
+                  <!-- ══════════════════════════════════════════════════
+                       TIER 2: Below Fold (Actionable Info)
+                       ══════════════════════════════════════════════════ -->
+                  <section
+                    class="tier-2"
+                    id="tierTwo"
+                    aria-label="Important medication details"
+                  >
+                    <!-- Side Effects by Severity -->
+                    <article class="tier-card" id="sideEffectsCard">
+                      <h3 class="tier-card-title">
+                        <span class="tier-card-icon" aria-hidden="true"
+                          >⚡</span
+                        >
+                        Side Effects
+                      </h3>
+                      <div class="severity-groups" id="severityGroups">
+                        <div
+                          class="severity-group severity-group--common"
+                          id="severityCommon"
+                          hidden
+                        >
+                          <div class="severity-group-header">
+                            <span class="severity-group-badge">Common</span>
+                            <h4 class="severity-group-title">Usually mild</h4>
+                          </div>
+                          <ul
+                            class="severity-group-list"
+                            id="severityCommonList"
+                          ></ul>
+                        </div>
+                        <div
+                          class="severity-group severity-group--contact"
+                          id="severityContact"
+                          hidden
+                        >
+                          <div class="severity-group-header">
+                            <span class="severity-group-badge"
+                              >Contact Doctor</span
+                            >
+                            <h4 class="severity-group-title">
+                              If these persist
+                            </h4>
+                          </div>
+                          <ul
+                            class="severity-group-list"
+                            id="severityContactList"
+                          ></ul>
+                        </div>
+                        <div
+                          class="severity-group severity-group--emergency"
+                          id="severityEmergency"
+                          hidden
+                        >
+                          <div class="severity-group-header">
+                            <span class="severity-group-badge">Emergency</span>
+                            <h4 class="severity-group-title">
+                              Seek immediate help
+                            </h4>
+                          </div>
+                          <ul
+                            class="severity-group-list"
+                            id="severityEmergencyList"
+                          ></ul>
+                        </div>
+                        <p class="graph-empty" id="sideEffectsEmpty">
+                          No side effects information available.
+                        </p>
+                      </div>
+                    </article>
+
+                    <!-- Food & Lifestyle Instructions -->
+                    <article class="tier-card" id="lifestyleCard">
+                      <h3 class="tier-card-title">
+                        <span class="tier-card-icon" aria-hidden="true"
+                          >🍽️</span
+                        >
+                        Food &amp; Lifestyle
+                      </h3>
+                      <div class="lifestyle-grid" id="lifestyleGrid">
+                        <div
+                          class="lifestyle-card"
+                          id="lifestyleFoodCard"
+                          data-food="unknown"
+                        >
+                          <span
+                            class="lifestyle-card-icon"
+                            id="lifestyleFoodIcon"
+                            >🍽️</span
+                          >
+                          <p class="lifestyle-card-text" id="lifestyleFoodText">
+                            Food guidance not available
+                          </p>
+                        </div>
+                        <div
+                          class="lifestyle-card"
+                          id="lifestyleAlcoholCard"
+                          hidden
+                        >
+                          <span class="lifestyle-card-icon">🚫🍷</span>
+                          <p class="lifestyle-card-text">Avoid alcohol</p>
+                        </div>
+                        <div class="lifestyle-card" id="lifestyleStorageCard">
+                          <span class="lifestyle-card-icon">🧴</span>
+                          <p
+                            class="lifestyle-card-text"
+                            id="lifestyleStorageText"
+                          >
+                            —
+                          </p>
+                        </div>
+                      </div>
+                    </article>
+
+                    <!-- Drug Interactions -->
+                    <article class="tier-card" id="interactionsCard">
+                      <h3 class="tier-card-title">
+                        <span class="tier-card-icon" aria-hidden="true"
+                          >🔗</span
+                        >
+                        Drug Interactions
+                      </h3>
+                      <div class="interaction-badges" id="interactionBadges">
+                        <p class="graph-empty" id="interactionsEmpty">
+                          No interaction data available.
+                        </p>
+                      </div>
+                    </article>
+
+                    <!-- Missed Dose Guide -->
+                    <article class="tier-card" id="missedDoseCard">
+                      <h3 class="tier-card-title">
+                        <span class="tier-card-icon" aria-hidden="true"
+                          >❓</span
+                        >
+                        Missed Dose Guide
+                      </h3>
+                      <div id="missedDoseContent">
+                        <p class="graph-empty" id="missedDoseEmpty">
+                          No missed dose guidance available.
+                        </p>
+                      </div>
+                    </article>
+
+                    <!-- Administration Instructions (kept from original) -->
+                    <article class="tier-card" id="instructionsCard">
+                      <h3 class="tier-card-title">
+                        <span class="tier-card-icon" aria-hidden="true">✓</span>
+                        How to Take It
+                      </h3>
+                      <div class="instruction-box" id="medAdministration">
+                        <p>No specific instructions provided.</p>
+                      </div>
+                      <div class="med-subblock" id="sigSection" hidden>
+                        <h4 class="med-subblock-title">
+                          Prescription instructions (sig)
+                        </h4>
+                        <div
+                          class="instruction-box instruction-box--sig"
+                          id="medSig"
+                        >
+                          <p>No sig provided.</p>
+                        </div>
+                      </div>
+                    </article>
+                  </section>
+
+                  <!-- ══════════════════════════════════════════════════
+                       TIER 3: Collapsed Accordions (Advanced)
+                       ══════════════════════════════════════════════════ -->
+                  <section
+                    class="tier-3"
+                    id="tierThree"
+                    aria-label="Advanced pharmacology details"
+                  >
+                    <!-- Pharmacokinetic Graphs -->
+                    <details class="accordion" id="accordionPK">
+                      <summary>
+                        <span class="accordion-icon" aria-hidden="true"
+                          >📊</span
+                        >
+                        Pharmacokinetic Graphs
+                      </summary>
+                      <div class="accordion-content">
+                        <div class="med-chart-grid">
+                          <article class="med-chart-card">
+                            <div class="med-chart-card-head">
+                              <h3 class="med-chart-card-title">
+                                A single dose
+                              </h3>
+                              <span
+                                class="chart-type-badge chart-type-badge--line"
+                                >Onset · peak · wears off</span
+                              >
+                            </div>
+                            <div
+                              class="section-chart-container section-chart-container--compact"
+                              data-chart-id="pkCurveGraph"
+                            >
+                              <canvas id="pkCurveGraph"></canvas>
+                            </div>
+                            <div class="med-pk-stats">
+                              <div class="med-pk-stat">
+                                <span class="med-pk-stat-label">Kicks in</span>
+                                <span class="med-pk-stat-value" id="medPkOnset"
+                                  >—</span
+                                >
+                              </div>
+                              <div class="med-pk-stat">
+                                <span class="med-pk-stat-label">Peaks at</span>
+                                <span class="med-pk-stat-value" id="medPkPeak"
+                                  >—</span
+                                >
+                              </div>
+                              <div class="med-pk-stat">
+                                <span class="med-pk-stat-label">Wears off</span>
+                                <span
+                                  class="med-pk-stat-value"
+                                  id="medPkDuration"
+                                  >—</span
+                                >
+                              </div>
+                            </div>
+                          </article>
+                          <article class="med-chart-card">
+                            <div class="med-chart-card-head">
+                              <h3 class="med-chart-card-title">
+                                Effect across the day
+                              </h3>
+                              <span
+                                class="chart-type-badge chart-type-badge--radar"
+                                >Steady state</span
+                              >
+                            </div>
+                            <div
+                              class="section-chart-container section-chart-container--compact"
+                              data-chart-id="doseEffectGraph"
+                            >
+                              <canvas id="doseEffectGraph"></canvas>
+                            </div>
+                          </article>
+                        </div>
+                        <article class="med-chart-card med-chart-card--static">
                           <div class="med-chart-card-head">
-                            <h3 class="med-chart-card-title">Daily dosing rhythm</h3>
-                            <span class="chart-type-badge chart-type-badge--line">Line</span>
+                            <h3 class="med-chart-card-title">
+                              When to take it
+                            </h3>
+                            <span
+                              class="chart-type-badge chart-type-badge--line"
+                              >Daily clock</span
+                            >
                           </div>
                           <div
-                            class="section-chart-container section-chart-container--compact"
-                            data-chart-id="dosageScheduleGraph"
-                          >
-                            <canvas id="dosageScheduleGraph"></canvas>
-                          </div>
+                            class="section-chart-container section-chart-container--compact section-chart-container--static"
+                            data-chart-id="scheduleClock"
+                          ></div>
                           <div
                             class="schedule-times"
                             id="medScheduleTimes"
                             aria-label="Parsed schedule times"
                           ></div>
-                          <div class="schedule-duration" id="medScheduleDuration"></div>
-                        </article>
-                        <article class="med-chart-card">
-                          <div class="med-chart-card-head">
-                            <h3 class="med-chart-card-title">Intelligence profile</h3>
-                            <span class="chart-type-badge chart-type-badge--radar">Radar</span>
-                          </div>
                           <div
-                            class="section-chart-container section-chart-container--compact"
-                            data-chart-id="medProfileGraph"
-                          >
-                            <canvas id="medProfileGraph"></canvas>
-                          </div>
+                            class="schedule-duration"
+                            id="medScheduleDuration"
+                          ></div>
                         </article>
                       </div>
+                    </details>
 
-                      <div class="med-content-grid">
-                        <section
-                          class="med-content-col section-card"
-                          id="section-instructions"
-                          aria-labelledby="instructions-heading"
+                    <!-- Molecular Mechanism -->
+                    <details class="accordion" id="accordionMechanism">
+                      <summary>
+                        <span class="accordion-icon" aria-hidden="true">⬡</span>
+                        Molecular Mechanism
+                      </summary>
+                      <div class="accordion-content">
+                        <article
+                          class="med-panel med-panel--mechanism section-card mechanism-sidebar"
+                          id="mechanismSidebar"
                         >
-                          <h3 id="instructions-heading" class="med-panel-title">
-                            <span class="subhead-icon" aria-hidden="true">✓</span>
-                            How to take it
-                          </h3>
-                          <div class="instruction-box" id="medAdministration">
-                            <p>No specific instructions provided.</p>
-                          </div>
-
-                          <div class="med-subblock" id="sigSection">
-                            <h4 class="med-subblock-title">Prescription instructions (sig)</h4>
-                            <div class="instruction-box instruction-box--sig" id="medSig">
-                              <p>No sig provided.</p>
+                          <header class="med-panel-head">
+                            <span class="sticker sticker-tilt-right"
+                              >3d mode</span
+                            >
+                            <h3 class="med-panel-title mechanism-sidebar-title">
+                              <span class="subhead-icon" aria-hidden="true"
+                                >⬡</span
+                              >
+                              <span id="mechanismSidebarTitle"
+                                >Molecular mechanism</span
+                              >
+                            </h3>
+                          </header>
+                          <p
+                            class="mechanism-sidebar-target"
+                            id="mechanismTargetProtein"
+                          >
+                            Loading…
+                          </p>
+                          <div class="mechanism-layout">
+                            <div
+                              id="mechanismSidebarViewer"
+                              class="mechanism-sidebar-viewer"
+                              aria-label="3D protein structure preview"
+                            ></div>
+                            <div class="mechanism-blocks">
+                              <div
+                                class="mechanism-sidebar-block mechanism-sidebar-block--binding"
+                              >
+                                <h4>Binding site</h4>
+                                <p id="mechanismBindingSite">—</p>
+                              </div>
+                              <div
+                                class="mechanism-sidebar-block mechanism-sidebar-block--action"
+                              >
+                                <h4>Mechanism</h4>
+                                <p id="mechanismAction">—</p>
+                              </div>
+                              <div
+                                class="mechanism-sidebar-block mechanism-sidebar-block--effect"
+                              >
+                                <h4>Clinical effect</h4>
+                                <p id="mechanismEffect">—</p>
+                              </div>
                             </div>
                           </div>
-                        </section>
+                          <p class="mechanism-sidebar-caption">
+                            Drag to rotate · scroll to zoom
+                          </p>
+                          <p
+                            class="mechanism-sidebar-fallback"
+                            id="mechanismFallbackNote"
+                            hidden
+                          ></p>
+                        </article>
 
                         <section
                           class="med-content-col section-card med-content-col--wide"
-                          id="section-details"
-                          aria-labelledby="details-heading"
+                          id="section-ingredients"
+                          aria-labelledby="ingredients-heading"
                         >
-                          <h3 id="details-heading" class="med-panel-title">
-                            <span class="subhead-icon" aria-hidden="true">+</span>
-                            Prescription details
-                          </h3>
-                          <div class="med-details-mini-grid">
-                            <div class="med-detail-pill">
-                              <span class="med-detail-pill-label">Quantity</span>
-                              <span class="med-detail-pill-value" id="medQuantity">—</span>
-                            </div>
-                            <div class="med-detail-pill">
-                              <span class="med-detail-pill-label">Refills</span>
-                              <span class="med-detail-pill-value" id="medRefills">—</span>
-                            </div>
-                            <div class="med-detail-pill">
-                              <span class="med-detail-pill-label">Timing</span>
-                              <span class="med-detail-pill-value" id="medTiming">—</span>
-                            </div>
-                          </div>
-
-                          <details class="med-details-raw">
-                            <summary class="med-details-raw-summary">
-                              <span class="subhead-icon" aria-hidden="true">¶</span>
-                              View raw prescription text
-                            </summary>
-                            <div class="raw-text-box" id="medRawText">
-                              <p>No raw text available.</p>
-                            </div>
-                          </details>
-                        </section>
-                      </div>
-
-                      <section
-                        class="med-content-col section-card med-content-col--wide"
-                        id="section-regulatory"
-                        aria-labelledby="regulatory-heading"
-                      >
-                        <h3 id="regulatory-heading" class="med-panel-title">
-                          <span class="subhead-icon" aria-hidden="true">⚠</span>
-                          Regulatory status
-                        </h3>
-                        <p class="med-section-lead">
-                          Prescription controls, warnings, and regional restrictions. Click chart
-                          segments for details.
-                        </p>
-                        <div class="med-chart-grid">
-                          <article class="med-chart-card med-chart-card--wide">
-                            <div class="med-chart-card-head">
-                              <h4 class="med-chart-card-title">Regulatory footprint</h4>
-                              <span class="chart-type-badge chart-type-badge--polar">Polar</span>
-                            </div>
-                            <div class="section-chart-container" data-chart-id="regulatoryGraph">
-                              <canvas id="regulatoryGraph"></canvas>
-                            </div>
-                          </article>
-                        </div>
-                        <div class="section-summary-card">
-                          <p class="section-summary-label">Regulatory highlights</p>
-                          <p class="section-summary-text" id="medRegulatorySummary">
-                            No regulatory notes are available for this medication.
-                          </p>
-                        </div>
-                        <details class="med-detail-expand">
-                          <summary>View regulatory lists</summary>
-                          <div class="med-detail-columns med-detail-columns--compact">
-                            <div class="med-detail-card">
-                              <p class="section-summary-label">Rx-only markets</p>
-                              <ul class="med-tag-list" id="medPrescriptionOnlyCountries"></ul>
-                            </div>
-                            <div class="med-detail-card">
-                              <p class="section-summary-label">Black-box warnings</p>
-                              <ul
-                                class="med-tag-list med-tag-list--alert"
-                                id="medBlackBoxWarnings"
-                              ></ul>
-                            </div>
-                            <div class="med-detail-card">
-                              <p class="section-summary-label">Recent alerts</p>
-                              <ul class="med-tag-list" id="medRegulatoryAlerts"></ul>
-                            </div>
-                            <div class="med-detail-card">
-                              <p class="section-summary-label">Fully banned countries</p>
-                              <ul
-                                class="med-tag-list med-tag-list--alert"
-                                id="medFullyBannedCountries"
-                              ></ul>
-                            </div>
-                            <div class="med-detail-card">
-                              <p class="section-summary-label">Age restrictions</p>
-                              <ul class="med-tag-list" id="medRestrictedAgeGroups"></ul>
-                            </div>
-                            <div class="med-detail-card">
-                              <p class="section-summary-label">Withdrawn formulations</p>
-                              <ul class="med-tag-list" id="medWithdrawnFormulations"></ul>
-                            </div>
-                          </div>
-                        </details>
-                      </section>
-
-                      <section
-                        class="med-content-col section-card med-content-col--wide"
-                        id="section-ingredients"
-                        aria-labelledby="ingredients-heading"
-                      >
-                        <h3 id="ingredients-heading" class="med-panel-title">
-                          <span class="subhead-icon" aria-hidden="true">🧬</span>
-                          Ingredient-level analysis
-                        </h3>
-                        <p class="med-section-lead">
-                          Active ingredient, brand equivalents, and combination therapy notes.
-                        </p>
-                        <div class="med-chart-grid">
-                          <article class="med-chart-card med-chart-card--wide">
-                            <div class="med-chart-card-head">
-                              <h4 class="med-chart-card-title">Ingredient landscape</h4>
-                              <span class="chart-type-badge chart-type-badge--bubble">Bubble</span>
-                            </div>
-                            <div
-                              class="section-chart-container section-chart-container--tall"
-                              data-chart-id="ingredientGraph"
+                          <h3 id="ingredients-heading" class="med-panel-title">
+                            <span class="subhead-icon" aria-hidden="true"
+                              >🧬</span
                             >
-                              <canvas id="ingredientGraph"></canvas>
-                            </div>
-                          </article>
-                        </div>
-                        <div class="section-summary-card">
-                          <p class="section-summary-label">Active ingredient</p>
-                          <p class="med-active-ingredient" id="medActiveIngredient">—</p>
-                        </div>
-                        <details class="med-detail-expand">
-                          <summary>View ingredient lists</summary>
-                          <div class="med-detail-columns med-detail-columns--compact">
+                            What's in it
+                          </h3>
+                          <div class="section-summary-card">
+                            <p class="section-summary-label">
+                              Active ingredient
+                            </p>
+                            <p
+                              class="med-active-ingredient"
+                              id="medActiveIngredient"
+                            >
+                              —
+                            </p>
+                          </div>
+                          <div
+                            class="med-detail-columns med-detail-columns--compact"
+                          >
                             <div class="med-detail-card">
-                              <p class="section-summary-label">Equivalent brands</p>
-                              <ul class="med-tag-list" id="medEquivalentBrands"></ul>
+                              <p class="section-summary-label">
+                                Equivalent brands
+                              </p>
+                              <ul
+                                class="med-tag-list"
+                                id="medEquivalentBrands"
+                              ></ul>
                             </div>
                             <div class="med-detail-card">
-                              <p class="section-summary-label">Combination drugs</p>
-                              <ul class="med-tag-list" id="medCombinationDrugs"></ul>
+                              <p class="section-summary-label">
+                                Combination drugs
+                              </p>
+                              <ul
+                                class="med-tag-list"
+                                id="medCombinationDrugs"
+                              ></ul>
                             </div>
                             <div class="med-detail-card">
-                              <p class="section-summary-label">Duplicate warnings</p>
+                              <p class="section-summary-label">
+                                Duplicate warnings
+                              </p>
                               <ul
                                 class="med-tag-list med-tag-list--alert"
                                 id="medDuplicateIngredientWarnings"
                               ></ul>
                             </div>
                           </div>
-                        </details>
-                      </section>
+                        </section>
+                      </div>
+                    </details>
 
-                      <section
-                        class="med-page-section"
-                        id="section-interactions"
-                        aria-labelledby="interactions-heading"
-                      >
-                        <h2 id="interactions-heading" class="med-section-title">
-                          Drug interactions
-                        </h2>
-                        <p class="med-section-lead">
-                          Medications, foods, and conditions that may conflict with this therapy.
-                        </p>
-                        <div class="med-chart-grid">
-                          <article class="med-chart-card med-chart-card--wide">
-                            <div class="med-chart-card-head">
-                              <h3 class="med-chart-card-title">Interaction profile</h3>
-                              <span class="chart-type-badge chart-type-badge--radar">Radar</span>
-                            </div>
-                            <div
-                              class="section-chart-container section-chart-container--compact"
-                              data-chart-id="interactionGraph"
+                    <!-- Advanced Pharmacology (additional safety/interaction details) -->
+                    <details class="accordion" id="accordionAdvanced">
+                      <summary>
+                        <span class="accordion-icon" aria-hidden="true"
+                          >🛡</span
+                        >
+                        Advanced Pharmacology
+                      </summary>
+                      <div class="accordion-content">
+                        <article
+                          class="med-chart-card med-chart-card--wide med-chart-card--static"
+                        >
+                          <div class="med-chart-card-head">
+                            <h3 class="med-chart-card-title">
+                              Interaction severity
+                            </h3>
+                            <span
+                              class="chart-type-badge chart-type-badge--bubble"
+                              >Hub</span
                             >
-                              <canvas id="interactionGraph"></canvas>
-                            </div>
-                          </article>
-                        </div>
-                        <div class="med-detail-columns">
-                          <div class="med-detail-card">
-                            <p class="section-summary-label">Interacting medications</p>
-                            <ul
-                              class="med-tag-list med-tag-list--sky"
-                              id="medCommonInteractingMedications"
-                            ></ul>
                           </div>
-                          <div class="med-detail-card">
-                            <p class="section-summary-label">Foods / supplements to avoid</p>
-                            <ul
-                              class="med-tag-list med-tag-list--amber"
-                              id="medFoodSupplementAvoidance"
-                            ></ul>
-                          </div>
-                          <div class="med-detail-card">
-                            <p class="section-summary-label">Contraindicated conditions</p>
-                            <ul
-                              class="med-tag-list med-tag-list--alert"
-                              id="medContraindicatedConditions"
-                            ></ul>
-                          </div>
-                        </div>
-                      </section>
-
-                      <section
-                        class="med-page-section"
-                        id="section-safety"
-                        aria-labelledby="safety-heading"
-                      >
-                        <h2 id="safety-heading" class="med-section-title">Patient safety flags</h2>
-                        <div class="med-content-grid med-safety-grid">
-                          <section class="med-content-col section-card">
-                            <h3 class="med-panel-title">Pregnancy / lactation category</h3>
-                            <p id="medPregnancyLactationCategory">—</p>
-                          </section>
-                          <section class="med-content-col section-card">
-                            <h3 class="med-panel-title">Renal / hepatic dosing</h3>
-                            <p id="medRenalHepaticDosingGuidance">—</p>
-                          </section>
-                          <section class="med-content-col section-card">
-                            <h3 class="med-panel-title">Age-based precautions</h3>
-                            <p id="medAgePrecautions">—</p>
-                          </section>
-                          <section class="med-content-col section-card">
-                            <h3 class="med-panel-title">Allergy risk summary</h3>
-                            <p id="medAllergyRiskSummary">—</p>
-                          </section>
-                        </div>
-                      </section>
-
-                      <section
-                        class="med-page-section"
-                        id="section-side-effects"
-                        aria-labelledby="side-effects-heading"
-                      >
-                        <h2 id="side-effects-heading" class="med-section-title">
-                          Side effects / monitoring
-                        </h2>
-                        <p class="med-section-lead">
-                          Common tolerability issues, serious adverse events, and monitoring notes.
-                        </p>
-                        <div class="med-chart-grid">
-                          <article class="med-chart-card med-chart-card--wide">
-                            <div class="med-chart-card-head">
-                              <h3 class="med-chart-card-title">Side-effect spectrum</h3>
-                              <span class="chart-type-badge chart-type-badge--polar">Polar</span>
-                            </div>
-                            <div
-                              class="section-chart-container section-chart-container--compact"
-                              data-chart-id="sideEffectsGraph"
-                            >
-                              <canvas id="sideEffectsGraph"></canvas>
-                            </div>
-                          </article>
-                        </div>
-                        <div class="section-summary-card">
-                          <p class="section-summary-label">Monitoring notes</p>
-                          <p id="medMonitoringNotes">—</p>
-                        </div>
-                        <details class="med-detail-expand">
-                          <summary>View side-effect lists</summary>
-                          <div class="med-detail-columns med-detail-columns--compact">
+                          <div
+                            class="section-chart-container section-chart-container--compact section-chart-container--static"
+                            data-chart-id="interactionDiagram"
+                          ></div>
+                          <div class="med-detail-columns">
                             <div class="med-detail-card">
-                              <p class="section-summary-label">Common side effects</p>
+                              <p class="section-summary-label">
+                                Interacting medications
+                              </p>
+                              <ul
+                                class="med-tag-list med-tag-list--amber"
+                                id="medCommonInteractingMedications"
+                              ></ul>
+                            </div>
+                            <div class="med-detail-card">
+                              <p class="section-summary-label">
+                                Foods / supplements to avoid
+                              </p>
+                              <ul
+                                class="med-tag-list med-tag-list--sky"
+                                id="medFoodSupplementAvoidance"
+                              ></ul>
+                            </div>
+                            <div class="med-detail-card">
+                              <p class="section-summary-label">
+                                Contraindicated conditions
+                              </p>
+                              <ul
+                                class="med-tag-list med-tag-list--alert"
+                                id="medContraindicatedConditions"
+                              ></ul>
+                            </div>
+                          </div>
+                        </article>
+
+                        <section
+                          class="med-content-col section-card med-content-col--wide"
+                        >
+                          <h3 class="med-panel-title">
+                            <span class="subhead-icon" aria-hidden="true"
+                              >⚡</span
+                            >
+                            Side effects &amp; monitoring
+                          </h3>
+                          <div class="section-summary-card">
+                            <p class="section-summary-label">
+                              Monitoring notes
+                            </p>
+                            <p id="medMonitoringNotes">—</p>
+                          </div>
+                          <div
+                            class="med-detail-columns med-detail-columns--compact"
+                          >
+                            <div class="med-detail-card">
+                              <p class="section-summary-label">
+                                Common side effects
+                              </p>
                               <ul
                                 class="med-tag-list med-tag-list--amber"
                                 id="medCommonSideEffects"
                               ></ul>
                             </div>
                             <div class="med-detail-card">
-                              <p class="section-summary-label">Serious adverse events</p>
+                              <p class="section-summary-label">
+                                Serious adverse events
+                              </p>
                               <ul
                                 class="med-tag-list med-tag-list--alert"
                                 id="medSeriousAdverseEvents"
                               ></ul>
                             </div>
                           </div>
-                        </details>
-                      </section>
+                        </section>
 
-                      <section
-                        class="med-page-section"
-                        id="section-administration"
-                        aria-labelledby="administration-heading"
-                      >
-                        <h2 id="administration-heading" class="med-section-title">
-                          Administration & storage
-                        </h2>
-                        <div class="med-content-grid">
-                          <section class="med-content-col section-card">
-                            <h3 class="med-panel-title">Storage instructions</h3>
-                            <p id="medStorageInstructions">—</p>
-                          </section>
-                          <section class="med-content-col section-card">
-                            <h3 class="med-panel-title">Missed dose guidance</h3>
-                            <p id="medMissedDoseGuidance">—</p>
-                          </section>
-                        </div>
-                      </section>
-
-                      <section
-                        class="med-page-section"
-                        id="section-market-status"
-                        aria-labelledby="market-status-heading"
-                      >
-                        <h2 id="market-status-heading" class="med-section-title">
-                          Regulatory / market status
-                        </h2>
-                        <p class="med-section-lead">
-                          Recalls, country restrictions, and withdrawal history.
-                        </p>
-                        <div class="med-chart-grid">
-                          <article class="med-chart-card med-chart-card--wide">
-                            <div class="med-chart-card-head">
-                              <h3 class="med-chart-card-title">Market activity</h3>
-                              <span class="chart-type-badge chart-type-badge--bar">Bar</span>
-                            </div>
-                            <div
-                              class="section-chart-container section-chart-container--compact"
-                              data-chart-id="marketStatusGraph"
+                        <section
+                          class="med-content-col section-card med-content-col--wide"
+                        >
+                          <h3 class="med-panel-title">
+                            <span class="subhead-icon" aria-hidden="true"
+                              >🛡</span
                             >
-                              <canvas id="marketStatusGraph"></canvas>
+                            Who needs caution
+                          </h3>
+                          <div class="med-content-grid med-safety-grid">
+                            <div class="med-detail-card">
+                              <p class="section-summary-label">
+                                Pregnancy / lactation
+                              </p>
+                              <p id="medPregnancyLactationCategory">—</p>
                             </div>
-                          </article>
-                        </div>
-                        <div class="med-detail-columns">
-                          <div class="med-detail-card">
-                            <p class="section-summary-label">Recent recalls</p>
-                            <ul class="med-tag-list med-tag-list--alert" id="medRecentRecalls"></ul>
+                            <div class="med-detail-card">
+                              <p class="section-summary-label">
+                                Renal / hepatic dosing
+                              </p>
+                              <p id="medRenalHepaticDosingGuidance">—</p>
+                            </div>
+                            <div class="med-detail-card">
+                              <p class="section-summary-label">
+                                Age-based precautions
+                              </p>
+                              <p id="medAgePrecautions">—</p>
+                            </div>
+                            <div class="med-detail-card">
+                              <p class="section-summary-label">Allergy risk</p>
+                              <p id="medAllergyRiskSummary">—</p>
+                            </div>
                           </div>
-                          <div class="med-detail-card">
-                            <p class="section-summary-label">Country restrictions</p>
-                            <ul class="med-tag-list" id="medCountryRestrictions"></ul>
-                          </div>
-                          <div class="med-detail-card">
-                            <p class="section-summary-label">Withdrawal history</p>
-                            <ul class="med-tag-list" id="medWithdrawalHistory"></ul>
-                          </div>
-                        </div>
-                      </section>
+                        </section>
 
-                      <section
-                        class="med-alert section-card med-card--alert"
-                        id="warningsSection"
-                        hidden
-                        aria-labelledby="warnings-heading"
-                      >
-                        <h3 id="warnings-heading" class="med-panel-title">
-                          <span class="subhead-icon" aria-hidden="true">!</span>
-                          Safety warnings
-                        </h3>
-                        <ul class="warning-list" id="medWarnings"></ul>
-                      </section>
-
-                      <section
-                        class="med-alert section-card"
-                        id="alternativesSection"
-                        hidden
-                        aria-labelledby="alternatives-heading"
-                      >
-                        <h3 id="alternatives-heading" class="med-panel-title">
-                          <span class="subhead-icon" aria-hidden="true">?</span>
-                          Alternative readings
-                        </h3>
-                        <ul class="alt-list" id="medAlternatives"></ul>
-                      </section>
-                    </div>
-                  </section>
-
-                  <section
-                    class="med-page-section"
-                    id="section-mechanism"
-                    aria-labelledby="mechanism-heading"
-                  >
-                    <h2 id="mechanism-heading" class="med-section-title">How it works</h2>
-                    <article
-                      class="med-panel med-panel--mechanism section-card mechanism-sidebar"
-                      id="mechanismSidebar"
-                      hidden
-                    >
-                      <header class="med-panel-head">
-                        <span class="sticker sticker-tilt-right">3d mode</span>
-                        <h3 class="med-panel-title mechanism-sidebar-title">
-                          <span class="subhead-icon" aria-hidden="true">⬡</span>
-                          <span id="mechanismSidebarTitle">Molecular mechanism</span>
-                        </h3>
-                      </header>
-                      <p class="mechanism-sidebar-target" id="mechanismTargetProtein">Loading…</p>
-                      <div class="mechanism-layout">
-                        <div
-                          id="mechanismSidebarViewer"
-                          class="mechanism-sidebar-viewer"
-                          aria-label="3D protein structure preview"
-                        ></div>
-                        <div class="mechanism-blocks">
-                          <div class="mechanism-sidebar-block mechanism-sidebar-block--binding">
-                            <h4>Binding site</h4>
-                            <p id="mechanismBindingSite">—</p>
+                        <article
+                          class="med-chart-card med-chart-card--wide med-chart-card--static body-map-card"
+                        >
+                          <div class="med-chart-card-head">
+                            <h3 class="med-chart-card-title">
+                              Side effects body map
+                            </h3>
+                            <span
+                              class="chart-type-badge chart-type-badge--radar"
+                              >Interactive</span
+                            >
                           </div>
-                          <div class="mechanism-sidebar-block mechanism-sidebar-block--action">
-                            <h4>Mechanism</h4>
-                            <p id="mechanismAction">—</p>
+                          <div class="body-map-container" id="bodyMapContainer">
+                            <div class="body-map-figure">
+                              <svg
+                                class="body-map-svg"
+                                viewBox="0 0 200 400"
+                                aria-label="Human body silhouette showing side effect locations"
+                              >
+                                <defs>
+                                  <linearGradient
+                                    id="bodyGradient"
+                                    x1="0%"
+                                    y1="0%"
+                                    x2="0%"
+                                    y2="100%"
+                                  >
+                                    <stop
+                                      offset="0%"
+                                      style="stop-color: #e2e8f0"
+                                    />
+                                    <stop
+                                      offset="100%"
+                                      style="stop-color: #cbd5e1"
+                                    />
+                                  </linearGradient>
+                                </defs>
+                                <ellipse
+                                  cx="100"
+                                  cy="40"
+                                  rx="28"
+                                  ry="32"
+                                  fill="url(#bodyGradient)"
+                                  stroke="#94a3b8"
+                                  stroke-width="1.5"
+                                />
+                                <rect
+                                  x="90"
+                                  y="70"
+                                  width="20"
+                                  height="18"
+                                  fill="url(#bodyGradient)"
+                                  stroke="#94a3b8"
+                                  stroke-width="1.5"
+                                />
+                                <path
+                                  d="M60 88 L140 88 L145 200 L55 200 Z"
+                                  fill="url(#bodyGradient)"
+                                  stroke="#94a3b8"
+                                  stroke-width="1.5"
+                                />
+                                <path
+                                  d="M60 92 L40 92 L30 180 L45 182 L52 110 L60 110"
+                                  fill="url(#bodyGradient)"
+                                  stroke="#94a3b8"
+                                  stroke-width="1.5"
+                                />
+                                <path
+                                  d="M140 92 L160 92 L170 180 L155 182 L148 110 L140 110"
+                                  fill="url(#bodyGradient)"
+                                  stroke="#94a3b8"
+                                  stroke-width="1.5"
+                                />
+                                <ellipse
+                                  cx="37"
+                                  cy="190"
+                                  rx="10"
+                                  ry="14"
+                                  fill="url(#bodyGradient)"
+                                  stroke="#94a3b8"
+                                  stroke-width="1.5"
+                                />
+                                <ellipse
+                                  cx="163"
+                                  cy="190"
+                                  rx="10"
+                                  ry="14"
+                                  fill="url(#bodyGradient)"
+                                  stroke="#94a3b8"
+                                  stroke-width="1.5"
+                                />
+                                <path
+                                  d="M55 200 L70 200 L75 320 L50 320 Z"
+                                  fill="url(#bodyGradient)"
+                                  stroke="#94a3b8"
+                                  stroke-width="1.5"
+                                />
+                                <path
+                                  d="M130 200 L145 200 L150 320 L125 320 Z"
+                                  fill="url(#bodyGradient)"
+                                  stroke="#94a3b8"
+                                  stroke-width="1.5"
+                                />
+                                <ellipse
+                                  cx="62"
+                                  cy="335"
+                                  rx="18"
+                                  ry="18"
+                                  fill="url(#bodyGradient)"
+                                  stroke="#94a3b8"
+                                  stroke-width="1.5"
+                                />
+                                <ellipse
+                                  cx="138"
+                                  cy="335"
+                                  rx="18"
+                                  ry="18"
+                                  fill="url(#bodyGradient)"
+                                  stroke="#94a3b8"
+                                  stroke-width="1.5"
+                                />
+                                <g
+                                  class="body-map-hotspots"
+                                  id="bodyMapHotspots"
+                                ></g>
+                              </svg>
+                            </div>
+                            <div class="body-map-legend" id="bodyMapLegend">
+                              <p class="body-map-legend-title">
+                                Tap or hover over highlighted areas
+                              </p>
+                              <div class="body-map-info" id="bodyMapInfo">
+                                <p class="body-map-info-empty">
+                                  Side effect locations will appear when data is
+                                  available.
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div class="mechanism-sidebar-block mechanism-sidebar-block--effect">
-                            <h4>Clinical effect</h4>
-                            <p id="mechanismEffect">—</p>
+                          <div
+                            class="body-map-tooltip"
+                            id="bodyMapTooltip"
+                            hidden
+                          >
+                            <p class="body-map-tooltip-title"></p>
+                            <ul class="body-map-tooltip-list"></ul>
                           </div>
-                        </div>
+                        </article>
                       </div>
-                      <p class="mechanism-sidebar-caption">Drag to rotate · scroll to zoom</p>
-                      <p class="mechanism-sidebar-fallback" id="mechanismFallbackNote" hidden></p>
-                    </article>
+                    </details>
+
+                    <!-- Regulatory & Availability -->
+                    <details class="accordion" id="accordionRegulatory">
+                      <summary>
+                        <span class="accordion-icon" aria-hidden="true"
+                          >🌍</span
+                        >
+                        Regulatory &amp; Availability
+                      </summary>
+                      <div class="accordion-content">
+                        <article
+                          class="med-chart-card med-chart-card--wide med-chart-card--static med-globe-card"
+                        >
+                          <div class="med-chart-card-head">
+                            <h3 class="med-chart-card-title">
+                              Where it's restricted
+                            </h3>
+                            <span class="chart-type-badge chart-type-badge--bar"
+                              >Worldwide</span
+                            >
+                          </div>
+                          <div
+                            class="section-chart-container section-chart-container--static"
+                            data-chart-id="bannedGlobe"
+                          ></div>
+                          <p class="med-globe-caption">
+                            Drag to spin the globe · markers show countries
+                            where this medication is banned or
+                            prescription-only.
+                          </p>
+                        </article>
+
+                        <section
+                          class="med-content-col section-card med-content-col--wide"
+                        >
+                          <h3 class="med-panel-title">
+                            <span class="subhead-icon" aria-hidden="true"
+                              >⚠</span
+                            >
+                            Regulatory status
+                          </h3>
+                          <div class="section-summary-card">
+                            <p class="section-summary-label">
+                              Regulatory highlights
+                            </p>
+                            <p
+                              class="section-summary-text"
+                              id="medRegulatorySummary"
+                            >
+                              No regulatory notes are available for this
+                              medication.
+                            </p>
+                          </div>
+
+                          <details class="med-detail-expand">
+                            <summary>
+                              View regulatory &amp; market lists
+                            </summary>
+                            <div
+                              class="med-detail-columns med-detail-columns--compact"
+                            >
+                              <div class="med-detail-card">
+                                <p class="section-summary-label">
+                                  Rx-only markets
+                                </p>
+                                <ul
+                                  class="med-tag-list"
+                                  id="medPrescriptionOnlyCountries"
+                                ></ul>
+                              </div>
+                              <div class="med-detail-card">
+                                <p class="section-summary-label">
+                                  Black-box warnings
+                                </p>
+                                <ul
+                                  class="med-tag-list med-tag-list--alert"
+                                  id="medBlackBoxWarnings"
+                                ></ul>
+                              </div>
+                              <div class="med-detail-card">
+                                <p class="section-summary-label">
+                                  Recent alerts
+                                </p>
+                                <ul
+                                  class="med-tag-list"
+                                  id="medRegulatoryAlerts"
+                                ></ul>
+                              </div>
+                              <div class="med-detail-card">
+                                <p class="section-summary-label">
+                                  Fully banned countries
+                                </p>
+                                <ul
+                                  class="med-tag-list med-tag-list--alert"
+                                  id="medFullyBannedCountries"
+                                ></ul>
+                              </div>
+                              <div class="med-detail-card">
+                                <p class="section-summary-label">
+                                  Age restrictions
+                                </p>
+                                <ul
+                                  class="med-tag-list"
+                                  id="medRestrictedAgeGroups"
+                                ></ul>
+                              </div>
+                              <div class="med-detail-card">
+                                <p class="section-summary-label">
+                                  Withdrawn formulations
+                                </p>
+                                <ul
+                                  class="med-tag-list"
+                                  id="medWithdrawnFormulations"
+                                ></ul>
+                              </div>
+                              <div class="med-detail-card">
+                                <p class="section-summary-label">
+                                  Recent recalls
+                                </p>
+                                <ul
+                                  class="med-tag-list med-tag-list--alert"
+                                  id="medRecentRecalls"
+                                ></ul>
+                              </div>
+                              <div class="med-detail-card">
+                                <p class="section-summary-label">
+                                  Country restrictions
+                                </p>
+                                <ul
+                                  class="med-tag-list"
+                                  id="medCountryRestrictions"
+                                ></ul>
+                              </div>
+                              <div class="med-detail-card">
+                                <p class="section-summary-label">
+                                  Withdrawal history
+                                </p>
+                                <ul
+                                  class="med-tag-list"
+                                  id="medWithdrawalHistory"
+                                ></ul>
+                              </div>
+                            </div>
+                          </details>
+                        </section>
+                      </div>
+                    </details>
                   </section>
                 </div>
 
                 <footer class="med-page-footer">
                   <p>
-                    Educational transcription aid only — not for clinical decisions. Verify with
-                    your pharmacist or prescriber.
+                    Educational transcription aid only — not for clinical
+                    decisions. Verify with your pharmacist or prescriber.
                   </p>
                 </footer>
               </div>
@@ -783,7 +1325,10 @@
         </div>
         <div class="modal-body">
           <div class="google-auth-container">
-            <p>Sign in with your Google account to add medication reminders to your calendar.</p>
+            <p>
+              Sign in with your Google account to add medication reminders to
+              your calendar.
+            </p>
             <div class="google-sign-in-info">
               <svg
                 width="24"

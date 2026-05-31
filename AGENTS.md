@@ -25,7 +25,7 @@ mock_mode_env: WORKFLOW_MOCK=1
 required_secret: NVIDIA_API_KEY
 dependency_count_runtime: 1
 test_suite: 47 unit tests + 8 e2e smoke tests
-quality_gate: npm run check (lint + format + unit + e2e)
+ci: .github/workflows/ci.yml
 formulary_entries: 864
 body_effect_entries: 32
 agent_count: 7
@@ -115,12 +115,12 @@ SSE progress (`workflow.start` → `agent.start` / `agent.complete` → `workflo
 ### 7. Engineering quality
 
 - **47 unit tests** across orchestrator, merger, formulary, safety, HTTP, page shells, chart data, and browser helpers
-- **8 Playwright e2e smoke tests** run with `WORKFLOW_MOCK=1`
+- **8 Playwright e2e smoke tests** in CI with `WORKFLOW_MOCK=1`
 - **Single runtime dependency** (`fastest-levenshtein`); no build step
 - Content-hash LRU cache (16 entries) for cost savings
-- `npm run check` quality gate: lint, format, unit tests, e2e
+- GitHub Actions CI: lint, format, unit tests, e2e
 
-**Evidence:** `test/`, `package.json`
+**Evidence:** `test/`, `.github/workflows/ci.yml`, `package.json`
 
 ### 8. NVIDIA NIM integration done right
 
@@ -168,6 +168,7 @@ data/
 test/                        15 unit test files (47 tests)
 test/e2e/smoke.spec.js       8 Playwright smoke tests
 docs/GOOGLE_CALENDAR_SETUP.md
+.github/workflows/ci.yml
 render.yaml
 ```
 

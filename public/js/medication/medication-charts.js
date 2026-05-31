@@ -1,6 +1,10 @@
 /** Chart.js visualizations for medication detail sections (barrel export). */
 
-export { ALL_CHART_IDS, INSIGHT_CHART_IDS, OVERVIEW_CHART_IDS } from "./charts/chart-constants.js";
+export {
+  ALL_CHART_IDS,
+  INSIGHT_CHART_IDS,
+  OVERVIEW_CHART_IDS,
+} from "./charts/chart-constants.js";
 export { setChartsLoading, destroyChart } from "./charts/chart-dom.js";
 export { renderOverviewCharts } from "./charts/chart-overview.js";
 export { renderInsightCharts } from "./charts/chart-insights.js";
@@ -13,7 +17,7 @@ import { renderInsightCharts } from "./charts/chart-insights.js";
 
 export function renderMedicationCharts(med, schedule, instances) {
   renderOverviewCharts(med, schedule, instances);
-  renderInsightCharts(med, instances);
+  renderInsightCharts(med, schedule, instances);
 }
 
 export function destroyAllCharts(instances) {

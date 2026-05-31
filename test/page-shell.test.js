@@ -20,7 +20,11 @@ function assertContains(html, fragments, label) {
 describe("page HTML shells", () => {
   it("landing page wires core branding and script", () => {
     const html = readPage("landing.html");
-    assertContains(html, ["UnScribble", "/js/pages/landing.js"], "landing.html");
+    assertContains(
+      html,
+      ["UnScribble", "/js/pages/landing.js"],
+      "landing.html",
+    );
   });
 
   it("upload page exposes decode workflow DOM hooks", () => {
@@ -31,9 +35,9 @@ describe("page HTML shells", () => {
         'id="fileInput"',
         'id="processBtn"',
         'id="previewSection"',
-        'type="module" src="/js/pages/upload.js"'
+        'type="module" src="/js/pages/upload.js"',
       ],
-      "upload.html"
+      "upload.html",
     );
   });
 
@@ -41,8 +45,12 @@ describe("page HTML shells", () => {
     const html = readPage("results.html");
     assertContains(
       html,
-      ['id="resultsContent"', 'id="summaryText"', 'type="module" src="/js/pages/results.js"'],
-      "results.html"
+      [
+        'id="resultsContent"',
+        'id="summaryText"',
+        'type="module" src="/js/pages/results.js"',
+      ],
+      "results.html",
     );
   });
 
@@ -52,13 +60,13 @@ describe("page HTML shells", () => {
       html,
       [
         "chart.js",
-        'id="dosageScheduleGraph"',
-        'id="regulatoryGraph"',
+        'data-chart-id="scheduleClock"',
+        'id="pkCurveGraph"',
         'id="medicationDetailsContent"',
         'id="noDataState"',
-        'type="module" src="/js/pages/medication-details.js"'
+        'type="module" src="/js/pages/medication-details.js"',
       ],
-      "medication-details.html"
+      "medication-details.html",
     );
   });
 });

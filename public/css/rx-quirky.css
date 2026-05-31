@@ -188,7 +188,8 @@ body.rx-app::before {
 .rx-app .loading-content,
 .rx-app .error-card,
 .rx-app .no-data-state,
-.rx-app .modal-content {
+.rx-app .modal-content,
+.rx-app .med-detail-hero {
   position: relative;
   border-radius: 20px !important;
   border: 1px solid rgba(5, 150, 105, 0.14) !important;
@@ -422,6 +423,7 @@ body.rx-app::before {
   margin-bottom: 12px;
 }
 
+.rx-app .summary-grid .info-card:hover,
 .rx-app .section-card:hover {
   transform: translateY(-3px);
   border-color: rgba(5, 150, 105, 0.28) !important;
@@ -483,6 +485,22 @@ body.rx-app::before {
 }
 
 /* Mechanism page inline styles override */
+body.rx-app.mechanism-page {
+  min-height: 100vh;
+}
+
+.rx-app .mechanism-container {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 1.5rem var(--page-inline) 2.5rem;
+}
+
+.rx-app .mechanism-info,
+.rx-app .protein-viewer-container {
+  border-radius: 20px !important;
+  border: 1px solid rgba(5, 150, 105, 0.14) !important;
+  box-shadow: 0 10px 28px rgba(5, 150, 105, 0.08) !important;
+}
 
 @media (max-width: 768px) {
   :root {

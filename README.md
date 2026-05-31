@@ -11,27 +11,19 @@
 
 ## Table of Contents
 
-- [UnScribble](#unscribble)
-  - [Table of Contents](#table-of-contents)
-  - [At a Glance](#at-a-glance)
-  - [Why This Project Should Win](#why-this-project-should-win)
-    - [Problem → Solution → Impact](#problem--solution--impact)
-    - [Key Highlights](#key-highlights)
-    - [Top Differentiating Factors](#top-differentiating-factors)
-    - [Strengths](#strengths)
-  - [Quick Start](#quick-start)
-  - [Core Capabilities](#core-capabilities)
-    - [UI workflow](#ui-workflow)
-  - [Multi-Agent Architecture](#multi-agent-architecture)
-    - [SSE protocol](#sse-protocol)
-    - [Key environment variables](#key-environment-variables)
-  - [Data \& Safety](#data--safety)
-    - [Result schema (abbreviated)](#result-schema-abbreviated)
-    - [Safety mechanisms](#safety-mechanisms)
-  - [API Routes](#api-routes)
-  - [Medication Features](#medication-features)
-  - [Documentation Index](#documentation-index)
-  - [Safety Disclaimer](#safety-disclaimer)
+- [At a Glance](#at-a-glance)
+- [Why This Project Should Win](#why-this-project-should-win)
+  - [Key Highlights](#key-highlights)
+  - [Top Differentiating Factors](#top-differentiating-factors)
+  - [Strengths](#strengths)
+- [Quick Start](#quick-start)
+- [Core Capabilities](#core-capabilities)
+- [Multi-Agent Architecture](#multi-agent-architecture)
+- [Data & Safety](#data--safety)
+- [API Routes](#api-routes)
+- [Medication Features](#medication-features)
+- [Documentation Index](#documentation-index)
+- [Safety Disclaimer](#safety-disclaimer)
 
 ---
 
@@ -68,13 +60,13 @@
 - **Genuine multi-agent orchestration, not a single prompt** — A staged pipeline (`image_quality → raw_transcription → [patient_header / medications / clinical_context in parallel] → safety_review → synthesis`) with a real early-exit gate on unusable images. → `agents/orchestrator.js`
 - **Self-consistency re-run as a hallucination guard** — When a medication line's confidence is low, the pipeline re-runs and reconciles per line: agree → take max confidence; disagree but the second pass is higher *and* in formulary → override with an audit trail; otherwise → keep first and flag for review. → `agents/merge-medication-runs.js`
 - **Deterministic safety layer (pure code, not an LLM)** — Low confidence, missing strength/dose/frequency, uncertain tokens, and high-risk abbreviations (STAT/SOS/U/IU/mcg…) all force `requires_human_review` with a structured reason. → `agents/safety-rules.js`
-- **Production engineering rare at a hackathon** — Verified: **47 unit tests pass, 8 Playwright e2e**, a **single runtime dependency**, no build step, an `npm run check` gate (lint + format + unit + e2e), content-hash LRU cache, SSE with correlated request IDs, and a mock mode (`WORKFLOW_MOCK=1`) so judges can run it with no API key.
+- **Production engineering rare at a hackathon** — Verified: **47 unit tests pass, 8 Playwright e2e**, a **single runtime dependency**, no build step, CI, content-hash LRU cache, SSE with correlated request IDs, and a mock mode (`WORKFLOW_MOCK=1`) so judges can run it with no API key.
 
 ### Top Differentiating Factors
 
 1. **Medical-domain multi-agent orchestration** — Not a single prompt. Staged pipeline with parallel Stage 2 agents and automatic medication re-run when confidence is low. → `agents/orchestrator.js`
 2. **Safety-first, zero-hallucination posture** — Deterministic review rules, 864-entry formulary fuzzy-match, LASA (look-alike/sound-alike) blocking, raw OCR preserved in `medication_name_raw` alongside corrections. → `agents/safety-rules.js`, `agents/formulary.js`
-3. **Production-ready engineering** — 47 unit tests, 8 e2e smoke tests, an `npm run check` gate, mock mode, LRU cache, SSE audit IDs. → `test/`, `package.json`
+3. **Production-ready engineering** — 47 unit tests, 8 e2e smoke tests, CI, mock mode, LRU cache, SSE audit IDs. → `test/`, `.github/workflows/ci.yml`
 4. **Structured output for AI consumers** — Strict JSON schemas (`additionalProperties: false`) with full required-field coverage; confidence, alternatives, region hints, and review reasons on every decode. → `agents/schemas.js`, `agents/merger.js`
 5. **Prompt-cache-aware NIM integration** — Region directives and user context appended to the user turn (not system prompts) to keep the cache warm; reasoning intentionally omitted on structured-JSON calls. → `agents/nim-client.js`, `agents/medical-context.js`
 6. **Patient-facing value beyond decode** — Medication schedules (OD/BD/TID/QID), Google Calendar + ICS export, and protein mechanism explorer. → `public/js/medication/`
@@ -90,17 +82,6 @@
 | **UX beyond decode**| Live per-agent SSE progress, client-side image enhancement (CLAHE / Sauvola), calendar/ICS export, and a protein-mechanism explorer.                                   |
 | **Reliability**     | Quality gate before expensive inference, per-agent timeouts, graceful degradation for non-critical agents, and human-review flagging instead of silent failures.       |
 
-What's genuinely strong
-
-1. Real problem, honestly framed. The 7,000-deaths/year framing is real, and the project repeatedly disclaims itself as a transcription aid, not a clinical decision system — exactly the right posture for medical AI. This restraint is rare and credit-worthy.
-
-2. The multi-agent orchestration is real, not theater. orchestrator.js actually implements the staged pipeline it advertises: a legibility gate with a true early-exit branch (agents/orchestrator.js:247-279), genuine Promise.all parallelism for Stage 2 (:283-287), per-agent timeouts (withTimeout), and graceful degradation. This is not a single prompt wearing a costume.
-
-3. The safety layer is the best part. safety-rules.js is pure deterministic code — confidence thresholds, completeness checks, high-risk abbreviation regex, dedup'd structured review_reason. The self-consistency merge in merge-medication-runs.js is the standout: per-line reconciliation (agree → max confidence; disagree + second-pass higher and in formulary → override with an audit-trail alternative; else → keep first and flag). That "preserve raw OCR + demote with reason" logic is design maturity you rarely see at a hackathon.
-
-4. Engineering hygiene. Verified true: 47 unit tests pass, 8 e2e pass, formulary is exactly 864 entries, body-effects exactly 32, single runtime dependency, no build step, mock mode that let me verify everything without an API key. Code reads cleanly — flat, single-responsibility functions.
-
-5. Evaluability. WORKFLOW_MOCK=1 + the AGENTS.md checklist mean a judge can confirm claims in minutes. 
 <details>
 <summary>Full scoring rationale (expand)</summary>
 
@@ -139,7 +120,7 @@ WORKFLOW_MOCK=1 npm start
 npm test              # 47 unit tests
 npm run test:coverage # unit tests + LCOV coverage report
 npm run test:e2e      # 8 Playwright smoke tests (Chromium)
-npm run check         # lint + format + unit + e2e (full quality gate)
+npm run check         # lint + format + unit + e2e (CI gate)
 ```
 
 ---
