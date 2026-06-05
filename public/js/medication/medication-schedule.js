@@ -1,7 +1,8 @@
 // Medication Schedule Parser and Google Calendar Integration
 
 const DEBUG_MEDICATION_SCHEDULE =
-  typeof window !== "undefined" && new URLSearchParams(window.location.search).has("debugSchedule");
+  typeof window !== "undefined" &&
+  new URLSearchParams(window.location.search).has("debugSchedule");
 
 function debugLog(...args) {
   if (DEBUG_MEDICATION_SCHEDULE) console.debug(...args);
@@ -26,7 +27,7 @@ export function parseMedicationSchedule(medications) {
       timing: med.timing,
       duration: med.duration,
       schedule: schedule,
-      rawMed: med
+      rawMed: med,
     };
   });
 }
@@ -39,13 +40,21 @@ function extractSchedule(med) {
   const schedule = {
     times: [],
     frequency: frequency,
-    description: normalized.expansion || frequency
+    description: normalized.expansion || frequency,
   };
 
   // Parse common frequency patterns
-  if (frequency.includes("once") || frequency.includes("od") || frequency.includes("qd")) {
+  if (
+    frequency.includes("once") ||
+    frequency.includes("od") ||
+    frequency.includes("qd")
+  ) {
     schedule.times = inferTimesFromTiming(timing, 1);
-  } else if (frequency.includes("twice") || frequency.includes("bd") || frequency.includes("bid")) {
+  } else if (
+    frequency.includes("twice") ||
+    frequency.includes("bd") ||
+    frequency.includes("bid")
+  ) {
     schedule.times = inferTimesFromTiming(timing, 2);
   } else if (
     frequency.includes("thrice") ||
@@ -53,7 +62,11 @@ function extractSchedule(med) {
     frequency.includes("tds")
   ) {
     schedule.times = inferTimesFromTiming(timing, 3);
-  } else if (frequency.includes("four") || frequency.includes("qid") || frequency.includes("qds")) {
+  } else if (
+    frequency.includes("four") ||
+    frequency.includes("qid") ||
+    frequency.includes("qds")
+  ) {
     schedule.times = inferTimesFromTiming(timing, 4);
   } else if (frequency.match(/every\s+(\d+)\s+hour/i)) {
     const hours = parseInt(frequency.match(/every\s+(\d+)\s+hour/i)[1]);
@@ -98,20 +111,20 @@ function inferTimesFromTiming(timing, count) {
   } else if (count === 2) {
     return [
       { time: "08:00", label: "Morning" },
-      { time: "20:00", label: "Night" }
+      { time: "20:00", label: "Night" },
     ];
   } else if (count === 3) {
     return [
       { time: "08:00", label: "Morning" },
       { time: "14:00", label: "Afternoon" },
-      { time: "20:00", label: "Night" }
+      { time: "20:00", label: "Night" },
     ];
   } else if (count === 4) {
     return [
       { time: "08:00", label: "Morning" },
       { time: "12:00", label: "Noon" },
       { time: "16:00", label: "Afternoon" },
-      { time: "20:00", label: "Night" }
+      { time: "20:00", label: "Night" },
     ];
   }
 
@@ -209,12 +222,19 @@ export function initGoogleCalendar() {
 
   // Return existing promise if initialization is in progress
   if (gapiInitPromise) {
-    debugLog("[Google Calendar] Initialization already in progress, returning existing promise");
+    debugLog(
+      "[Google Calendar] Initialization already in progress, returning existing promise",
+    );
     return gapiInitPromise;
   }
 
   // Return resolved promise if already initialized
-  if (gapiInitialized && window.gapi && window.gapi.client && window.google?.accounts) {
+  if (
+    gapiInitialized &&
+    window.gapi &&
+    window.gapi.client &&
+    window.google?.accounts
+  ) {
     debugLog("[Google Calendar] Google API already fully initialized");
     return Promise.resolve();
   }
@@ -253,7 +273,7 @@ export function initGoogleCalendar() {
           debugError("[Google Calendar] Failed to load client:", error);
           gapiInitPromise = null;
           reject(new Error("Failed to load Google API client"));
-        }
+        },
       });
     } else {
       debugLog("[Google Calendar] Loading Google API script...");
@@ -279,14 +299,19 @@ export function initGoogleCalendar() {
             debugError("[Google Calendar] Failed to load client:", error);
             gapiInitPromise = null;
             reject(new Error("Failed to load Google API client"));
-          }
+          },
         });
       };
       gapiScript.onerror = (error) => {
-        debugError("[Google Calendar] Failed to load Google API script:", error);
+        debugError(
+          "[Google Calendar] Failed to load Google API script:",
+          error,
+        );
         gapiInitPromise = null;
         reject(
-          new Error("Failed to load Google API script. Please check your internet connection.")
+          new Error(
+            "Failed to load Google API script. Please check your internet connection.",
+          ),
         );
       };
       document.head.appendChild(gapiScript);
@@ -304,12 +329,17 @@ export function initGoogleCalendar() {
       gisScript.async = true;
       gisScript.defer = true;
       gisScript.onload = () => {
-        debugLog("[Google Calendar] Google Identity Services loaded successfully");
+        debugLog(
+          "[Google Calendar] Google Identity Services loaded successfully",
+        );
         gisLoaded = true;
         checkBothLoaded();
       };
       gisScript.onerror = (error) => {
-        debugError("[Google Calendar] Failed to load Google Identity Services:", error);
+        debugError(
+          "[Google Calendar] Failed to load Google Identity Services:",
+          error,
+        );
         gapiInitPromise = null;
         reject(new Error("Failed to load Google Identity Services"));
       };
@@ -324,7 +354,7 @@ export async function authenticateGoogleCalendar(clientId) {
   debugLog("[Google Calendar] Starting authentication process...");
   debugLog(
     "[Google Calendar] Client ID:",
-    clientId ? `${clientId.substring(0, 20)}...` : "NOT PROVIDED"
+    clientId ? `${clientId.substring(0, 20)}...` : "NOT PROVIDED",
   );
 
   await initGoogleCalendar();
@@ -332,17 +362,17 @@ export async function authenticateGoogleCalendar(clientId) {
   debugLog("[Google Calendar] Checking gapi availability...");
   if (!window.gapi) {
     throw new Error(
-      "Google API (gapi) failed to load. Please check your internet connection and try again."
+      "Google API (gapi) failed to load. Please check your internet connection and try again.",
     );
   }
 
   if (!window.gapi.client) {
     debugError(
       "[Google Calendar] gapi.client is undefined. Available gapi properties:",
-      Object.keys(window.gapi)
+      Object.keys(window.gapi),
     );
     throw new Error(
-      "Google API client failed to load properly. Please refresh the page and try again."
+      "Google API client failed to load properly. Please refresh the page and try again.",
     );
   }
 
@@ -357,13 +387,16 @@ export async function authenticateGoogleCalendar(clientId) {
       gapiClientInitialized = true;
       debugLog("[Google Calendar] Google API client initialized successfully");
     } catch (error) {
-      debugError("[Google Calendar] Failed to initialize Google API client:", error);
+      debugError(
+        "[Google Calendar] Failed to initialize Google API client:",
+        error,
+      );
       debugError("[Google Calendar] Error details:", {
         message: error.message,
         details: error.details,
         result: error.result,
         status: error.status,
-        statusText: error.statusText
+        statusText: error.statusText,
       });
 
       // Provide more helpful error messages
@@ -374,12 +407,14 @@ export async function authenticateGoogleCalendar(clientId) {
       } else {
         throw new Error(
           `Failed to initialize Google Calendar. Please check that the Calendar API is enabled in your Google Cloud Console.`,
-          { cause: error }
+          { cause: error },
         );
       }
     }
   } else {
-    debugLog("[Google Calendar] Google API client already initialized, skipping init");
+    debugLog(
+      "[Google Calendar] Google API client already initialized, skipping init",
+    );
   }
 
   // Initialize token client if not already done
@@ -395,7 +430,7 @@ export async function authenticateGoogleCalendar(clientId) {
         }
         accessToken = response.access_token;
         debugLog("[Google Calendar] Access token received");
-      }
+      },
     });
   }
 
@@ -471,7 +506,11 @@ export function getGoogleUserInfo() {
   return null;
 }
 
-export async function addMedicationToGoogleCalendar(schedule, startDate, clientId) {
+export async function addMedicationToGoogleCalendar(
+  schedule,
+  startDate,
+  clientId,
+) {
   debugLog("[Google Calendar] ========================================");
   debugLog("[Google Calendar] Adding medication to Google Calendar");
   debugLog("[Google Calendar] Medication:", schedule.medication);
@@ -482,7 +521,7 @@ export async function addMedicationToGoogleCalendar(schedule, startDate, clientI
   if (!clientId || clientId === "undefined") {
     debugError("[Google Calendar] Invalid credentials:", { clientId });
     throw new Error(
-      "Google Calendar credentials are not configured properly. Please check your .env file."
+      "Google Calendar credentials are not configured properly. Please check your .env file.",
     );
   }
 
@@ -510,7 +549,7 @@ export async function addMedicationToGoogleCalendar(schedule, startDate, clientI
       const timeSlot = schedule.schedule.times[i];
       debugLog(
         `[Google Calendar] Processing time slot ${i + 1}/${schedule.schedule.times.length}:`,
-        timeSlot
+        timeSlot,
       );
 
       if (!timeSlot.time) {
@@ -518,21 +557,29 @@ export async function addMedicationToGoogleCalendar(schedule, startDate, clientI
         continue;
       }
 
-      const event = createCalendarEvent(schedule, timeSlot, startDate, duration);
+      const event = createCalendarEvent(
+        schedule,
+        timeSlot,
+        startDate,
+        duration,
+      );
       debugLog("[Google Calendar] Created event object:", {
         summary: event.summary,
         start: event.start.dateTime,
         end: event.end.dateTime,
-        hasRecurrence: !!event.recurrence
+        hasRecurrence: !!event.recurrence,
       });
 
       debugLog("[Google Calendar] Inserting event into calendar...");
       try {
         const response = await window.gapi.client.calendar.events.insert({
           calendarId: "primary",
-          resource: event
+          resource: event,
         });
-        debugLog("[Google Calendar] Event inserted successfully:", response.result.id);
+        debugLog(
+          "[Google Calendar] Event inserted successfully:",
+          response.result.id,
+        );
         debugLog("[Google Calendar] Event link:", response.result.htmlLink);
         events.push(response.result);
       } catch (insertError) {
@@ -540,13 +587,16 @@ export async function addMedicationToGoogleCalendar(schedule, startDate, clientI
         debugError("[Google Calendar] Error details:", {
           code: insertError.status,
           message: insertError.result?.error?.message,
-          errors: insertError.result?.error?.errors
+          errors: insertError.result?.error?.errors,
         });
         throw insertError;
       }
     }
 
-    debugLog("[Google Calendar] All events added successfully. Total:", events.length);
+    debugLog(
+      "[Google Calendar] All events added successfully. Total:",
+      events.length,
+    );
     debugLog("[Google Calendar] ========================================");
     return events;
   } catch (error) {
@@ -586,20 +636,20 @@ export function createCalendarEvent(schedule, timeSlot, startDate, duration) {
     description: `Medication: ${schedule.medication}\nStrength: ${schedule.strength}\nDose: ${schedule.dose}\nFrequency: ${schedule.frequency}\nTiming: ${timeSlot.label}`,
     start: {
       dateTime: eventStart.toISOString(),
-      timeZone: timeZone
+      timeZone: timeZone,
     },
     end: {
       dateTime: eventEnd.toISOString(),
-      timeZone: timeZone
+      timeZone: timeZone,
     },
     reminders: {
       useDefault: false,
       overrides: [
         { method: "popup", minutes: 10 },
-        { method: "popup", minutes: 0 }
-      ]
+        { method: "popup", minutes: 0 },
+      ],
     },
-    colorId: "11" // Red color for medications
+    colorId: "11", // Red color for medications
   };
 
   // Add recurrence if duration is specified
@@ -668,14 +718,17 @@ export function exportScheduleAsICS(schedules, startDate) {
     const schedule = schedules[i];
     debugLog(
       `[ICS Export] Processing medication ${i + 1}/${schedules.length}:`,
-      schedule.medication
+      schedule.medication,
     );
 
     const duration = parseDuration(schedule.duration);
 
     for (let j = 0; j < schedule.schedule.times.length; j++) {
       const timeSlot = schedule.schedule.times[j];
-      debugLog(`[ICS Export]   Time slot ${j + 1}/${schedule.schedule.times.length}:`, timeSlot);
+      debugLog(
+        `[ICS Export]   Time slot ${j + 1}/${schedule.schedule.times.length}:`,
+        timeSlot,
+      );
 
       if (!timeSlot.time) {
         debugLog('[ICS Export]   Skipping "as needed" medication');
@@ -697,13 +750,16 @@ export function exportScheduleAsICS(schedules, startDate) {
         end: eventEnd,
         summary: `💊 ${schedule.medication}`,
         description: `Medication: ${schedule.medication}\\nStrength: ${schedule.strength}\\nDose: ${schedule.dose}\\nFrequency: ${schedule.frequency}\\nTiming: ${timeSlot.label}`,
-        rrule: duration.days > 1 ? `FREQ=DAILY;UNTIL=${formatDateForRRule(until)}` : null
+        rrule:
+          duration.days > 1
+            ? `FREQ=DAILY;UNTIL=${formatDateForRRule(until)}`
+            : null,
       };
 
       debugLog("[ICS Export]   Event created:", {
         summary: event.summary,
         start: event.start.toISOString(),
-        hasRecurrence: !!event.rrule
+        hasRecurrence: !!event.rrule,
       });
 
       events.push(event);
@@ -713,7 +769,11 @@ export function exportScheduleAsICS(schedules, startDate) {
   debugLog("[ICS Export] Total events created:", events.length);
   debugLog("[ICS Export] Generating ICS content...");
   const icsContent = generateICS(events);
-  debugLog("[ICS Export] ICS content generated, size:", icsContent.length, "bytes");
+  debugLog(
+    "[ICS Export] ICS content generated, size:",
+    icsContent.length,
+    "bytes",
+  );
 
   debugLog("[ICS Export] Downloading file...");
   downloadICS(icsContent, "medication-schedule.ics");
@@ -729,7 +789,7 @@ export function generateICS(events) {
     "VERSION:2.0",
     "PRODID:-//UnScribble//Medication Schedule//EN",
     "CALSCALE:GREGORIAN",
-    "METHOD:PUBLISH"
+    "METHOD:PUBLISH",
   ];
 
   for (let i = 0; i < events.length; i++) {

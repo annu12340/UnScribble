@@ -57,7 +57,7 @@ function mergeMedicationRuns(first, second) {
         withAlternative(merged, {
           text: a.medication_name,
           confidence: aConf,
-          reason: "first-pass reading, demoted after re-run"
+          reason: "first-pass reading, demoted after re-run",
         });
       }
       out.push(merged);
@@ -71,7 +71,7 @@ function mergeMedicationRuns(first, second) {
       withAlternative(merged, {
         text: b.medication_name,
         confidence: bConf,
-        reason: "second-pass alternative reading"
+        reason: "second-pass alternative reading",
       });
     }
     out.push(merged);

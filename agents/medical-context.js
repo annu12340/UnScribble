@@ -24,6 +24,7 @@ const LASA_PAIRS = [
   ["azithromycin", "erythromycin"],
   ["cefazolin", "cefoxitin"],
   ["cefotaxime", "cefoxitin"],
+  ["ceftriaxone", "ceftazidime"],
   ["chlorpromazine", "chlorpropamide"],
   ["clobazam", "clonazepam"],
   ["cycloserine", "cyclosporine"],
@@ -48,6 +49,7 @@ const LASA_PAIRS = [
   ["oxycodone", "oxybutynin"],
   ["paroxetine", "fluoxetine"],
   ["prednisone", "prednisolone"],
+  ["quinine", "quinidine"],
   ["risperidone", "ropinirole"],
   ["sertraline", "selegiline"],
   ["simvastatin", "sumatriptan"],
@@ -88,7 +90,7 @@ const LASA_PAIRS = [
   ["sinarest", "cheston cold"],
   ["zincovit", "becosules"],
   ["shelcal", "calcimax"],
-  ["thyronorm", "eltroxin"]
+  ["thyronorm", "eltroxin"],
 ];
 
 function cleanPromptField(value) {
@@ -101,9 +103,12 @@ function cleanPromptField(value) {
 function buildContextFields(body) {
   return [
     ["Client-side image enhancement applied", body.enhancementMode],
-    ["Original file name", body.fileName]
+    ["Original file name", body.fileName],
   ]
-    .map(([label, value]) => `${label}: ${cleanPromptField(value) || "not provided"}`)
+    .map(
+      ([label, value]) =>
+        `${label}: ${cleanPromptField(value) || "not provided"}`,
+    )
     .join("\n");
 }
 
@@ -128,12 +133,14 @@ function lasaBlockFor(medNames) {
     .map((n) =>
       String(n || "")
         .trim()
-        .toLowerCase()
+        .toLowerCase(),
     )
     .filter(Boolean);
   if (!names.length) return lasaBlock();
 
-  const relevant = LASA_PAIRS.filter(([a, b]) => names.some((name) => fuzzyMatchAny(name, [a, b])));
+  const relevant = LASA_PAIRS.filter(([a, b]) =>
+    names.some((name) => fuzzyMatchAny(name, [a, b])),
+  );
   if (!relevant.length) return lasaBlock();
   return relevant.map(([a, b]) => `  - ${a} / ${b}`).join("\n");
 }
@@ -188,5 +195,5 @@ module.exports = {
   regionDirective,
   primaryImage,
   enhancedImage,
-  visionImageUrl
+  visionImageUrl,
 };

@@ -5,7 +5,8 @@
  */
 const LEVELS = { debug: 10, info: 20, warn: 30, error: 40 };
 
-const threshold = LEVELS[String(process.env.LOG_LEVEL || "info").toLowerCase()] ?? LEVELS.info;
+const threshold =
+  LEVELS[String(process.env.LOG_LEVEL || "info").toLowerCase()] ?? LEVELS.info;
 
 /**
  * Check if logging is enabled
@@ -58,5 +59,5 @@ module.exports = {
   debug: (scope, message, meta) => log("debug", scope, message, meta),
   info: (scope, message, meta) => log("info", scope, message, meta),
   warn: (scope, message, meta) => log("warn", scope, message, meta),
-  error: (scope, message, meta) => log("error", scope, message, meta)
+  error: (scope, message, meta) => log("error", scope, message, meta),
 };

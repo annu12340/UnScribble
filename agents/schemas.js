@@ -7,12 +7,19 @@ const rawTranscriptionItemSchema = {
     line_number: { type: "integer" },
     section: {
       type: "string",
-      enum: ["medication", "patient", "diagnosis", "advice", "follow_up", "other"]
+      enum: [
+        "medication",
+        "patient",
+        "diagnosis",
+        "advice",
+        "follow_up",
+        "other",
+      ],
     },
     text: { type: "string" },
-    confidence: { type: "number", minimum: 0, maximum: 1 }
+    confidence: { type: "number", minimum: 0, maximum: 1 },
   },
-  required: ["line_number", "section", "text", "confidence"]
+  required: ["line_number", "section", "text", "confidence"],
 };
 
 const imageQualitySchema = {
@@ -24,10 +31,15 @@ const imageQualitySchema = {
     recommended_next_capture: { type: "string" },
     recommended_preprocessing: {
       type: "string",
-      enum: ["original", "contrast", "mono", "none"]
-    }
+      enum: ["original", "contrast", "mono", "none"],
+    },
   },
-  required: ["legibility", "issues", "recommended_next_capture", "recommended_preprocessing"]
+  required: [
+    "legibility",
+    "issues",
+    "recommended_next_capture",
+    "recommended_preprocessing",
+  ],
 };
 
 const normalizedFrequencySchema = {
@@ -36,9 +48,9 @@ const normalizedFrequencySchema = {
   properties: {
     abbreviation: { type: "string" },
     expansion: { type: "string" },
-    timing: { type: "string" }
+    timing: { type: "string" },
   },
-  required: ["abbreviation", "expansion", "timing"]
+  required: ["abbreviation", "expansion", "timing"],
 };
 
 const medicationItemSchema = {
@@ -58,10 +70,10 @@ const medicationItemSchema = {
         properties: {
           text: { type: "string" },
           confidence: { type: "number", minimum: 0, maximum: 1 },
-          reason: { type: "string" }
+          reason: { type: "string" },
         },
-        required: ["text", "confidence", "reason"]
-      }
+        required: ["text", "confidence", "reason"],
+      },
     },
     strength: { type: "string" },
     dose: { type: "string" },
@@ -80,7 +92,7 @@ const medicationItemSchema = {
     safety_flags: { type: "array", items: { type: "string" } },
     critical_uncertainties: { type: "array", items: { type: "string" } },
     uncertain_tokens: { type: "array", items: { type: "string" } },
-    requires_verification: { type: "boolean" }
+    requires_verification: { type: "boolean" },
   },
   required: [
     "line_number",
@@ -106,8 +118,8 @@ const medicationItemSchema = {
     "safety_flags",
     "critical_uncertainties",
     "uncertain_tokens",
-    "requires_verification"
-  ]
+    "requires_verification",
+  ],
 };
 
 const patientSchema = {
@@ -121,9 +133,18 @@ const patientSchema = {
     date: { type: "string" },
     doctor: { type: "string" },
     clinic: { type: "string" },
-    identifiers: { type: "array", items: { type: "string" } }
+    identifiers: { type: "array", items: { type: "string" } },
   },
-  required: ["name", "age", "sex", "weight", "date", "doctor", "clinic", "identifiers"]
+  required: [
+    "name",
+    "age",
+    "sex",
+    "weight",
+    "date",
+    "doctor",
+    "clinic",
+    "identifiers",
+  ],
 };
 
 module.exports = {
@@ -133,9 +154,9 @@ module.exports = {
     properties: {
       image_quality: imageQualitySchema,
       requires_human_review: { type: "boolean" },
-      review_hint: { type: "string" }
+      review_hint: { type: "string" },
     },
-    required: ["image_quality", "requires_human_review", "review_hint"]
+    required: ["image_quality", "requires_human_review", "review_hint"],
   },
   rawTranscription: {
     type: "object",
@@ -148,31 +169,31 @@ module.exports = {
         properties: {
           style: {
             type: "string",
-            enum: ["indian", "western", "mixed", "unknown"]
+            enum: ["indian", "western", "mixed", "unknown"],
           },
           confidence: { type: "number", minimum: 0, maximum: 1 },
-          evidence: { type: "string" }
+          evidence: { type: "string" },
         },
-        required: ["style", "confidence", "evidence"]
-      }
+        required: ["style", "confidence", "evidence"],
+      },
     },
-    required: ["raw_transcription", "region_hint"]
+    required: ["raw_transcription", "region_hint"],
   },
   patientHeader: {
     type: "object",
     additionalProperties: false,
     properties: {
-      patient: patientSchema
+      patient: patientSchema,
     },
-    required: ["patient"]
+    required: ["patient"],
   },
   medications: {
     type: "object",
     additionalProperties: false,
     properties: {
-      medications: { type: "array", items: medicationItemSchema }
+      medications: { type: "array", items: medicationItemSchema },
     },
-    required: ["medications"]
+    required: ["medications"],
   },
   clinicalContext: {
     type: "object",
@@ -186,10 +207,10 @@ module.exports = {
           properties: {
             abbreviation: { type: "string" },
             likely_expansion: { type: "string" },
-            confidence: { type: "number", minimum: 0, maximum: 1 }
+            confidence: { type: "number", minimum: 0, maximum: 1 },
           },
-          required: ["abbreviation", "likely_expansion", "confidence"]
-        }
+          required: ["abbreviation", "likely_expansion", "confidence"],
+        },
       },
       allergies: {
         type: "array",
@@ -199,10 +220,10 @@ module.exports = {
           properties: {
             substance: { type: "string" },
             reaction: { type: "string" },
-            confidence: { type: "number", minimum: 0, maximum: 1 }
+            confidence: { type: "number", minimum: 0, maximum: 1 },
           },
-          required: ["substance", "reaction", "confidence"]
-        }
+          required: ["substance", "reaction", "confidence"],
+        },
       },
       clinical_context: {
         type: "object",
@@ -213,9 +234,16 @@ module.exports = {
           vitals: { type: "array", items: { type: "string" } },
           investigations: { type: "array", items: { type: "string" } },
           advice: { type: "array", items: { type: "string" } },
-          referrals: { type: "array", items: { type: "string" } }
+          referrals: { type: "array", items: { type: "string" } },
         },
-        required: ["diagnoses", "symptoms", "vitals", "investigations", "advice", "referrals"]
+        required: [
+          "diagnoses",
+          "symptoms",
+          "vitals",
+          "investigations",
+          "advice",
+          "referrals",
+        ],
       },
       non_medication_text: {
         type: "array",
@@ -225,13 +253,13 @@ module.exports = {
           properties: {
             label: { type: "string" },
             text: { type: "string" },
-            confidence: { type: "number", minimum: 0, maximum: 1 }
+            confidence: { type: "number", minimum: 0, maximum: 1 },
           },
-          required: ["label", "text", "confidence"]
-        }
+          required: ["label", "text", "confidence"],
+        },
       },
       follow_up_instructions: { type: "array", items: { type: "string" } },
-      global_warnings: { type: "array", items: { type: "string" } }
+      global_warnings: { type: "array", items: { type: "string" } },
     },
     required: [
       "abbreviations",
@@ -239,15 +267,15 @@ module.exports = {
       "clinical_context",
       "non_medication_text",
       "follow_up_instructions",
-      "global_warnings"
-    ]
+      "global_warnings",
+    ],
   },
   synthesis: {
     type: "object",
     additionalProperties: false,
     properties: {
-      summary: { type: "string" }
+      summary: { type: "string" },
     },
-    required: ["summary"]
-  }
+    required: ["summary"],
+  },
 };

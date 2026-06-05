@@ -5,7 +5,13 @@ const path = require("node:path");
 
 const ROOT = path.join(__dirname, "..");
 const SCAN_DIRS = ["agents", "public", "scripts", "test"];
-const SCAN_FILES = ["README.md", "CLAUDE.md", "package.json", "render.yaml", "server.js"];
+const SCAN_FILES = [
+  "README.md",
+  "CLAUDE.md",
+  "package.json",
+  "render.yaml",
+  "server.js",
+];
 const STALE_PATTERNS = [
   "agents/agents",
   "public/app.js",
@@ -25,7 +31,7 @@ const STALE_PATTERNS = [
   "/public/image-enhance.js",
   'src="/decode-client.js"',
   'src="/upload.js"',
-  'type="module" src="/medication-details.js"'
+  'type="module" src="/medication-details.js"',
 ];
 
 function isTextFile(filePath) {
@@ -61,7 +67,9 @@ for (const file of [...new Set(files)]) {
   const text = fs.readFileSync(file, "utf8");
   for (const pattern of STALE_PATTERNS) {
     if (text.includes(pattern)) {
-      failures.push(`${path.relative(ROOT, file)} references stale path: ${pattern}`);
+      failures.push(
+        `${path.relative(ROOT, file)} references stale path: ${pattern}`,
+      );
     }
   }
 }

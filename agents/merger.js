@@ -9,7 +9,7 @@ function emptyClinicalContext() {
     vitals: [],
     investigations: [],
     advice: [],
-    referrals: []
+    referrals: [],
   };
 }
 
@@ -24,7 +24,11 @@ function mergeArtifacts(artifacts) {
   return {
     summary: synthesis.summary || "",
     raw_transcription: raw.raw_transcription || [],
-    region_hint: raw.region_hint || { style: "unknown", confidence: 0, evidence: "" },
+    region_hint: raw.region_hint || {
+      style: "unknown",
+      confidence: 0,
+      evidence: "",
+    },
     patient: patient.patient || emptyPatient(),
     medications: meds.medications || [],
     allergies: clinical.allergies || [],
@@ -37,10 +41,10 @@ function mergeArtifacts(artifacts) {
       legibility: "medium",
       issues: [],
       recommended_next_capture: "",
-      recommended_preprocessing: "original"
+      recommended_preprocessing: "original",
     },
     requires_human_review: Boolean(imageQuality.requires_human_review),
-    review_reason: imageQuality.review_hint || ""
+    review_reason: imageQuality.review_hint || "",
   };
 }
 
@@ -51,7 +55,11 @@ function buildEarlyExit(artifacts) {
     summary:
       "Image quality was too poor for reliable medication extraction. Please recapture the prescription with better lighting and focus.",
     raw_transcription: raw.raw_transcription || [],
-    region_hint: raw.region_hint || { style: "unknown", confidence: 0, evidence: "" },
+    region_hint: raw.region_hint || {
+      style: "unknown",
+      confidence: 0,
+      evidence: "",
+    },
     patient: emptyPatient(),
     medications: [],
     allergies: [],
@@ -63,13 +71,14 @@ function buildEarlyExit(artifacts) {
     image_quality: imageQuality.image_quality || {
       legibility: "unusable",
       issues: ["unreadable handwriting or image quality"],
-      recommended_next_capture: "Retake in bright, even light; fill the frame with the script.",
-      recommended_preprocessing: "none"
+      recommended_next_capture:
+        "Retake in bright, even light; fill the frame with the script.",
+      recommended_preprocessing: "none",
     },
     requires_human_review: true,
     review_reason:
       imageQuality.review_hint ||
-      "Prescription image is not legible enough for automated medication extraction."
+      "Prescription image is not legible enough for automated medication extraction.",
   };
 }
 
@@ -82,10 +91,10 @@ function synthesisInputFromMerged(merged) {
       image_quality: merged.image_quality,
       requires_human_review: merged.requires_human_review,
       review_reason: merged.review_reason,
-      global_warnings: merged.global_warnings
+      global_warnings: merged.global_warnings,
     },
     null,
-    2
+    2,
   );
 }
 
@@ -94,7 +103,9 @@ function buildDeterministicSummary(merged) {
   const header = summaryHeader(merged.patient || {});
   if (header) sentences.push(header);
 
-  const medications = Array.isArray(merged.medications) ? merged.medications : [];
+  const medications = Array.isArray(merged.medications)
+    ? merged.medications
+    : [];
   const bullets = medications.map(formatMedicationBullet).filter(Boolean);
   if (bullets.length) {
     sentences.push("Medications:\n" + bullets.map((b) => `- ${b}`).join("\n"));
@@ -103,11 +114,15 @@ function buildDeterministicSummary(merged) {
   }
 
   if (merged.requires_human_review) {
-    const reason = merged.review_reason ? ` Reason: ${merged.review_reason}` : "";
+    const reason = merged.review_reason
+      ? ` Reason: ${merged.review_reason}`
+      : "";
     sentences.push(`Human review required before clinical use.${reason}`);
   }
 
-  const warnings = Array.isArray(merged.global_warnings) ? merged.global_warnings : [];
+  const warnings = Array.isArray(merged.global_warnings)
+    ? merged.global_warnings
+    : [];
   if (warnings.length) {
     sentences.push("Warnings: " + warnings.join("; "));
   }
@@ -152,5 +167,5 @@ module.exports = {
   mergeArtifacts,
   buildEarlyExit,
   synthesisInputFromMerged,
-  buildDeterministicSummary
+  buildDeterministicSummary,
 };

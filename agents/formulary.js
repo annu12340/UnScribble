@@ -56,7 +56,10 @@ function loadFormulary(filePath) {
     log.info("formulary", "loaded", { entries: set.size });
     return { set, byLength };
   } catch (error) {
-    log.warn("formulary", "failed to load", { filePath, message: error.message });
+    log.warn("formulary", "failed to load", {
+      filePath,
+      message: error.message,
+    });
     return empty;
   }
 }
@@ -99,7 +102,7 @@ function dedupMedications(medications) {
         .toLowerCase(),
       String(med.form || "")
         .trim()
-        .toLowerCase()
+        .toLowerCase(),
     ].join("|");
     if (!key.replaceAll("|", "")) {
       byKey.set(Symbol(), med);
@@ -115,12 +118,18 @@ function dedupMedications(medications) {
     const winner = b > a ? med : existing;
     const loser = b > a ? existing : med;
     winner.safety_flags = unionStrings(winner.safety_flags, loser.safety_flags);
-    winner.uncertain_tokens = unionStrings(winner.uncertain_tokens, loser.uncertain_tokens);
+    winner.uncertain_tokens = unionStrings(
+      winner.uncertain_tokens,
+      loser.uncertain_tokens,
+    );
     winner.critical_uncertainties = unionStrings(
       winner.critical_uncertainties,
-      loser.critical_uncertainties
+      loser.critical_uncertainties,
     );
-    winner.alternatives = unionAlternatives(winner.alternatives, loser.alternatives);
+    winner.alternatives = unionAlternatives(
+      winner.alternatives,
+      loser.alternatives,
+    );
     byKey.set(key, winner);
   }
   return Array.from(byKey.values());
@@ -173,25 +182,28 @@ async function validateAgainstFormulary(result) {
 
     if (matches.length > 0) {
       const existing = Array.isArray(med.alternatives) ? med.alternatives : [];
-      const seen = new Set(existing.map((alt) => String(alt.text || "").toLowerCase()));
+      const seen = new Set(
+        existing.map((alt) => String(alt.text || "").toLowerCase()),
+      );
 
       const top = matches[0];
       const runnerUp = matches[1];
-      const unambiguous = top.distance === 1 && (!runnerUp || runnerUp.distance >= 3);
+      const unambiguous =
+        top.distance === 1 && (!runnerUp || runnerUp.distance >= 3);
       if (unambiguous) {
         if (!med.medication_name_raw) med.medication_name_raw = name;
         if (!seen.has(lowered)) {
           existing.push({
             text: name,
             confidence: Number(med.medication_name_confidence ?? 0.7),
-            reason: "model spelling, replaced by formulary"
+            reason: "model spelling, replaced by formulary",
           });
           seen.add(lowered);
         }
         med.medication_name = top.term;
         med.medication_name_confidence = Math.min(
           Number(med.medication_name_confidence ?? 0.85),
-          0.85
+          0.85,
         );
         const flags = Array.isArray(med.safety_flags) ? med.safety_flags : [];
         if (!flags.includes("spelling auto-corrected from formulary")) {
@@ -206,7 +218,7 @@ async function validateAgainstFormulary(result) {
         existing.push({
           text: match.term,
           confidence: Math.max(0, 1 - match.distance / 5),
-          reason: "formulary fuzzy match"
+          reason: "formulary fuzzy match",
         });
         seen.add(match.term);
       }
@@ -214,13 +226,18 @@ async function validateAgainstFormulary(result) {
       if (!unambiguous) {
         med.medication_name_confidence = Math.min(
           Number(med.medication_name_confidence ?? 0.5),
-          0.7
+          0.7,
         );
       }
     } else {
-      med.medication_name_confidence = Math.min(Number(med.medication_name_confidence ?? 0.4), 0.4);
+      med.medication_name_confidence = Math.min(
+        Number(med.medication_name_confidence ?? 0.4),
+        0.4,
+      );
       const flags = Array.isArray(med.safety_flags) ? med.safety_flags : [];
-      if (!flags.includes("unknown to formulary")) flags.push("unknown to formulary");
+      if (!flags.includes("unknown to formulary")) {
+        flags.push("unknown to formulary");
+      }
       med.safety_flags = flags;
     }
   }
@@ -238,5 +255,5 @@ function isInFormulary(name) {
 module.exports = {
   validateAgainstFormulary,
   isInFormulary,
-  formularySize: FORMULARY.set.size
+  formularySize: FORMULARY.set.size,
 };

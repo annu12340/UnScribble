@@ -7,13 +7,13 @@ const commonRules = {
     {
       argsIgnorePattern: "^_",
       caughtErrorsIgnorePattern: "^_",
-      varsIgnorePattern: "^_"
-    }
+      varsIgnorePattern: "^_",
+    },
   ],
   "require-await": "warn",
   eqeqeq: ["error", "always", { null: "ignore" }],
   curly: ["error", "multi-line"],
-  "no-console": ["warn", { allow: ["warn", "error"] }]
+  "no-console": ["warn", { allow: ["warn", "error"] }],
 };
 
 export default [
@@ -23,8 +23,8 @@ export default [
       "coverage/**",
       "playwright-report/**",
       "test-results/**",
-      "package-lock.json"
-    ]
+      "package-lock.json",
+    ],
   },
   js.configs.recommended,
   {
@@ -34,10 +34,10 @@ export default [
       sourceType: "commonjs",
       globals: {
         ...globals.node,
-        ...globals.es2021
-      }
+        ...globals.es2021,
+      },
     },
-    rules: commonRules
+    rules: commonRules,
   },
   {
     files: ["public/js/**/*.js"],
@@ -50,19 +50,19 @@ export default [
         gapi: "readonly",
         THREE: "readonly",
         ProteinViewer: "readonly",
-        Chart: "readonly"
-      }
+        Chart: "readonly",
+      },
     },
     rules: {
       ...commonRules,
-      "no-console": ["warn", { allow: ["warn", "error", "debug"] }]
-    }
+      "no-console": ["warn", { allow: ["warn", "error", "debug"] }],
+    },
   },
   {
     files: ["server.js", "agents/logger.js"],
     rules: {
-      "no-console": "off"
-    }
+      "no-console": "off",
+    },
   },
   {
     files: [
@@ -71,11 +71,11 @@ export default [
       "agents/runners/safety-review.js",
       "agents/runners/synthesis.js",
       "public/js/medication/medication-schedule.js",
-      "public/js/medication/protein-viewer.js"
+      "public/js/medication/protein-viewer.js",
     ],
     rules: {
-      "require-await": "off"
-    }
+      "require-await": "off",
+    },
   },
   {
     files: ["test/**/*.js", "scripts/**/*.js", "playwright.config.js"],
@@ -89,14 +89,14 @@ export default [
         DOMException: "readonly",
         ReadableStream: "readonly",
         Response: "readonly",
-        TextEncoder: "readonly"
-      }
+        TextEncoder: "readonly",
+      },
     },
     rules: {
       ...commonRules,
       "no-console": "off",
-      "require-await": "off"
-    }
+      "require-await": "off",
+    },
   },
   {
     files: ["test/e2e/**/*.js"],
@@ -106,13 +106,13 @@ export default [
       globals: {
         ...globals.node,
         ...globals.browser,
-        ...globals.es2021
-      }
+        ...globals.es2021,
+      },
     },
     rules: {
       ...commonRules,
       "no-console": "off",
-      "require-await": "off"
-    }
-  }
+      "require-await": "off",
+    },
+  },
 ];

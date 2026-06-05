@@ -2,52 +2,122 @@
   "lisinopril": {
     "regions": ["chest", "kidneys"],
     "organs": ["Heart", "Blood vessels", "Kidneys"],
-    "summary": "Acts on the cardiovascular system — relaxes blood vessels and lowers blood pressure, with effects on kidney-related hormone pathways."
+    "summary": "Acts on the cardiovascular system — relaxes blood vessels and lowers blood pressure, with effects on kidney-related hormone pathways.",
+    "summaries": {
+      "en": "Acts on the cardiovascular system — relaxes blood vessels and lowers blood pressure, with effects on kidney-related hormone pathways.",
+      "es": "Actúa sobre el sistema cardiovascular — relaja los vasos sanguíneos y reduce la presión arterial, con efectos sobre las vías hormonales renales.",
+      "hi": "हृदय प्रणाली पर काम करता है — रक्त वाहिकाओं को आराम देता है और रक्तचाप कम करता है, गुर्दे से संबंधित हार्मोन पर भी प्रभाव डालता है।",
+      "fr": "Agit sur le système cardiovasculaire — détend les vaisseaux sanguins et abaisse la pression artérielle, avec des effets sur les voies hormonales rénales.",
+      "ar": "يعمل على الجهاز القلبي الوعائي — يرخي الأوعية الدموية ويخفض ضغط الدم، مع تأثيرات على المسارات الهرمونية الكلوية."
+    }
   },
   "atorvastatin": {
     "regions": ["abdomen", "chest"],
     "organs": ["Liver", "Blood vessels", "Heart"],
-    "summary": "Works mainly in the liver to reduce cholesterol production, which lowers LDL in the bloodstream and supports heart health."
+    "summary": "Works mainly in the liver to reduce cholesterol production, which lowers LDL in the bloodstream and supports heart health.",
+    "summaries": {
+      "en": "Works mainly in the liver to reduce cholesterol production, which lowers LDL in the bloodstream and supports heart health.",
+      "es": "Actúa principalmente en el hígado para reducir la producción de colesterol, lo que disminuye el LDL en sangre y protege el corazón.",
+      "hi": "मुख्यतः लिवर में काम करता है, कोलेस्ट्रॉल उत्पादन को कम करता है, जिससे रक्त में LDL घटता है और हृदय स्वास्थ्य बेहतर होता है।",
+      "fr": "Agit principalement dans le foie pour réduire la production de cholestérol, abaissant le LDL sanguin et soutenant la santé cardiaque.",
+      "ar": "يعمل أساسًا في الكبد لتقليل إنتاج الكوليسترول، مما يخفض LDL في الدم ويدعم صحة القلب."
+    }
   },
   "metformin": {
     "regions": ["abdomen", "limbs"],
     "organs": ["Liver", "Pancreas", "Muscles"],
-    "summary": "Lowers blood sugar by reducing glucose release from the liver and improving how muscle cells respond to insulin."
+    "summary": "Lowers blood sugar by reducing glucose release from the liver and improving how muscle cells respond to insulin.",
+    "summaries": {
+      "en": "Lowers blood sugar by reducing glucose release from the liver and improving how muscle cells respond to insulin.",
+      "es": "Reduce el azúcar en sangre disminuyendo la liberación de glucosa del hígado y mejorando la respuesta de las células musculares a la insulina.",
+      "hi": "लिवर से ग्लूकोज का स्राव कम करके और मांसपेशियों की कोशिकाओं की इंसुलिन प्रतिक्रिया में सुधार करके रक्त शर्करा को कम करता है।",
+      "fr": "Réduit la glycémie en limitant la libération de glucose par le foie et en améliorant la sensibilité des cellules musculaires à l'insuline.",
+      "ar": "يخفض سكر الدم بتقليل إطلاق الجلوكوز من الكبد وتحسين استجابة خلايا العضلات للإنسولين."
+    }
   },
   "omeprazole": {
     "regions": ["abdomen"],
     "organs": ["Stomach"],
-    "summary": "Reduces acid production in the stomach lining, easing heartburn and helping acid-related irritation heal."
+    "summary": "Reduces acid production in the stomach lining, easing heartburn and helping acid-related irritation heal.",
+    "summaries": {
+      "en": "Reduces acid production in the stomach lining, easing heartburn and helping acid-related irritation heal.",
+      "es": "Reduce la producción de ácido en el revestimiento del estómago, aliviando la acidez y ayudando a sanar la irritación ácida.",
+      "hi": "पेट की परत में एसिड उत्पादन को कम करता है, सीने की जलन से राहत देता है और एसिड से संबंधित जलन को ठीक करने में मदद करता है।",
+      "fr": "Réduit la production d'acide dans la muqueuse gastrique, soulageant les brûlures et aidant à cicatriser les irritations acides.",
+      "ar": "يقلل إنتاج الحمض في بطانة المعدة، مما يخفف حرقة المعدة ويساعد على التئام الالتهاب الحمضي."
+    }
   },
   "amoxicillin": {
     "regions": ["head", "chest", "abdomen"],
     "organs": ["Sinuses", "Lungs", "Ears", "Urinary tract"],
-    "summary": "Fights bacterial infections — commonly used for respiratory, ear/sinus, and urinary infections depending on the prescription."
+    "summary": "Fights bacterial infections — commonly used for respiratory, ear/sinus, and urinary infections depending on the prescription.",
+    "summaries": {
+      "en": "Fights bacterial infections — commonly used for respiratory, ear/sinus, and urinary infections depending on the prescription.",
+      "es": "Combate infecciones bacterianas — se usa comúnmente para infecciones respiratorias, de oído/senos y urinarias según la prescripción.",
+      "hi": "बैक्टीरियल संक्रमणों से लड़ता है — आमतौर पर श्वसन, कान/साइनस और मूत्र पथ के संक्रमण के लिए उपयोग किया जाता है।",
+      "fr": "Combat les infections bactériennes — couramment utilisé pour les infections respiratoires, ORL et urinaires selon la prescription.",
+      "ar": "يقاوم الالتهابات البكتيرية — يُستخدم عادةً لالتهابات الجهاز التنفسي والأذن والجيوب الأنفية والمسالك البولية."
+    }
   },
   "amox": {
     "regions": ["head", "chest", "abdomen"],
     "organs": ["Sinuses", "Lungs", "Ears", "Urinary tract"],
-    "summary": "Fights bacterial infections — commonly used for respiratory, ear/sinus, and urinary infections depending on the prescription."
+    "summary": "Fights bacterial infections — commonly used for respiratory, ear/sinus, and urinary infections depending on the prescription.",
+    "summaries": {
+      "en": "Fights bacterial infections — commonly used for respiratory, ear/sinus, and urinary infections depending on the prescription.",
+      "es": "Combate infecciones bacterianas — se usa comúnmente para infecciones respiratorias, de oído/senos y urinarias según la prescripción.",
+      "hi": "बैक्टीरियल संक्रमणों से लड़ता है — आमतौर पर श्वसन, कान/साइनस और मूत्र पथ के संक्रमण के लिए उपयोग किया जाता है।",
+      "fr": "Combat les infections bactériennes — couramment utilisé pour les infections respiratoires, ORL et urinaires selon la prescription.",
+      "ar": "يقاوم الالتهابات البكتيرية — يُستخدم عادةً لالتهابات الجهاز التنفسي والأذن والجيوب الأنفية والمسالك البولية."
+    }
   },
   "ibuprofen": {
     "regions": ["limbs", "head", "abdomen"],
     "organs": ["Joints", "Muscles", "Stomach lining"],
-    "summary": "Reduces pain, fever, and inflammation body-wide; can irritate the stomach lining if taken without food or for long periods."
+    "summary": "Reduces pain, fever, and inflammation body-wide; can irritate the stomach lining if taken without food or for long periods.",
+    "summaries": {
+      "en": "Reduces pain, fever, and inflammation body-wide; can irritate the stomach lining if taken without food or for long periods.",
+      "es": "Reduce el dolor, la fiebre y la inflamación en todo el cuerpo; puede irritar el estómago si se toma sin comer o por períodos prolongados.",
+      "hi": "पूरे शरीर में दर्द, बुखार और सूजन को कम करता है; खाली पेट या लंबे समय तक लेने पर पेट में जलन हो सकती है।",
+      "fr": "Réduit la douleur, la fièvre et l'inflammation dans tout le corps ; peut irriter l'estomac s'il est pris à jeun ou sur de longues périodes.",
+      "ar": "يقلل الألم والحمى والالتهاب في جميع أنحاء الجسم؛ قد يهيج بطانة المعدة إذا أُخذ دون طعام أو لفترات طويلة."
+    }
   },
   "aspirin": {
     "regions": ["chest", "limbs", "head"],
     "organs": ["Blood platelets", "Heart", "Joints"],
-    "summary": "Affects blood clotting and inflammation — used for pain, fever, and in some patients for heart protection at low doses."
+    "summary": "Affects blood clotting and inflammation — used for pain, fever, and in some patients for heart protection at low doses.",
+    "summaries": {
+      "en": "Affects blood clotting and inflammation — used for pain, fever, and in some patients for heart protection at low doses.",
+      "es": "Afecta la coagulación y la inflamación — se usa para el dolor, la fiebre y en algunos pacientes para protección cardíaca a dosis bajas.",
+      "hi": "रक्त के थक्के और सूजन को प्रभावित करता है — दर्द, बुखार के लिए और कुछ रोगियों में कम खुराक पर हृदय सुरक्षा के लिए उपयोग किया जाता है।",
+      "fr": "Affecte la coagulation et l'inflammation — utilisé pour la douleur, la fièvre et chez certains patients pour la protection cardiaque à faible dose.",
+      "ar": "يؤثر على تخثر الدم والالتهاب — يُستخدم للألم والحمى، وعند بعض المرضى لحماية القلب بجرعات منخفضة."
+    }
   },
   "acetaminophen": {
     "regions": ["head", "limbs"],
     "organs": ["Brain (pain/fever centers)", "Liver (metabolism)"],
-    "summary": "Relieves pain and fever; processed mainly by the liver, so dose limits matter."
+    "summary": "Relieves pain and fever; processed mainly by the liver, so dose limits matter.",
+    "summaries": {
+      "en": "Relieves pain and fever; processed mainly by the liver, so dose limits matter.",
+      "es": "Alivia el dolor y la fiebre; se metaboliza principalmente en el hígado, por lo que los límites de dosis son importantes.",
+      "hi": "दर्द और बुखार से राहत देता है; मुख्यतः लिवर में चयापचित होता है, इसलिए खुराक की सीमाएं महत्वपूर्ण हैं।",
+      "fr": "Soulage la douleur et la fièvre ; principalement métabolisé par le foie, d'où l'importance de respecter les doses.",
+      "ar": "يخفف الألم والحمى؛ يُعالَج أساسًا في الكبد، لذا تُعدّ حدود الجرعة مهمة."
+    }
   },
   "paracetamol": {
     "regions": ["head", "limbs"],
     "organs": ["Brain (pain/fever centers)", "Liver (metabolism)"],
-    "summary": "Same class as acetaminophen — eases pain and fever with primary liver metabolism."
+    "summary": "Same class as acetaminophen — eases pain and fever with primary liver metabolism.",
+    "summaries": {
+      "en": "Same class as acetaminophen — eases pain and fever with primary liver metabolism.",
+      "es": "Misma clase que el acetaminofén — alivia el dolor y la fiebre con metabolismo hepático primario.",
+      "hi": "एसिटामिनोफेन के समान वर्ग — दर्द और बुखार से राहत देता है, मुख्यतः लिवर में चयापचित होता है।",
+      "fr": "Même classe que l'acétaminophène — soulage la douleur et la fièvre avec un métabolisme hépatique primaire.",
+      "ar": "نفس فئة الأسيتامينوفين — يخفف الألم والحمى مع أيض كبدي أساسي."
+    }
   },
   "levothyroxine": {
     "regions": ["neck", "chest"],

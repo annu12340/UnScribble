@@ -8,7 +8,10 @@ const assert = require("node:assert/strict");
 const { EventEmitter } = require("node:events");
 const { createAppServer } = require("../server");
 
-function dispatch(app, { method = "GET", url = "/", headers = {}, body = "" } = {}) {
+function dispatch(
+  app,
+  { method = "GET", url = "/", headers = {}, body = "" } = {},
+) {
   return new Promise((resolve, reject) => {
     const req = new EventEmitter();
     req.method = method;
@@ -33,14 +36,16 @@ function dispatch(app, { method = "GET", url = "/", headers = {}, body = "" } = 
         }
       },
       write(chunk) {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk)));
+        chunks.push(
+          Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk)),
+        );
       },
       end(chunk) {
         if (chunk) this.write(chunk);
         resolve({
           statusCode: this.statusCode,
           headers: this.headers,
-          body: Buffer.concat(chunks).toString("utf8")
+          body: Buffer.concat(chunks).toString("utf8"),
         });
       },
       on() {
@@ -51,7 +56,7 @@ function dispatch(app, { method = "GET", url = "/", headers = {}, body = "" } = 
       },
       emit() {
         return true;
-      }
+      },
     };
 
     app.emit("request", req, res);
@@ -71,7 +76,7 @@ describe("HTTP reliability", () => {
     const app = createAppServer();
     const res = await dispatch(app, {
       url: "/api/config",
-      headers: { "x-request-id": "request-test-123" }
+      headers: { "x-request-id": "request-test-123" },
     });
 
     assert.equal(res.statusCode, 200);
@@ -83,7 +88,7 @@ describe("HTTP reliability", () => {
     const malformed = await dispatch(app, {
       method: "POST",
       url: "/api/protein-mechanism",
-      body: "{not json"
+      body: "{not json",
     });
     assert.equal(malformed.statusCode, 400);
     assert.match(JSON.parse(malformed.body).error, /valid JSON/);
@@ -91,10 +96,13 @@ describe("HTTP reliability", () => {
     const missingMedication = await dispatch(app, {
       method: "POST",
       url: "/api/protein-mechanism",
-      body: JSON.stringify({ medication: "" })
+      body: JSON.stringify({ medication: "" }),
     });
     assert.equal(missingMedication.statusCode, 400);
-    assert.match(JSON.parse(missingMedication.body).error, /Medication name is required/);
+    assert.match(
+      JSON.parse(missingMedication.body).error,
+      /Medication name is required/,
+    );
   });
 
   it("rejects invalid decode image payloads before workflow execution", async () => {
@@ -102,7 +110,7 @@ describe("HTTP reliability", () => {
     const res = await dispatch(app, {
       method: "POST",
       url: "/api/decode",
-      body: JSON.stringify({ imageDataUrl: "not-a-data-url" })
+      body: JSON.stringify({ imageDataUrl: "not-a-data-url" }),
     });
 
     assert.equal(res.statusCode, 400);
@@ -118,15 +126,19 @@ describe("HTTP reliability", () => {
       body: JSON.stringify({
         imageDataUrl: "data:image/png;base64,iVBORw0KGgo=",
         enhancementMode: "original",
-        fileName: "mock.png"
-      })
+        fileName: "mock.png",
+      }),
     });
 
     assert.equal(res.statusCode, 200);
     const payload = JSON.parse(res.body);
     assert.equal(payload.requestId, "batch-request-123");
     assert.equal(payload.workflow.requestId, "batch-request-123");
-    assert.ok(payload.events.every((item) => item.data.requestId === "batch-request-123"));
+    assert.ok(
+      payload.events.every(
+        (item) => item.data.requestId === "batch-request-123",
+      ),
+    );
   });
 
   it("returns medication insights from the NVIDIA NIM fallback endpoint", async () => {
@@ -134,7 +146,7 @@ describe("HTTP reliability", () => {
     const res = await dispatch(app, {
       method: "POST",
       url: "/api/medication-insights",
-      body: JSON.stringify({ medication_name: "Amoxicillin" })
+      body: JSON.stringify({ medication_name: "Amoxicillin" }),
     });
 
     assert.equal(res.statusCode, 200);
@@ -146,10 +158,17 @@ describe("HTTP reliability", () => {
     assert.ok(payload.side_effects);
     assert.ok(payload.administration);
     assert.ok(payload.market_status);
-    assert.ok(Array.isArray(payload.regulatory_status.prescription_only_countries));
+    assert.ok(
+      Array.isArray(payload.regulatory_status.prescription_only_countries),
+    );
     assert.ok(Array.isArray(payload.ingredient_analysis.equivalent_brands));
-    assert.ok(Array.isArray(payload.drug_interactions.common_interacting_medications));
-    assert.equal(typeof payload.patient_safety_flags.pregnancy_lactation_category, "string");
+    assert.ok(
+      Array.isArray(payload.drug_interactions.common_interacting_medications),
+    );
+    assert.equal(
+      typeof payload.patient_safety_flags.pregnancy_lactation_category,
+      "string",
+    );
     assert.equal(typeof payload.administration.storage_instructions, "string");
   });
 });

@@ -19,12 +19,12 @@ function initSseResponse(res) {
     "Content-Type": "text/event-stream; charset=utf-8",
     "Cache-Control": "no-cache, no-transform",
     Connection: "keep-alive",
-    "X-Accel-Buffering": "no"
+    "X-Accel-Buffering": "no",
   });
   res.write(": connected\n\n");
 }
 
 module.exports = {
   writeSse,
-  initSseResponse
+  initSseResponse,
 };

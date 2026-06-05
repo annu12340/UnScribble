@@ -10,7 +10,7 @@ export const MEDICAL_JOKES = [
   "What did one prescription say to the other? Take it easy, don't overdose on stress!",
   "Why was the antibiotic so popular? It was a real culture killer!",
   "Why was the medicine bottle always happy? It was filled with good spirits!",
-  "What's a doctor's favorite instrument? The organ!"
+  "What's a doctor's favorite instrument? The organ!",
 ];
 
 /**
@@ -73,8 +73,11 @@ export function formatWorkflowError(agentId, payload = {}, agents = []) {
  * @param {number} [index]
  * @returns {string}
  */
-export function pickMedicalJoke(index = Math.floor(Math.random() * MEDICAL_JOKES.length)) {
+export function pickMedicalJoke(
+  index = Math.floor(Math.random() * MEDICAL_JOKES.length),
+) {
   const safeIndex =
-    ((Number(index) % MEDICAL_JOKES.length) + MEDICAL_JOKES.length) % MEDICAL_JOKES.length;
+    ((Number(index) % MEDICAL_JOKES.length) + MEDICAL_JOKES.length) %
+    MEDICAL_JOKES.length;
   return MEDICAL_JOKES[safeIndex];
 }

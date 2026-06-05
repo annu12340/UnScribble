@@ -4,7 +4,7 @@ let activeInstances = null;
 
 export const REVEAL_CHART_ANIMATION = {
   duration: 720,
-  easing: "easeOutCubic"
+  easing: "easeOutCubic",
 };
 
 export const PAUSED_CHART_ANIMATION = false;
@@ -41,7 +41,7 @@ function ensureObserver() {
         observer.unobserve(entry.target);
       });
     },
-    { threshold: 0.22, rootMargin: "0px 0px -6% 0px" }
+    { threshold: 0.22, rootMargin: "0px 0px -6% 0px" },
   );
 }
 
@@ -49,20 +49,24 @@ export function syncChartReveal(instances) {
   activeInstances = instances;
   ensureObserver();
 
-  document.querySelectorAll(".section-chart-container[data-chart-id]").forEach((container) => {
-    const canvasId = container.dataset.chartId;
-    const chart = instances[canvasId];
+  document
+    .querySelectorAll(".section-chart-container[data-chart-id]")
+    .forEach((container) => {
+      const canvasId = container.dataset.chartId;
+      const chart = instances[canvasId];
 
-    container.classList.remove("is-chart-visible");
-    container.closest(".med-chart-card")?.classList.remove("is-chart-visible");
+      container.classList.remove("is-chart-visible");
+      container
+        .closest(".med-chart-card")
+        ?.classList.remove("is-chart-visible");
 
-    if (!chart) return;
+      if (!chart) return;
 
-    if (isInView(container)) {
-      revealChart(container, chart);
-      return;
-    }
+      if (isInView(container)) {
+        revealChart(container, chart);
+        return;
+      }
 
-    observer.observe(container);
-  });
+      observer.observe(container);
+    });
 }

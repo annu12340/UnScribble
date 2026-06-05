@@ -10,14 +10,16 @@ async function run(ctx) {
   const nonMedLines = raw
     .filter((line) => {
       if (line.section === "medication") return false;
-      if (line.section === "patient") return String(line.text || "").length > 12;
+      if (line.section === "patient") {
+        return String(line.text || "").length > 12;
+      }
       return true;
     })
     .map((line) => `${line.section}: ${line.text}`)
     .join("\n");
   const regionLine = regionDirective(
     ctx.artifacts.raw_transcription?.region_hint,
-    "clinical_context"
+    "clinical_context",
   );
 
   const { result } = await runTextAgent(ctx, {
@@ -28,13 +30,18 @@ async function run(ctx) {
       regionLine,
       nonMedLines
         ? `Non-medication transcription lines:\n${nonMedLines}`
-        : "(no non-medication lines)"
+        : "(no non-medication lines)",
     ],
     schemaName: "clinical_context",
     schema: schemas.clinicalContext,
-    maxTokens: 3500
+    maxTokens: 3500,
   });
   return result;
 }
 
-module.exports = { id: "clinical_context", label: "Clinical context", critical: false, run };
+module.exports = {
+  id: "clinical_context",
+  label: "Clinical context",
+  critical: false,
+  run,
+};

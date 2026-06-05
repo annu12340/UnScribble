@@ -11,7 +11,10 @@ async function run(ctx) {
     .filter((line) => line.section === "medication")
     .map((line) => `Line ${line.line_number}: ${line.text}`)
     .join("\n");
-  const regionLine = regionDirective(ctx.artifacts.raw_transcription?.region_hint, "medications");
+  const regionLine = regionDirective(
+    ctx.artifacts.raw_transcription?.region_hint,
+    "medications",
+  );
 
   const rerun = Boolean(ctx.medicationsRerun);
   let focusedLasa = "";
@@ -21,7 +24,7 @@ async function run(ctx) {
       .filter(Boolean);
     focusedLasa = [
       "Second-pass review: low-confidence medications were detected on first pass. Re-read the script carefully, especially for drugs that resemble these LASA pairs:",
-      lasaBlockFor(firstPassNames)
+      lasaBlockFor(firstPassNames),
     ].join("\n");
   }
 
@@ -32,15 +35,20 @@ async function run(ctx) {
       regionLine,
       focusedLasa,
       "Raw medication lines:",
-      medLines || "(none transcribed)"
+      medLines || "(none transcribed)",
     ],
     schemaName: "medications",
     schema: schemas.medications,
     maxTokens: 4500,
     imageDetail: "high",
-    temperatureNudge: rerun
+    temperatureNudge: rerun,
   });
   return result;
 }
 
-module.exports = { id: "medications", label: "Medications", critical: true, run };
+module.exports = {
+  id: "medications",
+  label: "Medications",
+  critical: true,
+  run,
+};

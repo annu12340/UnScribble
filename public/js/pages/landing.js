@@ -3,7 +3,10 @@ const updateProgress = () => {
   const bar = document.querySelector(".progress-bar");
   if (!bar) return;
   const windowHeight = window.innerHeight;
-  const documentHeight = Math.max(1, document.documentElement.scrollHeight - windowHeight);
+  const documentHeight = Math.max(
+    1,
+    document.documentElement.scrollHeight - windowHeight,
+  );
   const scrolled = window.scrollY;
   const progress = (scrolled / documentHeight) * 100;
 
@@ -21,8 +24,6 @@ const updateNav = () => {
   }
 };
 
-
-
 // Interactive Demo Controls
 const setupDemoControls = () => {
   const buttons = document.querySelectorAll(".demo-btn");
@@ -38,12 +39,12 @@ const setupDemoControls = () => {
 
       // Update content
       contents.forEach((content) => content.classList.remove("active"));
-      document.querySelector(`[data-content="${step}"]`).classList.add("active");
+      document
+        .querySelector(`[data-content="${step}"]`)
+        .classList.add("active");
     });
   });
 };
-
-
 
 // Prescription demo — replay messy handwriting on hover
 const setupPrescriptionDemo = () => {
@@ -74,8 +75,6 @@ const setupScrollHint = () => {
     }
   });
 };
-
-
 
 // Add hover effects to result actions
 const setupResultActions = () => {
@@ -130,7 +129,7 @@ const setupEasterEgg = () => {
     "ArrowLeft",
     "ArrowRight",
     "b",
-    "a"
+    "a",
   ];
   let konamiIndex = 0;
 
@@ -186,7 +185,8 @@ const setupDemoVideo = () => {
   setTimeout(() => {
     if (
       !metaLoaded &&
-      (video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE || video.readyState === 0)
+      (video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE ||
+        video.readyState === 0)
     ) {
       showFallback();
     }
@@ -218,7 +218,7 @@ const setupConfetti = () => {
     ["#0d9488", "#5eead4"],
     ["#10b981", "#a7f3d0"],
     ["#f59e0b", "#fde68a"],
-    ["#ef4444", "#fecaca"]
+    ["#ef4444", "#fecaca"],
   ];
 
   btn.addEventListener("click", () => {
@@ -245,13 +245,16 @@ const setupConfetti = () => {
       piece.animate(
         [
           { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
-          { transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg)`, opacity: 0 }
+          {
+            transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg)`,
+            opacity: 0,
+          },
         ],
         {
           duration: 900 + Math.random() * 400,
           easing: "cubic-bezier(0.2, 0.7, 0.3, 1)",
-          fill: "forwards"
-        }
+          fill: "forwards",
+        },
       );
       setTimeout(() => piece.remove(), 1400);
     }
@@ -312,5 +315,5 @@ window.addEventListener(
       updateNav();
     });
   },
-  { passive: true }
+  { passive: true },
 );

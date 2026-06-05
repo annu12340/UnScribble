@@ -1,7 +1,9 @@
 // Scroll progress & nav (shared pattern with landing.js)
 const updateProgress = () => {
-  const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
-  const progress = documentHeight > 0 ? (window.scrollY / documentHeight) * 100 : 0;
+  const documentHeight =
+    document.documentElement.scrollHeight - window.innerHeight;
+  const progress =
+    documentHeight > 0 ? (window.scrollY / documentHeight) * 100 : 0;
   document.querySelector(".progress-bar").style.width = `${progress}%`;
 };
 
@@ -26,7 +28,7 @@ const observeVisible = (selector, className = "visible", threshold = 0.2) => {
         if (entry.isIntersecting) entry.target.classList.add(className);
       });
     },
-    { threshold }
+    { threshold },
   );
 
   nodes.forEach((node) => observer.observe(node));
@@ -38,7 +40,7 @@ const observeChapters = () => {
 
 const animateFlowNodes = () => {
   const nodes = document.querySelectorAll(
-    ".flowchart-svg [data-animate], .diagram-svg [data-animate]"
+    ".flowchart-svg [data-animate], .diagram-svg [data-animate]",
   );
   if (!nodes.length) return;
 
@@ -51,7 +53,7 @@ const animateFlowNodes = () => {
         setTimeout(() => el.classList.add("flow-visible"), delay);
       });
     },
-    { threshold: 0.25 }
+    { threshold: 0.25 },
   );
 
   nodes.forEach((node) => observer.observe(node));

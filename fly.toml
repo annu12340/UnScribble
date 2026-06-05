@@ -1,0 +1,39 @@
+app = "unscribble"
+primary_region = "iad"
+
+[build]
+
+[env]
+  PORT = "3000"
+  NODE_ENV = "production"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 50
+    soft_limit = 25
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+# Multi-region replicas — Fly routes each request to the nearest region.
+# Set REDIS_URL (e.g. Upstash) so all replicas share decode result cache.
+[[regions]]
+  code = "iad"   # US East (primary)
+
+[[regions]]
+  code = "lhr"   # Europe (London)
+
+[[regions]]
+  code = "sin"   # Asia Pacific (Singapore)
+
+[[regions]]
+  code = "bom"   # South Asia (Mumbai) — Indian prescription market

@@ -40,7 +40,7 @@ export const DEMO_MEDICATION = {
   administration_notes: "Complete the full course even if you feel better.",
   raw_text: "Amox 500mg cap i tab po tds x7d",
   safety_flags: [],
-  alternatives: []
+  alternatives: [],
 };
 
 /**
@@ -48,7 +48,8 @@ export const DEMO_MEDICATION = {
  * @returns {MedicationRecord}
  */
 export function buildDemoMedication(overrideName) {
-  const name = String(overrideName || DEMO_MEDICATION_NAME).trim() || DEMO_MEDICATION_NAME;
+  const name =
+    String(overrideName || DEMO_MEDICATION_NAME).trim() || DEMO_MEDICATION_NAME;
   return { ...DEMO_MEDICATION, medication_name: name };
 }
 
@@ -62,7 +63,7 @@ export function hasInsightPayload(med) {
     med?.ingredient_analysis ||
     med?.drug_interactions ||
     med?.side_effects ||
-    med?.market_status
+    med?.market_status,
   );
 }
 
@@ -92,9 +93,17 @@ export function confidencePercent(confidence) {
 export function collectMedicationWarnings(med) {
   if (!med) return [];
   return (med.safety_flags || [])
-    .concat((med.critical_uncertainties || []).map((item) => `Uncertain: ${item}`))
-    .concat((med.uncertain_tokens || []).map((item) => `Token to verify: ${item}`))
-    .concat(med.requires_verification ? ["Human verification required for this medication."] : []);
+    .concat(
+      (med.critical_uncertainties || []).map((item) => `Uncertain: ${item}`),
+    )
+    .concat(
+      (med.uncertain_tokens || []).map((item) => `Token to verify: ${item}`),
+    )
+    .concat(
+      med.requires_verification
+        ? ["Human verification required for this medication."]
+        : [],
+    );
 }
 
 /**
@@ -108,7 +117,10 @@ export function parseStoredMedication(storedData) {
   try {
     const medication = JSON.parse(storedData);
     if (!medication || typeof medication !== "object") {
-      return { medication: null, error: new Error("Invalid medication payload") };
+      return {
+        medication: null,
+        error: new Error("Invalid medication payload"),
+      };
     }
     return { medication, error: null };
   } catch (error) {
@@ -128,14 +140,18 @@ export function parseStoredMedication(storedData) {
  *   demoBannerText?: string;
  * }}
  */
-export function resolveMedicationLoad({ storedData, forceDemo = false, medOverride = null }) {
+export function resolveMedicationLoad({
+  storedData,
+  forceDemo = false,
+  medOverride = null,
+}) {
   if (forceDemo) {
     const medication = buildDemoMedication(medOverride);
     return {
       mode: "demo",
       medication,
       error: null,
-      demoBannerText: `Demo mode — showing hardcoded data for "${medication.medication_name}". Remove ?demo=1 to use results from session.`
+      demoBannerText: `Demo mode — showing hardcoded data for "${medication.medication_name}". Remove ?demo=1 to use results from session.`,
     };
   }
 
@@ -157,6 +173,6 @@ export function resolveMedicationLoad({ storedData, forceDemo = false, medOverri
 export function buildInsightsRequestBody(medicationName, rawText = "") {
   return {
     medication_name: medicationName,
-    raw_text: rawText
+    raw_text: rawText,
   };
 }

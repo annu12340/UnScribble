@@ -23,7 +23,9 @@
   --text: #0f172a;
   --border: #e2e8f0;
   --bg-subtle: #f0fdf4;
-  --font-sans: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans:
+    "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
   --font-display: "Outfit", system-ui, sans-serif;
   --radius-md: 12px;
   --radius-lg: 20px;
@@ -38,7 +40,11 @@ html {
 /* Background */
 body.rx-app {
   background:
-    radial-gradient(ellipse 70% 45% at 50% -10%, rgba(16, 185, 129, 0.12), transparent 55%),
+    radial-gradient(
+      ellipse 70% 45% at 50% -10%,
+      rgba(16, 185, 129, 0.12),
+      transparent 55%
+    ),
     linear-gradient(180deg, #f0fdf4 0%, #f8fafc 40%, #edf7f3 100%);
 }
 
@@ -115,7 +121,11 @@ body.rx-app::before {
 
 .rx-app .brand-mark,
 .rx-logo {
-  background: linear-gradient(145deg, var(--rx-primary), var(--rx-secondary)) !important;
+  background: linear-gradient(
+    145deg,
+    var(--rx-primary),
+    var(--rx-secondary)
+  ) !important;
   border-radius: 12px !important;
   box-shadow: 0 8px 20px rgba(5, 150, 105, 0.25) !important;
 }
@@ -151,7 +161,11 @@ body.rx-app::before {
 
 /* Buttons */
 .rx-app .btn.primary {
-  background: linear-gradient(145deg, var(--rx-primary), var(--rx-primary-dark));
+  background: linear-gradient(
+    145deg,
+    var(--rx-primary),
+    var(--rx-primary-dark)
+  );
   border: 2px solid var(--rx-ink-border);
   box-shadow: 4px 4px 0 var(--rx-ink-border);
   border-radius: 12px;
@@ -165,7 +179,11 @@ body.rx-app::before {
 .rx-app .btn.primary:hover:not(:disabled) {
   transform: translate(-2px, -2px);
   box-shadow: 6px 6px 0 var(--rx-ink-border);
-  background: linear-gradient(145deg, var(--rx-primary-light), var(--rx-primary));
+  background: linear-gradient(
+    145deg,
+    var(--rx-primary-light),
+    var(--rx-primary)
+  );
 }
 
 .rx-app .btn.ghost {

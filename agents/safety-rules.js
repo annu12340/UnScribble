@@ -1,6 +1,6 @@
 "use strict";
 
-const HIGH_RISK_ABBREVS = /\b(STAT|SOS|QID|U|IU|MSO4|MgSO4|µg|mcg)\b/i;
+const HIGH_RISK_ABBREVS = /\b(STAT|SOS|U|IU|MSO4|MgSO4|µg|mcg)\b/i;
 
 function emptyPatient() {
   return {
@@ -11,7 +11,7 @@ function emptyPatient() {
     date: "",
     doctor: "",
     clinic: "",
-    identifiers: []
+    identifiers: [],
   };
 }
 
@@ -29,7 +29,9 @@ function applySafetyRules(input) {
     const nameConf = Number(med.medication_name_confidence ?? 0);
     if (nameConf > 0 && nameConf < 0.7) {
       med.requires_verification = true;
-      reasons.push(`Low confidence on medication line ${med.line_number || "?"}.`);
+      reasons.push(
+        `Low confidence on medication line ${med.line_number || "?"}.`,
+      );
     }
     if (!String(med.strength || "").trim() && !String(med.dose || "").trim()) {
       med.requires_verification = true;
@@ -42,12 +44,16 @@ function applySafetyRules(input) {
     const tokens = med.uncertain_tokens || [];
     if (tokens.length > 0) {
       med.requires_verification = true;
-      reasons.push(`Uncertain tokens on line ${med.line_number || "?"}: ${tokens.join(", ")}`);
+      reasons.push(
+        `Uncertain tokens on line ${med.line_number || "?"}: ${tokens.join(", ")}`,
+      );
     }
     const raw = String(med.raw_text || med.medication_name || "");
     if (HIGH_RISK_ABBREVS.test(raw)) {
       const flags = Array.isArray(med.safety_flags) ? med.safety_flags : [];
-      if (!flags.includes("high-risk abbreviation")) flags.push("high-risk abbreviation");
+      if (!flags.includes("high-risk abbreviation")) {
+        flags.push("high-risk abbreviation");
+      }
       med.safety_flags = flags;
       med.requires_verification = true;
       reasons.push(`High-risk abbreviation on line ${med.line_number || "?"}.`);
@@ -56,7 +62,9 @@ function applySafetyRules(input) {
 
   for (const line of result.raw_transcription || []) {
     if (String(line.text || "").includes("[?]")) {
-      reasons.push(`Unresolved token on transcription line ${line.line_number}.`);
+      reasons.push(
+        `Unresolved token on transcription line ${line.line_number}.`,
+      );
     }
   }
 
@@ -71,5 +79,5 @@ function applySafetyRules(input) {
 
 module.exports = {
   applySafetyRules,
-  emptyPatient
+  emptyPatient,
 };

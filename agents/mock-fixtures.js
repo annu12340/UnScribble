@@ -6,10 +6,10 @@ const fixtures = {
       legibility: "medium",
       issues: ["mock mode — no API call"],
       recommended_next_capture: "",
-      recommended_preprocessing: "contrast"
+      recommended_preprocessing: "contrast",
     },
     requires_human_review: false,
-    review_hint: ""
+    review_hint: "",
   },
   raw_transcription: {
     raw_transcription: [
@@ -17,20 +17,20 @@ const fixtures = {
         line_number: 1,
         section: "patient",
         text: "John D, 45M",
-        confidence: 0.85
+        confidence: 0.85,
       },
       {
         line_number: 2,
         section: "medication",
         text: "Tab Amoxicillin 500mg 1-0-1 x 5d",
-        confidence: 0.8
-      }
+        confidence: 0.8,
+      },
     ],
     region_hint: {
       style: "indian",
       confidence: 0.7,
-      evidence: "Tab prefix; 1-0-1 schedule"
-    }
+      evidence: "Tab prefix; 1-0-1 schedule",
+    },
   },
   patient_header: {
     patient: {
@@ -41,8 +41,8 @@ const fixtures = {
       date: "",
       doctor: "Dr. Smith",
       clinic: "Mock Clinic",
-      identifiers: []
-    }
+      identifiers: [],
+    },
   },
   medications: {
     medications: [
@@ -61,7 +61,7 @@ const fixtures = {
         normalized_frequency: {
           abbreviation: "1-0-1",
           expansion: "morning - noon - night",
-          timing: "three times daily"
+          timing: "three times daily",
         },
         duration: "5 days",
         quantity: "",
@@ -74,12 +74,14 @@ const fixtures = {
         safety_flags: [],
         critical_uncertainties: [],
         uncertain_tokens: [],
-        requires_verification: false
-      }
-    ]
+        requires_verification: false,
+      },
+    ],
   },
   clinical_context: {
-    abbreviations: [{ abbreviation: "Tab", likely_expansion: "Tablet", confidence: 0.95 }],
+    abbreviations: [
+      { abbreviation: "Tab", likely_expansion: "Tablet", confidence: 0.95 },
+    ],
     allergies: [],
     clinical_context: {
       diagnoses: [],
@@ -87,16 +89,16 @@ const fixtures = {
       vitals: [],
       investigations: [],
       advice: [],
-      referrals: []
+      referrals: [],
     },
     non_medication_text: [],
     follow_up_instructions: [],
-    global_warnings: []
+    global_warnings: [],
   },
   synthesis: {
     summary:
-      "Mock workflow: one medication line (Amoxicillin 500 mg, 1-0-1 for 5 days) with medium image quality."
-  }
+      "Mock workflow: one medication line (Amoxicillin 500 mg, 1-0-1 for 5 days) with medium image quality.",
+  },
 };
 
 function getMockResult(agentId) {

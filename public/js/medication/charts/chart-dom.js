@@ -7,7 +7,9 @@ export function chartContainer(canvasId) {
   const canvas = document.getElementById(canvasId);
   return (
     canvas?.closest(".section-chart-container") ||
-    document.querySelector(`.section-chart-container[data-chart-id="${canvasId}"]`) ||
+    document.querySelector(
+      `.section-chart-container[data-chart-id="${canvasId}"]`,
+    ) ||
     null
   );
 }
@@ -89,7 +91,9 @@ export function showDetail(canvasId, title, items, note = "") {
     return;
   }
 
-  const list = items.map((item) => `<li>${escapeHtml(String(item))}</li>`).join("");
+  const list = items
+    .map((item) => `<li>${escapeHtml(String(item))}</li>`)
+    .join("");
   panel.innerHTML = `<strong>${escapeHtml(title)}</strong><ul class="chart-detail-list">${list}</ul>`;
 }
 

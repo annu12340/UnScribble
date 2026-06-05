@@ -7,4 +7,10 @@ async function run(ctx) {
   return { summary: buildDeterministicSummary(merged) };
 }
 
-module.exports = { id: "synthesis", label: "Summary", critical: false, run, deterministic: true };
+module.exports = {
+  id: "synthesis",
+  label: "Summary",
+  critical: false,
+  run,
+  deterministic: true,
+};

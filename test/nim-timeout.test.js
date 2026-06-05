@@ -31,15 +31,15 @@ describe("NIM client timeout", () => {
           type: "object",
           properties: { ok: { type: "boolean" } },
           required: ["ok"],
-          additionalProperties: false
+          additionalProperties: false,
         },
-        maxTokens: 100
+        maxTokens: 100,
       }),
       (error) => {
         assert.equal(error.statusCode, 504);
         assert.match(error.message, /timed out/);
         return true;
-      }
+      },
     );
   });
 });

@@ -3,7 +3,7 @@ export function buildDecodeRequestBody(state, getEnhancementMode) {
   const requestBody = {
     imageDataUrl: state.imageDataUrl,
     fileName: state.file?.name || "",
-    enhancementMode: mode
+    enhancementMode: mode,
   };
   if (mode !== "original" && state.originalDataUrl) {
     requestBody.originalImageDataUrl = state.originalDataUrl;
@@ -76,7 +76,7 @@ export async function decodePrescriptionStream(url, body, onEvent, signal) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
-    signal
+    signal,
   });
 
   if (!response.ok) {
@@ -97,6 +97,6 @@ export async function decodePrescriptionStream(url, body, onEvent, signal) {
         onEvent(parsed.event, parsed.payload);
       }
     },
-    signal
+    signal,
   );
 }

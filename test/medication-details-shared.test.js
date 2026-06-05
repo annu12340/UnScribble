@@ -11,7 +11,7 @@ const modulePath = path.join(
   "public",
   "js",
   "medication",
-  "medication-details-shared.js"
+  "medication-details-shared.js",
 );
 const moduleUrl = `data:text/javascript;base64,${fs.readFileSync(modulePath).toString("base64")}`;
 
@@ -33,7 +33,10 @@ describe("medication details shared helpers", () => {
     const { hasInsightPayload } = await shared();
 
     assert.equal(hasInsightPayload({}), false);
-    assert.equal(hasInsightPayload({ side_effects: { common_side_effects: [] } }), true);
+    assert.equal(
+      hasInsightPayload({ side_effects: { common_side_effects: [] } }),
+      true,
+    );
   });
 
   it("formats normalized frequency and confidence", async () => {
@@ -43,9 +46,9 @@ describe("medication details shared helpers", () => {
       formatNormalizedFrequency({
         abbreviation: "TID",
         expansion: "three times daily",
-        timing: "morning, afternoon, night"
+        timing: "morning, afternoon, night",
       }),
-      "TID · three times daily · morning, afternoon, night"
+      "TID · three times daily · morning, afternoon, night",
     );
     assert.equal(confidencePercent(0.876), 88);
     assert.equal(confidencePercent(1.5), 100);
@@ -56,21 +59,28 @@ describe("medication details shared helpers", () => {
     const warnings = collectMedicationWarnings({
       safety_flags: ["high-risk abbreviation"],
       uncertain_tokens: ["dose"],
-      requires_verification: true
+      requires_verification: true,
     });
 
     assert.deepEqual(warnings, [
       "high-risk abbreviation",
       "Token to verify: dose",
-      "Human verification required for this medication."
+      "Human verification required for this medication.",
     ]);
   });
 
   it("resolves demo, stored, and empty load modes", async () => {
     const { resolveMedicationLoad } = await shared();
-    const stored = JSON.stringify({ medication_name: "Amoxicillin", confidence: 0.9 });
+    const stored = JSON.stringify({
+      medication_name: "Amoxicillin",
+      confidence: 0.9,
+    });
 
-    const demo = resolveMedicationLoad({ storedData: null, forceDemo: true, medOverride: "Demo" });
+    const demo = resolveMedicationLoad({
+      storedData: null,
+      forceDemo: true,
+      medOverride: "Demo",
+    });
     assert.equal(demo.mode, "demo");
     assert.equal(demo.medication.medication_name, "Demo");
     assert.match(demo.demoBannerText, /Demo mode/);
@@ -88,7 +98,7 @@ describe("medication details shared helpers", () => {
     const { buildInsightsRequestBody } = await shared();
     assert.deepEqual(buildInsightsRequestBody("Ibuprofen", "raw"), {
       medication_name: "Ibuprofen",
-      raw_text: "raw"
+      raw_text: "raw",
     });
   });
 });

@@ -16,14 +16,19 @@ async function run(ctx) {
     instructions: prompts.patientHeader,
     promptLines: [
       "Extract patient and prescriber header fields from the image.",
-      excerpt ? `Transcription excerpt:\n${excerpt}` : ""
+      excerpt ? `Transcription excerpt:\n${excerpt}` : "",
     ],
     schemaName: "patient_header",
     schema: schemas.patientHeader,
     maxTokens: 2000,
-    imageDetail: "high"
+    imageDetail: "high",
   });
   return result;
 }
 
-module.exports = { id: "patient_header", label: "Patient header", critical: false, run };
+module.exports = {
+  id: "patient_header",
+  label: "Patient header",
+  critical: false,
+  run,
+};

@@ -18,7 +18,13 @@
       <header class="topbar">
         <a href="/landing.html" class="brand brand-link">
           <div class="brand-mark rx-logo" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 40 40"
+              fill="none"
+              aria-hidden="true"
+            >
               <path
                 d="M12 14h16M12 20h16M12 26h10"
                 stroke="white"
@@ -62,7 +68,10 @@
           <div class="upload-hero">
             <span class="sticker sticker-tilt-left">step 1 · snap it</span>
             <h2>Upload Prescription Image</h2>
-            <p>Take a clear photo of the handwritten prescription to extract medication details</p>
+            <p>
+              Take a clear photo of the handwritten prescription to extract
+              medication details
+            </p>
           </div>
 
           <div class="upload-card">
@@ -96,12 +105,20 @@
                     />
                   </svg>
                 </span>
-                <span class="dropzone-title">Drop image here or click to browse</span>
-                <span class="dropzone-subtitle">PNG, JPG, WEBP · Maximum 10 MB</span>
+                <span class="dropzone-title"
+                  >Drop image here or click to browse</span
+                >
+                <span class="dropzone-subtitle"
+                  >PNG, JPG, WEBP · Maximum 10 MB</span
+                >
               </div>
             </label>
 
-            <section class="sample-section" id="sampleSection" aria-label="Sample prescriptions">
+            <section
+              class="sample-section"
+              id="sampleSection"
+              aria-label="Sample prescriptions"
+            >
               <div class="sample-section-header">
                 <p class="sample-section-title">Or try a sample</p>
                 <p class="sample-section-hint">Click an image to load it</p>
@@ -135,25 +152,41 @@
               </div>
 
               <div class="preview-canvas-wrap">
-                <canvas id="previewCanvas" aria-label="Prescription preview"></canvas>
+                <canvas
+                  id="previewCanvas"
+                  aria-label="Prescription preview"
+                ></canvas>
               </div>
 
               <fieldset class="field">
                 <legend class="field-label">Image Enhancement</legend>
-                <div class="segmented" role="radiogroup" aria-label="Image enhancement">
+                <div
+                  class="segmented"
+                  role="radiogroup"
+                  aria-label="Image enhancement"
+                >
                   <label
-                    ><input type="radio" name="enhance" value="original" checked /><span
-                      >Original</span
-                    ></label
+                    ><input
+                      type="radio"
+                      name="enhance"
+                      value="original"
+                      checked
+                    /><span>Original</span></label
                   >
                   <label
                     ><input type="radio" name="enhance" value="contrast" /><span
                       >Contrast</span
                     ></label
                   >
-                  <label><input type="radio" name="enhance" value="mono" /><span>Mono</span></label>
+                  <label
+                    ><input type="radio" name="enhance" value="mono" /><span
+                      >Mono</span
+                    ></label
+                  >
                 </div>
-                <p class="field-hint">Choose enhancement mode to improve text clarity</p>
+                <p class="field-hint">
+                  Choose enhancement mode to improve text clarity
+                </p>
               </fieldset>
 
               <button class="btn primary large" id="processBtn">
@@ -166,7 +199,10 @@
                   stroke-width="2"
                   aria-hidden="true"
                 >
-                  <path stroke-linecap="round" d="M12 3v3m0 12v3M3 12h3m12 0h3" />
+                  <path
+                    stroke-linecap="round"
+                    d="M12 3v3m0 12v3M3 12h3m12 0h3"
+                  />
                   <circle cx="12" cy="12" r="4" />
                 </svg>
                 Process Prescription
@@ -175,7 +211,12 @@
           </div>
 
           <div class="loading-overlay" id="loadingOverlay" hidden>
-            <div class="loading-content" role="status" aria-live="polite" aria-busy="true">
+            <div
+              class="loading-content"
+              role="status"
+              aria-live="polite"
+              aria-busy="true"
+            >
               <header class="loading-header">
                 <div class="rx-loader rx-loader--compact" aria-hidden="true">
                   <span class="rx-cap"></span>
@@ -187,7 +228,9 @@
                 </div>
                 <div class="loading-header-copy">
                   <h3 id="loadingTitle">Processing prescription</h3>
-                  <p class="loading-hint" id="loadingHint">Starting analysis…</p>
+                  <p class="loading-hint" id="loadingHint">
+                    Starting analysis…
+                  </p>
                 </div>
               </header>
 
@@ -199,38 +242,40 @@
               </div>
 
               <section class="loading-steps" aria-label="Analysis steps">
-  <p class="loading-steps-label">AI Analysis in Progress</p>
-  <ul class="step-list" id="stepList">
-    <li class="step-item" data-step="image_quality">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Inspecting document quality</span>
-    </li>
-    <li class="step-item" data-step="raw_transcription">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Decoding doctor's handwriting</span>
-    </li>
-    <li class="step-item" data-step="patient_header">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Identifying patient details</span>
-    </li>
-    <li class="step-item" data-step="medications">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Extracting medications</span>
-    </li>
-    <li class="step-item" data-step="clinical_context">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Understanding clinical context</span>
-    </li>
-    <li class="step-item" data-step="safety_review">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Checking safety concerns</span>
-    </li>
-    <li class="step-item step-item--full" data-step="synthesis">
-      <span class="step-icon" aria-hidden="true"></span>
-      <span class="step-text">Generating insights</span>
-    </li>
-  </ul>
-</section>
+                <p class="loading-steps-label">AI Analysis in Progress</p>
+                <ul class="step-list" id="stepList">
+                  <li class="step-item" data-step="image_quality">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Inspecting document quality</span>
+                  </li>
+                  <li class="step-item" data-step="raw_transcription">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Decoding doctor's handwriting</span>
+                  </li>
+                  <li class="step-item" data-step="patient_header">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Identifying patient details</span>
+                  </li>
+                  <li class="step-item" data-step="medications">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Extracting medications</span>
+                  </li>
+                  <li class="step-item" data-step="clinical_context">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text"
+                      >Understanding clinical context</span
+                    >
+                  </li>
+                  <li class="step-item" data-step="safety_review">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Checking safety concerns</span>
+                  </li>
+                  <li class="step-item step-item--full" data-step="synthesis">
+                    <span class="step-icon" aria-hidden="true"></span>
+                    <span class="step-text">Generating insights</span>
+                  </li>
+                </ul>
+              </section>
 
               <p class="loading-joke"><span id="loadingJoke"></span></p>
             </div>

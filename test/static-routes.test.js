@@ -9,15 +9,22 @@ const {
   entityTagFor,
   resolveStaticFile,
   listSampleImages,
-  formatSampleLabel
+  formatSampleLabel,
 } = require("../server");
 
 describe("static route helpers", () => {
   it("resolves moved browser assets under public/js", async () => {
     const resolved = await resolveStaticFile("/js/pages/upload.js");
 
-    assert.ok(resolved.filePath.endsWith(path.join("public", "js", "pages", "upload.js")));
-    assert.equal(contentTypeFor(resolved.filePath), "text/javascript; charset=utf-8");
+    assert.ok(
+      resolved.filePath.endsWith(
+        path.join("public", "js", "pages", "upload.js"),
+      ),
+    );
+    assert.equal(
+      contentTypeFor(resolved.filePath),
+      "text/javascript; charset=utf-8",
+    );
     assert.match(cacheControlFor(resolved.filePath), /max-age=86400/);
     assert.match(entityTagFor(resolved.stat), /^"[0-9a-f]+-[0-9a-f]+"$/);
   });

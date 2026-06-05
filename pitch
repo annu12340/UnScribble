@@ -40,7 +40,7 @@ Three agents run in parallel: one extracts patient demographics, one parses medi
 
 If the medication agent isn't confident enough in its own output — below 0.7 — it runs again. The two passes get merged using a self-consistency algorithm that picks the higher-confidence reading for each field.
 
-Then a safety agent runs deterministic rules. Not vibes. Rules. LASA pair detection, controlled substance flags, completeness checks, structured human-review reasons.
+Then a safety agent runs deterministic rules. Not vibes. Rules. Low-confidence flags, high-risk abbreviation checks, completeness checks, unresolved-token checks, structured human-review reasons.
 
 Finally, a synthesis agent writes a plain-English summary a patient can actually read.
 
@@ -50,7 +50,7 @@ THE SAFETY LAYER
 
 The hardest part of medical AI isn't extraction. It's knowing when not to trust the extraction.
 
-UnScribble keeps the original OCR text alongside every corrected drug name. It fuzzy-matches against 864 formulary entries and auto-corrects only when the match is unambiguous. It blocks look-alike/sound-alike drug pairs — Metformin and Metronidazole are not interchangeable, and the system knows that.
+UnScribble keeps the original OCR text alongside every corrected drug name. It fuzzy-matches against 864 formulary entries and auto-corrects only when the match is unambiguous. It also supplies 83 look-alike/sound-alike drug pairs to the medication extraction and second-pass review prompts, so confusing names like Metformin and Metronidazole get extra scrutiny instead of being treated like generic text.
 
 When something is uncertain, it doesn't guess silently. It sets requires_human_review: true and tells you exactly why.
 

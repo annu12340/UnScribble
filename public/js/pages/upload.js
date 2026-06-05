@@ -1,12 +1,19 @@
-import { MAX_EDGE, JPEG_QUALITY, enhanceImageData } from "../core/image-enhance.js";
-import { buildDecodeRequestBody, decodePrescriptionStream } from "../core/decode-client.js";
+import {
+  MAX_EDGE,
+  JPEG_QUALITY,
+  enhanceImageData,
+} from "../core/image-enhance.js";
+import {
+  buildDecodeRequestBody,
+  decodePrescriptionStream,
+} from "../core/decode-client.js";
 import {
   agentLabel,
   formatWorkflowError,
   isImageMimeType,
   pickMedicalJoke,
   shortModelName,
-  workflowProgressPercent
+  workflowProgressPercent,
 } from "../core/upload-workflow.js";
 
 const state = {
@@ -17,7 +24,7 @@ const state = {
   model: "",
   workflowAgents: [],
   totalAgents: 7,
-  completedAgents: 0
+  completedAgents: 0,
 };
 
 const els = {
@@ -37,7 +44,7 @@ const els = {
   loadingHint: document.querySelector("#loadingHint"),
   errorCard: document.querySelector("#errorCard"),
   errorMessage: document.querySelector("#errorMessage"),
-  retryBtn: document.querySelector("#retryBtn")
+  retryBtn: document.querySelector("#retryBtn"),
 };
 
 let enhanceWorker = null;
@@ -150,7 +157,9 @@ async function loadSamples() {
     const response = await fetch("/api/samples");
     if (!response.ok) throw new Error("Unable to load samples");
     const contentType = response.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) throw new Error("Invalid samples response");
+    if (!contentType.includes("application/json")) {
+      throw new Error("Invalid samples response");
+    }
     const payload = await response.json();
     const samples = Array.isArray(payload.samples) ? payload.samples : [];
     if (!samples.length) {
@@ -166,7 +175,10 @@ async function loadSamples() {
       button.dataset.url = sample.url;
       button.dataset.name = sample.name;
       button.setAttribute("role", "option");
-      button.setAttribute("aria-label", `Use sample ${sample.label || sample.name}`);
+      button.setAttribute(
+        "aria-label",
+        `Use sample ${sample.label || sample.name}`,
+      );
 
       const image = document.createElement("img");
       image.src = sample.url;
@@ -227,7 +239,9 @@ function loadImage(file) {
 
 function getEnhanceWorker() {
   if (!enhanceWorker) {
-    enhanceWorker = new Worker("/js/core/image-enhance.worker.js", { type: "module" });
+    enhanceWorker = new Worker("/js/core/image-enhance.worker.js", {
+      type: "module",
+    });
   }
   return enhanceWorker;
 }
@@ -255,7 +269,7 @@ async function renderPreview() {
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   const scale = Math.min(
     1,
-    MAX_EDGE / Math.max(state.originalImage.width, state.originalImage.height)
+    MAX_EDGE / Math.max(state.originalImage.width, state.originalImage.height),
   );
   canvas.width = Math.max(1, Math.round(state.originalImage.width * scale));
   canvas.height = Math.max(1, Math.round(state.originalImage.height * scale));
@@ -299,7 +313,7 @@ async function processPrescription() {
           workflow = payload.workflow;
         }
       },
-      undefined
+      undefined,
     );
 
     if (result) {
@@ -308,7 +322,7 @@ async function processPrescription() {
         result,
         workflow,
         model: workflow?.model || state.model,
-        decodedAt: new Date().toISOString()
+        decodedAt: new Date().toISOString(),
       };
       sessionStorage.setItem("prescriptionResult", JSON.stringify(resultData));
       window.location.href = "/results.html";
@@ -330,28 +344,40 @@ function handleWorkflowEvent(event, payload) {
       }
       updateProgressBar(0);
       initStepList();
-      setLoadingTitle("Deciphering hieroglyphics from your doctor ... (wish us luck) ");
+      setLoadingTitle(
+        "Deciphering hieroglyphics from your doctor ... (wish us luck) ",
+      );
       setLoadingHint("Running multi-agent pipeline…");
       break;
     case "agent.start":
-      setLoadingHint(payload.label || agentLabel(state.workflowAgents, payload.id));
+      setLoadingHint(
+        payload.label || agentLabel(state.workflowAgents, payload.id),
+      );
       updateStepStatus(payload.id, "active");
       break;
     case "agent.complete":
       {
         state.completedAgents++;
-        updateProgressBar(workflowProgressPercent(state.completedAgents, state.totalAgents));
+        updateProgressBar(
+          workflowProgressPercent(state.completedAgents, state.totalAgents),
+        );
         updateStepStatus(payload.id, "completed");
         if (payload.summary) {
-          setLoadingHint(`${agentLabel(state.workflowAgents, payload.id)} done`);
+          setLoadingHint(
+            `${agentLabel(state.workflowAgents, payload.id)} done`,
+          );
         }
       }
       break;
     case "agent.error":
       updateStepStatus(payload.id, "error");
-      throw new Error(formatWorkflowError(payload.id, payload, state.workflowAgents));
+      throw new Error(
+        formatWorkflowError(payload.id, payload, state.workflowAgents),
+      );
     case "workflow.error":
-      throw new Error(formatWorkflowError(payload.agentId, payload, state.workflowAgents));
+      throw new Error(
+        formatWorkflowError(payload.agentId, payload, state.workflowAgents),
+      );
     default:
       break;
   }
@@ -408,7 +434,9 @@ function setLoading(isLoading) {
   if (isLoading) {
     els.previewSection.hidden = true;
     if (els.sampleSection) els.sampleSection.hidden = true;
-    setLoadingTitle("Deciphering hieroglyphics from your doctor ... (wish us luck)");
+    setLoadingTitle(
+      "Deciphering hieroglyphics from your doctor ... (wish us luck)",
+    );
     setLoadingHint("Preparing image…");
     state.completedAgents = 0;
     updateProgressBar(0);
@@ -450,5 +478,7 @@ function syncSegmentedControls() {
 }
 
 function getEnhancementMode() {
-  return document.querySelector("input[name='enhance']:checked")?.value || "original";
+  return (
+    document.querySelector("input[name='enhance']:checked")?.value || "original"
+  );
 }

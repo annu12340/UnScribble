@@ -825,7 +825,6 @@
       </div>
     </header>
 
-
     <div class="layout">
       <!-- TOC -->
       <aside class="toc">
@@ -858,8 +857,8 @@
               gates, formulary validation, and human-review flags — streamed
               live via SSE. <strong>Differentiator:</strong> medical-domain
               orchestration (not generic OCR) — self-consistency re-runs, LASA
-              blocking, deterministic safety rules, and zero-hallucination
-              formulary matching.
+              context for medication review, deterministic safety rules, and
+              formulary matching with explicit human-review flags.
             </p>
           </div>
           <div class="table-wrap">
@@ -921,8 +920,8 @@
               <h4>Safety-first medical AI</h4>
               <p>
                 Medical-grade safeguards combine confidence scoring,
-                fuzzy-match, formulary validation, LASA protection, and full OCR
-                traceability to prevent silent errors.
+                fuzzy-match, formulary validation, LASA-aware prompt context,
+                and full OCR traceability to reduce silent errors.
               </p>
             </div>
             <div class="card">
@@ -930,8 +929,8 @@
               <h4>Multi-pass intelligence</h4>
               <p>
                 Low-confidence medications are automatically re-verified through
-                self-consistency checks and formulary-aware validation instead of
-                relying on a single AI guess.
+                self-consistency checks and formulary-aware validation instead
+                of relying on a single AI guess.
               </p>
             </div>
             <div class="card">
@@ -1033,9 +1032,10 @@ flowchart TB
           <h2>Decode pipeline</h2>
           <p>
             The orchestrator runs agents in <strong>stages</strong>. Parallel
-            stages use <code>Promise.all</code>. Critical agents
-            (<code>raw_transcription</code>, <code>medications</code>) fail the
-            entire workflow on error; others degrade with empty sections.
+            stages use <code>Promise.all</code>. In the main decode path, agent
+            failures emit <code>agent.error</code> / <code>workflow.error</code>
+            and fail the request; the optional medication re-run keeps the first
+            pass if that second pass fails.
           </p>
           <div class="diagram">
             <pre class="mermaid">
@@ -1142,7 +1142,6 @@ flowchart TD
             </table>
           </div>
 
-       
           <div class="table-wrap">
             <table>
               <thead>
@@ -1337,14 +1336,14 @@ flowchart TB
     subgraph Extraction["Extraction safeguards"]
         RT["Raw transcription preserved"]
         SC["Self-consistency re-run"]
-        LASA["LASA pair blocking in prompts"]
+        LASA["LASA pair context in prompts"]
         RH["region_hint biasing"]
     end
     subgraph Deterministic["Deterministic rules (safety-rules.js)"]
         LC["Low medication_name_confidence"]
         MD["Missing strength/dose/frequency"]
         UT["Uncertain tokens"]
-        HR["High-risk abbreviations STAT/SOS/QID/..."]
+        HR["High-risk abbreviations STAT/SOS/U/IU/..."]
         TR["Unresolved [?] in transcription"]
     end
     subgraph Post["Post-processing"]
@@ -1431,7 +1430,6 @@ stateDiagram-v2
               </tbody>
             </table>
           </div>
-      
         </section>
 
         <!-- 10. DEPLOY -->

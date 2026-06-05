@@ -21,7 +21,9 @@ describe("feature data fallbacks", () => {
   });
 
   it("returns mechanism fallback paths without calling external APIs in mock mode", async () => {
-    const { predictProteinMechanism } = require("../agents/features/protein-mechanism");
+    const {
+      predictProteinMechanism,
+    } = require("../agents/features/protein-mechanism");
 
     const known = await predictProteinMechanism("ibuprofen");
     assert.equal(known.hasProteinData, true);

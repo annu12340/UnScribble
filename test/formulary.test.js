@@ -2,7 +2,10 @@
 
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
-const { isInFormulary, validateAgainstFormulary } = require("../agents/formulary");
+const {
+  isInFormulary,
+  validateAgainstFormulary,
+} = require("../agents/formulary");
 
 describe("formulary", () => {
   it("isInFormulary matches bundled list", () => {
@@ -16,10 +19,12 @@ describe("formulary", () => {
         {
           medication_name: "not_a_real_drug_xyz",
           medication_name_confidence: 0.9,
-          alternatives: []
-        }
-      ]
+          alternatives: [],
+        },
+      ],
     });
-    assert.ok(result.medications[0].safety_flags.includes("unknown to formulary"));
+    assert.ok(
+      result.medications[0].safety_flags.includes("unknown to formulary"),
+    );
   });
 });

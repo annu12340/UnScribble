@@ -4,7 +4,7 @@ import {
   parseMedicationSchedule,
   isGoogleSignedIn,
   signOutGoogle,
-  getGoogleUserInfo
+  getGoogleUserInfo,
 } from "../medication/medication-schedule.js";
 
 const state = {
@@ -12,9 +12,9 @@ const state = {
   currentSchedules: [],
   googleCalendarConfig: {
     clientId: "",
-    enabled: false
+    enabled: false,
   },
-  currentMedicationIndex: null
+  currentMedicationIndex: null,
 };
 
 const els = {
@@ -36,7 +36,7 @@ const els = {
   modalCancel: document.querySelector("#modalCancel"),
   modalConfirm: document.querySelector("#modalConfirm"),
   modalBody: document.querySelector("#calendarModal .modal-body"),
-  startDateInput: document.querySelector("#startDateInput")
+  startDateInput: document.querySelector("#startDateInput"),
 };
 
 let toastTimer = null;
@@ -58,16 +58,18 @@ async function loadGoogleConfig() {
     if (config.googleCalendar && config.googleCalendar.enabled) {
       state.googleCalendarConfig = {
         clientId: config.googleCalendar.clientId,
-        enabled: true
+        enabled: true,
       };
 
       if (isGoogleSignedIn()) {
         updateGoogleSignInUI();
       }
     } else {
-      document.querySelectorAll(".add-to-calendar-btn, #addAllToCalendarInline").forEach((btn) => {
-        btn.style.display = "none";
-      });
+      document
+        .querySelectorAll(".add-to-calendar-btn, #addAllToCalendarInline")
+        .forEach((btn) => {
+          btn.style.display = "none";
+        });
     }
   } catch (error) {
     console.error("Error loading Google config:", error);
@@ -110,7 +112,7 @@ function updateGoogleSignInUI() {
       const textWrap = document.createElement("div");
       textWrap.append(
         createElement("div", "google-user-name", userInfo.name || ""),
-        createElement("div", "google-user-email", userInfo.email || "")
+        createElement("div", "google-user-email", userInfo.email || ""),
       );
       user.append(avatar, textWrap);
 
@@ -242,19 +244,26 @@ async function confirmCalendarSetup() {
           await addMedicationToGoogleCalendar(
             schedule,
             startDate,
-            state.googleCalendarConfig.clientId
+            state.googleCalendarConfig.clientId,
           );
           successCount++;
         } catch (error) {
           failCount++;
-          errors.push({ medication: schedule.medication, error: error.message });
+          errors.push({
+            medication: schedule.medication,
+            error: error.message,
+          });
         }
       }
 
       if (successCount > 0 && failCount === 0) {
-        showToast(`✓ Added all ${successCount} medication(s) to Google Calendar`);
+        showToast(
+          `✓ Added all ${successCount} medication(s) to Google Calendar`,
+        );
       } else if (successCount > 0 && failCount > 0) {
-        showToast(`⚠️ Added ${successCount} medication(s), ${failCount} failed`);
+        showToast(
+          `⚠️ Added ${successCount} medication(s), ${failCount} failed`,
+        );
         console.error("[Calendar Setup] Failed medications:", errors);
       } else {
         showToast(`❌ Failed to add medications. Check console for details.`);
@@ -262,7 +271,11 @@ async function confirmCalendarSetup() {
       }
     } else {
       const schedule = state.currentSchedules[state.currentMedicationIndex];
-      await addMedicationToGoogleCalendar(schedule, startDate, state.googleCalendarConfig.clientId);
+      await addMedicationToGoogleCalendar(
+        schedule,
+        startDate,
+        state.googleCalendarConfig.clientId,
+      );
       showToast(`✓ Added ${schedule.medication} to Google Calendar`);
     }
 
@@ -294,15 +307,21 @@ function renderMedicationsTable(tbody, medications) {
       tr.dataset.medIndex = index;
       tr.style.cursor = "pointer";
 
-      const frequency = med.normalized_frequency?.expansion || med.frequency || "Not specified";
-      const administration = med.administration_notes || med.timing || "Not specified";
+      const frequency =
+        med.normalized_frequency?.expansion || med.frequency || "Not specified";
+      const administration =
+        med.administration_notes || med.timing || "Not specified";
 
       const nameCell = document.createElement("td");
       const nameWrap = createElement("div", "med-name-cell");
       nameWrap.append(createMedicationIcon());
       const nameText = document.createElement("div");
-      nameText.append(createElement("strong", "", med.medication_name || "Unknown"));
-      if (med.form) nameText.append(createElement("span", "med-form", med.form));
+      nameText.append(
+        createElement("strong", "", med.medication_name || "Unknown"),
+      );
+      if (med.form) {
+        nameText.append(createElement("span", "med-form", med.form));
+      }
       nameWrap.append(nameText);
       nameCell.append(nameWrap);
 
@@ -316,7 +335,11 @@ function renderMedicationsTable(tbody, medications) {
       frequencyWrap.append(createElement("span", "", frequency));
       if (med.normalized_frequency?.abbreviation) {
         frequencyWrap.append(
-          createElement("span", "freq-abbrev", med.normalized_frequency.abbreviation)
+          createElement(
+            "span",
+            "freq-abbrev",
+            med.normalized_frequency.abbreviation,
+          ),
         );
       }
       frequencyCell.append(frequencyWrap);
@@ -324,7 +347,14 @@ function renderMedicationsTable(tbody, medications) {
       const durationCell = createElement("td", "", med.duration || "—");
       const adminCell = document.createElement("td");
       adminCell.append(createElement("div", "admin-cell", administration));
-      tr.append(nameCell, strengthCell, doseCell, frequencyCell, durationCell, adminCell);
+      tr.append(
+        nameCell,
+        strengthCell,
+        doseCell,
+        frequencyCell,
+        durationCell,
+        adminCell,
+      );
 
       // Make entire row clickable
       tr.addEventListener("click", () => {
@@ -332,7 +362,7 @@ function renderMedicationsTable(tbody, medications) {
       });
 
       return tr;
-    })
+    }),
   );
 }
 
@@ -345,7 +375,9 @@ function navigateToMedicationDetails(medication) {
 
 function renderRawText(container, rawTranscription) {
   if (!rawTranscription || !rawTranscription.length) {
-    container.replaceChildren(createElement("p", "no-data", "No raw transcription available."));
+    container.replaceChildren(
+      createElement("p", "no-data", "No raw transcription available."),
+    );
     return;
   }
 
@@ -355,9 +387,13 @@ function renderRawText(container, rawTranscription) {
     .map((item) => {
       const line = createElement("div", "raw-text-line");
       if (item.line_number) {
-        line.append(createElement("span", "line-num", String(item.line_number)));
+        line.append(
+          createElement("span", "line-num", String(item.line_number)),
+        );
       }
-      if (item.section) line.append(createElement("span", "line-section", item.section));
+      if (item.section) {
+        line.append(createElement("span", "line-section", item.section));
+      }
       line.append(createElement("span", "line-text", item.text || ""));
       return line;
     });
@@ -367,7 +403,9 @@ function renderRawText(container, rawTranscription) {
 
 function renderAbbreviations(container, abbreviations) {
   if (!abbreviations.length) {
-    container.replaceChildren(createElement("p", "", "No abbreviations extracted."));
+    container.replaceChildren(
+      createElement("p", "", "No abbreviations extracted."),
+    );
     return;
   }
 
@@ -378,16 +416,18 @@ function renderAbbreviations(container, abbreviations) {
       row.append(
         createElement("strong", "", item.abbreviation || ""),
         document.createTextNode(`: ${item.likely_expansion || ""} `),
-        createElement("span", "muted", `${confidence}%`)
+        createElement("span", "muted", `${confidence}%`),
       );
       return row;
-    })
+    }),
   );
 }
 
 async function copyResult() {
   if (!state.resultPayload) return;
-  await navigator.clipboard.writeText(JSON.stringify(state.resultPayload.result, null, 2));
+  await navigator.clipboard.writeText(
+    JSON.stringify(state.resultPayload.result, null, 2),
+  );
   els.copyBtn.classList.add("is-success");
   showToast("Copied to clipboard");
   setTimeout(() => els.copyBtn.classList.remove("is-success"), 1400);
@@ -396,7 +436,7 @@ async function copyResult() {
 function downloadResult() {
   if (!state.resultPayload) return;
   const blob = new Blob([JSON.stringify(state.resultPayload, null, 2)], {
-    type: "application/json"
+    type: "application/json",
   });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
@@ -432,10 +472,13 @@ function createMedicationIcon() {
   svg.setAttribute("stroke-width", "2");
   svg.classList.add("med-icon");
 
-  const clipboardPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  const clipboardPath = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "path",
+  );
   clipboardPath.setAttribute(
     "d",
-    "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
+    "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2",
   );
   const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
   rect.setAttribute("x", "9");

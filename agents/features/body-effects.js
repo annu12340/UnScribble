@@ -9,7 +9,13 @@ const log = require("../logger");
  * Not clinical guidance — demo / transcription-aid only.
  */
 
-const DATA_FILE = path.join(__dirname, "..", "..", "data", "drug-body-effects.json");
+const DATA_FILE = path.join(
+  __dirname,
+  "..",
+  "..",
+  "data",
+  "drug-body-effects.json",
+);
 
 function medicationLookupKeys(name) {
   const raw = String(name || "")
@@ -28,7 +34,7 @@ const GENERIC_FALLBACK = {
   organs: [],
   summary:
     "We do not have a body-region map for this medication in our demo database yet. Ask your pharmacist or clinician where it acts.",
-  uncertain: true
+  uncertain: true,
 };
 
 function loadBodyEffects(filePath) {
@@ -51,15 +57,17 @@ function loadBodyEffects(filePath) {
       }
       log.info("body-effects", "loaded body-effect data", {
         entries: Object.keys(valid).length,
-        skipped
+        skipped,
       });
       return valid;
     }
-    log.warn("body-effects", "body-effect data must be an object", { filePath });
+    log.warn("body-effects", "body-effect data must be an object", {
+      filePath,
+    });
   } catch (error) {
     log.warn("body-effects", "could not load body-effect data", {
       filePath,
-      message: error.message
+      message: error.message,
     });
     // Keep the feature non-critical. The caller gets the generic fallback.
   }
@@ -68,13 +76,19 @@ function loadBodyEffects(filePath) {
 
 /**
  * @param {string} medicationName
+ * @param {string} [locale] - BCP 47 language tag, e.g. "es", "hi", "fr", "ar". Defaults to "en".
  * @returns {{ regions: string[], organs: string[], summary: string, matchedDrug?: string, uncertain?: boolean }}
  */
-function getBodyEffects(medicationName) {
+function getBodyEffects(medicationName, locale) {
   const keys = medicationLookupKeys(medicationName);
   for (const key of keys) {
     if (BODY_EFFECTS[key]) {
-      return { ...BODY_EFFECTS[key], matchedDrug: key };
+      const entry = BODY_EFFECTS[key];
+      const lang = locale ? String(locale).split("-")[0].toLowerCase() : "en";
+      const summary =
+        (entry.summaries && (entry.summaries[lang] || entry.summaries["en"])) ||
+        entry.summary;
+      return { ...entry, summary, matchedDrug: key };
     }
   }
   return { ...GENERIC_FALLBACK };
@@ -82,5 +96,5 @@ function getBodyEffects(medicationName) {
 
 module.exports = {
   getBodyEffects,
-  medicationLookupKeys
+  medicationLookupKeys,
 };

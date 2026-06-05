@@ -18,7 +18,13 @@
       <header class="topbar">
         <a href="/landing.html" class="brand brand-link">
           <div class="brand-mark rx-logo" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 40 40"
+              fill="none"
+              aria-hidden="true"
+            >
               <path
                 d="M12 14h16M12 20h16M12 26h10"
                 stroke="white"
@@ -112,7 +118,12 @@
                 </p>
               </div>
               <div class="results-actions">
-                <button class="btn icon-btn" id="copyBtn" type="button" title="Copy JSON">
+                <button
+                  class="btn icon-btn"
+                  id="copyBtn"
+                  type="button"
+                  title="Copy JSON"
+                >
                   <svg
                     width="16"
                     height="16"
@@ -122,12 +133,19 @@
                     stroke-width="1.8"
                   >
                     <rect x="9" y="9" width="13" height="13" rx="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    <path
+                      d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                    />
                   </svg>
                   <span>Copy</span>
                 </button>
 
-                <button class="btn icon-btn" id="printBtn" type="button" title="Print">
+                <button
+                  class="btn icon-btn"
+                  id="printBtn"
+                  type="button"
+                  title="Print"
+                >
                   <svg
                     width="16"
                     height="16"
@@ -143,7 +161,12 @@
                   </svg>
                   <span>Print</span>
                 </button>
-                <button class="btn icon-btn" id="downloadBtn" type="button" title="Download JSON">
+                <button
+                  class="btn icon-btn"
+                  id="downloadBtn"
+                  type="button"
+                  title="Download JSON"
+                >
                   <svg
                     width="16"
                     height="16"
@@ -160,14 +183,33 @@
             </div>
             <div class="review-banner" id="reviewBanner"></div>
 
+            <section
+              class="section-card summary-card"
+              aria-labelledby="summaryHeading"
+            >
+              <div class="section-card-header">
+                <div>
+                  <h3 id="summaryHeading">Decode Summary</h3>
+                  <p class="section-desc">
+                    Plain-language prescription overview
+                  </p>
+                </div>
+              </div>
+              <p id="summaryText" class="compact-list">No summary returned.</p>
+            </section>
+
             <section class="section-card">
               <div class="section-card-header">
                 <div>
                   <h3>
-                    <span class="subhead-icon" aria-hidden="true">UnScribble</span>
+                    <span class="subhead-icon" aria-hidden="true"
+                      >UnScribble</span
+                    >
                     Medication Summary
                   </h3>
-                  <p class="section-desc">Click on any medication to see complete information</p>
+                  <p class="section-desc">
+                    Click on any medication to see complete information
+                  </p>
                 </div>
                 <div class="medication-actions">
                   <button class="btn primary" id="addAllToCalendarInline">
@@ -220,6 +262,25 @@
               <h3 class="subhead">Abbreviations</h3>
               <div id="abbrevList" class="compact-list"></div>
             </section>
+
+            <details class="raw-text-section" open>
+              <summary>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <path d="M4 4h16v16H4z" />
+                  <path d="M8 8h8M8 12h8M8 16h5" />
+                </svg>
+                Raw transcription
+              </summary>
+              <div id="rawTextContent" class="raw-text-content"></div>
+            </details>
           </div>
         </div>
       </main>
@@ -247,7 +308,10 @@
         </div>
         <div class="modal-body">
           <div class="google-auth-container">
-            <p>Sign in with your Google account to add medication reminders to your calendar.</p>
+            <p>
+              Sign in with your Google account to add medication reminders to
+              your calendar.
+            </p>
             <div class="google-sign-in-info">
               <svg
                 width="24"

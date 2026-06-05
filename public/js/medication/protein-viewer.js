@@ -28,7 +28,8 @@ class ProteinViewer {
       this.init();
     } catch (error) {
       console.error("Failed to initialize 3D viewer:", error);
-      this.container.innerHTML = '<div class="loading">Failed to initialize 3D viewer.</div>';
+      this.container.innerHTML =
+        '<div class="loading">Failed to initialize 3D viewer.</div>';
     }
   }
 
@@ -40,12 +41,15 @@ class ProteinViewer {
       75,
       this.container.clientWidth / this.container.clientHeight,
       0.1,
-      1000
+      1000,
     );
     this.camera.position.z = 50;
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+    this.renderer.setSize(
+      this.container.clientWidth,
+      this.container.clientHeight,
+    );
 
     this.container.innerHTML = "";
     this.container.appendChild(this.renderer.domElement);
@@ -58,7 +62,10 @@ class ProteinViewer {
     this.scene.add(directionalLight);
 
     if (typeof THREE.OrbitControls !== "undefined") {
-      this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+      this.controls = new THREE.OrbitControls(
+        this.camera,
+        this.renderer.domElement,
+      );
       this.controls.enableDamping = true;
     } else {
       console.warn("OrbitControls not available, using auto-rotation only");
@@ -125,7 +132,7 @@ class ProteinViewer {
       if (i % 3 === 0) {
         const sideChain = new THREE.Mesh(
           new THREE.SphereGeometry(0.5, 12, 12),
-          new THREE.MeshPhongMaterial({ color: 0xe74c3c })
+          new THREE.MeshPhongMaterial({ color: 0xe74c3c }),
         );
         sideChain.position.set(x * 1.5, y, z * 1.5);
         group.add(sideChain);
@@ -181,14 +188,14 @@ class ProteinViewer {
       N: 0x3050f8, // Nitrogen - blue
       O: 0xff0d0d, // Oxygen - red
       S: 0xffff30, // Sulfur - yellow
-      H: 0xffffff // Hydrogen - white
+      H: 0xffffff, // Hydrogen - white
     };
 
     // Create sphere for each atom
     atoms.forEach((atom) => {
       const geometry = new THREE.SphereGeometry(0.3, 16, 16);
       const material = new THREE.MeshPhongMaterial({
-        color: colors[atom.element] || 0xffc0cb
+        color: colors[atom.element] || 0xffc0cb,
       });
       const sphere = new THREE.Mesh(geometry, material);
       sphere.position.set(atom.x, atom.y, atom.z);
@@ -212,7 +219,7 @@ class ProteinViewer {
         const distance = Math.sqrt(
           Math.pow(atoms[i].x - atoms[j].x, 2) +
             Math.pow(atoms[i].y - atoms[j].y, 2) +
-            Math.pow(atoms[i].z - atoms[j].z, 2)
+            Math.pow(atoms[i].z - atoms[j].z, 2),
         );
 
         if (distance < bondDistance) {
@@ -224,7 +231,7 @@ class ProteinViewer {
           bond.position.set(
             (atoms[i].x + atoms[j].x) / 2,
             (atoms[i].y + atoms[j].y) / 2,
-            (atoms[i].z + atoms[j].z) / 2
+            (atoms[i].z + atoms[j].z) / 2,
           );
 
           group.add(bond);
@@ -243,7 +250,7 @@ class ProteinViewer {
       color: 0x00ff00,
       transparent: true,
       opacity: 0.2,
-      wireframe: true
+      wireframe: true,
     });
     const bindingSite = new THREE.Mesh(geometry, material);
     bindingSite.position.set(0, 0, 0); // Would be actual binding site coords
@@ -297,9 +304,13 @@ class ProteinViewer {
    * Handle window resize
    */
   onWindowResize() {
-    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
+    this.camera.aspect =
+      this.container.clientWidth / this.container.clientHeight;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+    this.renderer.setSize(
+      this.container.clientWidth,
+      this.container.clientHeight,
+    );
   }
 }
 

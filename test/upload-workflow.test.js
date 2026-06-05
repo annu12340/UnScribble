@@ -5,7 +5,14 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const modulePath = path.join(__dirname, "..", "public", "js", "core", "upload-workflow.js");
+const modulePath = path.join(
+  __dirname,
+  "..",
+  "public",
+  "js",
+  "core",
+  "upload-workflow.js",
+);
 const moduleUrl = `data:text/javascript;base64,${fs.readFileSync(modulePath).toString("base64")}`;
 
 async function uploadWorkflow() {
@@ -37,7 +44,7 @@ describe("upload workflow helpers", () => {
     const message = formatWorkflowError(
       "medications",
       { message: "timeout", detail: "upstream stalled" },
-      agents
+      agents,
     );
 
     assert.match(message, /Medications: timeout/);

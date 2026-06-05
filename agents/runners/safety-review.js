@@ -11,5 +11,5 @@ module.exports = {
   label: "Safety review",
   critical: false,
   run,
-  deterministic: true
+  deterministic: true,
 };

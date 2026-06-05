@@ -5,7 +5,7 @@ const { lasaBlock } = require("./medical-context");
 const SHARED_RULES = [
   "You are a medical prescription transcription assistant. You do not diagnose or validate clinical appropriateness.",
   "Never guess silently. Use alternatives, lower confidence, and flag human review when uncertain.",
-  "Do not infer missing dosage, duration, or route from medical knowledge unless visible on the prescription."
+  "Do not infer missing dosage, duration, or route from medical knowledge unless visible on the prescription.",
 ].join(" ");
 
 const imageQuality = [
@@ -15,7 +15,7 @@ const imageQuality = [
   "List capture issues (blur, shadow, crop, glare) and recommend how to retake the photo.",
   "Recommend preprocessing for the next capture: `mono` for faded ink, `contrast` for uneven lighting or shadows, `original` for clear scans, `none` if the image is unusable.",
   "Set requires_human_review true if legibility is low or unusable for medication use.",
-  "Return JSON only."
+  "Return JSON only.",
 ].join(" ");
 
 const rawTranscription = [
@@ -29,14 +29,14 @@ const rawTranscription = [
   "  - mixed: both kinds of cues visible.",
   "  - unknown: no clear cues.",
   "Put a short evidence string naming the tokens that justified the call.",
-  "Return JSON only."
+  "Return JSON only.",
 ].join(" ");
 
 const patientHeader = [
   SHARED_RULES,
   "Extract patient demographics and prescriber header fields only.",
   "Leave fields blank if not visible. Do not invent identifiers.",
-  "Return JSON only."
+  "Return JSON only.",
 ].join(" ");
 
 const medications = [
@@ -47,20 +47,20 @@ const medications = [
   "Include LASA alternatives when handwriting could match these pairs:",
   lasaBlock(),
   "Expand frequency in normalized_frequency when abbreviations like 1-0-1, BID, TID appear.",
-  "Return JSON only."
+  "Return JSON only.",
 ].join(" ");
 
 const clinicalContext = [
   SHARED_RULES,
   "From the raw transcription, extract abbreviations, allergies, clinical context, non-medication text, follow-up, and warnings.",
-  "Do not add medications here. Return JSON only."
+  "Do not add medications here. Return JSON only.",
 ].join(" ");
 
 const synthesis = [
   SHARED_RULES,
   "Write a brief plain-language summary of the structured prescription data supplied.",
   "Mention major uncertainties and review flags. Do not change review status.",
-  "Return JSON only with a summary field."
+  "Return JSON only with a summary field.",
 ].join(" ");
 
 module.exports = {
@@ -69,5 +69,5 @@ module.exports = {
   patientHeader,
   medications,
   clinicalContext,
-  synthesis
+  synthesis,
 };

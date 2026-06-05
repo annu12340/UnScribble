@@ -34,7 +34,7 @@ let failed = false;
 for (const file of collectFiles()) {
   const result = spawnSync(process.execPath, ["--check", file], {
     cwd: ROOT,
-    encoding: "utf8"
+    encoding: "utf8",
   });
   if (result.status !== 0) {
     failed = true;

@@ -13,8 +13,12 @@ const log = require("./agents/logger");
 const { AGENT_MANIFEST, runWorkflow } = require("./agents/orchestrator");
 const { initSseResponse, writeSse } = require("./agents/sse");
 const { formularySize } = require("./agents/formulary");
-const { predictProteinMechanism } = require("./agents/features/protein-mechanism");
-const { getMedicationInsights } = require("./agents/features/medication-insights");
+const {
+  predictProteinMechanism,
+} = require("./agents/features/protein-mechanism");
+const {
+  getMedicationInsights,
+} = require("./agents/features/medication-insights");
 
 const PUBLIC_DIR = path.join(ROOT, "public");
 const DATA_DIR = path.join(ROOT, "data");
@@ -24,6 +28,45 @@ const MAX_BODY_BYTES = 32 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 const PORT = Number(process.env.PORT || 3000);
+const HOST =
+  process.env.HOST ||
+  (process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1");
+
+// -- Rate limiting (per IP, sliding window) --
+const RATE_LIMIT_RPM = Number(process.env.RATE_LIMIT_RPM || 10);
+const RATE_WINDOW_MS = 60_000;
+const rateLimitMap = new Map();
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now >= entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return { allowed: true };
+  }
+  if (entry.count >= RATE_LIMIT_RPM) {
+    return {
+      allowed: false,
+      retryAfter: Math.ceil((entry.resetAt - now) / 1000),
+    };
+  }
+  entry.count++;
+  return { allowed: true };
+}
+
+// -- API key auth (enabled when UNSCRIBBLE_API_KEY is set) --
+function checkApiKey(req) {
+  const required = process.env.UNSCRIBBLE_API_KEY;
+  if (!required) return true;
+  const header = req.headers["authorization"] || "";
+  return header === `Bearer ${required}`;
+}
+
+function clientIp(req) {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (forwarded) return forwarded.split(",")[0].trim();
+  return req.socket?.remoteAddress || "unknown";
+}
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -35,7 +78,7 @@ const mimeTypes = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
-  ".ico": "image/x-icon"
+  ".ico": "image/x-icon",
 };
 
 const SECURITY_HEADERS = {
@@ -50,11 +93,11 @@ const SECURITY_HEADERS = {
     "worker-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
-    "frame-ancestors 'none'"
+    "frame-ancestors 'none'",
   ].join("; "),
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "no-referrer",
-  "X-Frame-Options": "DENY"
+  "X-Frame-Options": "DENY",
 };
 
 function applySecurityHeaders(res) {
@@ -84,12 +127,15 @@ function createAppServer() {
           mock: config.mock,
           googleCalendar: {
             enabled: Boolean(process.env.GOOGLE_CLIENT_ID),
-            clientId: process.env.GOOGLE_CLIENT_ID || ""
-          }
+            clientId: process.env.GOOGLE_CLIENT_ID || "",
+          },
         });
       }
 
-      if (req.method === "POST" && requestUrl.pathname === "/api/decode/stream") {
+      if (
+        req.method === "POST" &&
+        requestUrl.pathname === "/api/decode/stream"
+      ) {
         return await handleDecodeStream(req, res);
       }
 
@@ -97,11 +143,17 @@ function createAppServer() {
         return await handleDecodeBatch(req, res);
       }
 
-      if (req.method === "POST" && requestUrl.pathname === "/api/protein-mechanism") {
+      if (
+        req.method === "POST" &&
+        requestUrl.pathname === "/api/protein-mechanism"
+      ) {
         return await handleProteinMechanism(req, res);
       }
 
-      if (req.method === "POST" && requestUrl.pathname === "/api/medication-insights") {
+      if (
+        req.method === "POST" &&
+        requestUrl.pathname === "/api/medication-insights"
+      ) {
         return await handleMedicationInsights(req, res);
       }
 
@@ -120,7 +172,9 @@ function createAppServer() {
         (req.method === "GET" || req.method === "HEAD") &&
         requestUrl.pathname.startsWith("/samples/")
       ) {
-        const fileName = decodeURIComponent(requestUrl.pathname.slice("/samples/".length));
+        const fileName = decodeURIComponent(
+          requestUrl.pathname.slice("/samples/".length),
+        );
         return await serveSampleFile(req, res, fileName);
       }
 
@@ -140,12 +194,12 @@ function createAppServer() {
         requestId: req.requestId,
         method: req.method,
         url: req.url,
-        message: error.message
+        message: error.message,
       });
       const statusCode = error.statusCode || 500;
       sendJson(res, statusCode, {
         error: statusCode >= 500 ? "Server error" : error.message,
-        detail: statusCode >= 500 ? error.message : undefined
+        detail: statusCode >= 500 ? error.message : undefined,
       });
     }
   });
@@ -153,12 +207,18 @@ function createAppServer() {
 
 if (require.main === module) {
   const server = createAppServer();
-  server.listen(PORT, "0.0.0.0", () => {
+  server.listen(PORT, HOST, () => {
     console.log(`UnScribble running at http://localhost:${PORT}`);
-    console.log(`Workflow: multi-agent SSE · formulary entries: ${formularySize}`);
-    if (config.mock) console.log("WORKFLOW_MOCK=1 — using fixture agent outputs");
+    console.log(
+      `Workflow: multi-agent SSE · formulary entries: ${formularySize}`,
+    );
+    if (config.mock) {
+      console.log("WORKFLOW_MOCK=1 — using fixture agent outputs");
+    }
     if (!config.apiKey) {
-      console.log("NVIDIA_API_KEY is not set. Add it to .env before decoding prescriptions.");
+      console.log(
+        "NVIDIA_API_KEY is not set. Add it to .env before decoding prescriptions.",
+      );
     }
   });
 }
@@ -170,10 +230,25 @@ function requestIdFor(req) {
 }
 
 async function handleDecodeStream(req, res) {
+  if (!checkApiKey(req)) {
+    return sendJson(res, 401, {
+      error: "Unauthorized. Provide a valid Bearer token.",
+    });
+  }
+
+  const rl = checkRateLimit(clientIp(req));
+  if (!rl.allowed) {
+    res.setHeader("Retry-After", String(rl.retryAfter));
+    return sendJson(res, 429, {
+      error: "Rate limit exceeded. Try again shortly.",
+    });
+  }
+
   if (!config.apiKey && !config.mock) {
     return sendJson(res, 500, {
       error: "NVIDIA_API_KEY is not configured",
-      detail: "Set NVIDIA_API_KEY in .env or WORKFLOW_MOCK=1 for local testing."
+      detail:
+        "Set NVIDIA_API_KEY in .env or WORKFLOW_MOCK=1 for local testing.",
     });
   }
 
@@ -189,7 +264,7 @@ async function handleDecodeStream(req, res) {
   log.info("http", "POST /api/decode/stream", {
     requestId: req.requestId,
     fileName: body.fileName,
-    enhancementMode: body.enhancementMode
+    enhancementMode: body.enhancementMode,
   });
 
   try {
@@ -199,7 +274,7 @@ async function handleDecodeStream(req, res) {
         log.debug("sse", event, data.id || data.workflowId || "");
         writeSse(res, event, { requestId: req.requestId, ...data });
       },
-      { requestId: req.requestId }
+      { requestId: req.requestId },
     );
     log.info("http", "SSE stream finished", { requestId: req.requestId });
     res.end();
@@ -207,22 +282,37 @@ async function handleDecodeStream(req, res) {
     log.error("http", "SSE stream error", {
       requestId: req.requestId,
       message: error.message,
-      agentId: error.agentId
+      agentId: error.agentId,
     });
     writeSse(res, "workflow.error", {
       requestId: req.requestId,
       message: error.detail || error.message,
-      agentId: error.agentId || null
+      agentId: error.agentId || null,
     });
     res.end();
   }
 }
 
 async function handleDecodeBatch(req, res) {
+  if (!checkApiKey(req)) {
+    return sendJson(res, 401, {
+      error: "Unauthorized. Provide a valid Bearer token.",
+    });
+  }
+
+  const rl = checkRateLimit(clientIp(req));
+  if (!rl.allowed) {
+    res.setHeader("Retry-After", String(rl.retryAfter));
+    return sendJson(res, 429, {
+      error: "Rate limit exceeded. Try again shortly.",
+    });
+  }
+
   if (!config.apiKey && !config.mock) {
     return sendJson(res, 500, {
       error: "NVIDIA_API_KEY is not configured",
-      detail: "Set NVIDIA_API_KEY in .env or WORKFLOW_MOCK=1 for local testing."
+      detail:
+        "Set NVIDIA_API_KEY in .env or WORKFLOW_MOCK=1 for local testing.",
     });
   }
 
@@ -237,7 +327,7 @@ async function handleDecodeBatch(req, res) {
   log.info("http", "POST /api/decode", {
     requestId: req.requestId,
     fileName: body.fileName,
-    enhancementMode: body.enhancementMode
+    enhancementMode: body.enhancementMode,
   });
 
   const events = [];
@@ -248,11 +338,11 @@ async function handleDecodeBatch(req, res) {
         log.debug("http", `batch event · ${event}`, data.id || "");
         events.push({ event, data: { requestId: req.requestId, ...data } });
       },
-      { requestId: req.requestId }
+      { requestId: req.requestId },
     );
     log.info("http", "batch decode complete", {
       requestId: req.requestId,
-      totalMs: workflow?.totalMs
+      totalMs: workflow?.totalMs,
     });
     return sendJson(res, 200, {
       requestId: req.requestId,
@@ -260,13 +350,13 @@ async function handleDecodeBatch(req, res) {
       workflow,
       events,
       model: config.model,
-      decodedAt: new Date().toISOString()
+      decodedAt: new Date().toISOString(),
     });
   } catch (error) {
     log.error("http", "batch decode failed", {
       requestId: req.requestId,
       message: error.message,
-      agentId: error.agentId
+      agentId: error.agentId,
     });
     const statusCode = error.statusCode || 500;
     return sendJson(res, statusCode, {
@@ -274,7 +364,7 @@ async function handleDecodeBatch(req, res) {
       error: statusCode >= 500 ? "Decoding failed" : error.message,
       detail: error.detail || error.message,
       events,
-      agentId: error.agentId || null
+      agentId: error.agentId || null,
     });
   }
 }
@@ -292,7 +382,10 @@ async function handleProteinMechanism(req, res) {
     return sendJson(res, 400, { error: "Medication name is required" });
   }
 
-  log.info("http", "POST /api/protein-mechanism", { requestId: req.requestId, medication });
+  log.info("http", "POST /api/protein-mechanism", {
+    requestId: req.requestId,
+    medication,
+  });
 
   try {
     const result = await predictProteinMechanism(medication);
@@ -301,11 +394,11 @@ async function handleProteinMechanism(req, res) {
     log.error("http", "protein mechanism failed", {
       requestId: req.requestId,
       medication,
-      message: error.message
+      message: error.message,
     });
     return sendJson(res, error.statusCode || 500, {
       error: "Failed to predict protein mechanism",
-      detail: error.message
+      detail: error.message,
     });
   }
 }
@@ -321,13 +414,15 @@ async function handleMedicationInsights(req, res) {
   const medication = String(body.medication_name || "").trim();
   const rawText = String(body.raw_text || "").trim();
   if (!medication && !rawText) {
-    return sendJson(res, 400, { error: "Medication name or raw_text is required" });
+    return sendJson(res, 400, {
+      error: "Medication name or raw_text is required",
+    });
   }
 
   log.info("http", "POST /api/medication-insights", {
     requestId: req.requestId,
     medication,
-    rawText: Boolean(rawText)
+    rawText: Boolean(rawText),
   });
 
   try {
@@ -337,11 +432,11 @@ async function handleMedicationInsights(req, res) {
     log.error("http", "medication insights failed", {
       requestId: req.requestId,
       medication,
-      message: error.message
+      message: error.message,
     });
     return sendJson(res, error.statusCode || 500, {
       error: "Failed to load medication insights",
-      detail: error.message
+      detail: error.message,
     });
   }
 }
@@ -349,12 +444,16 @@ async function handleMedicationInsights(req, res) {
 function validateDecodeBody(body) {
   const imageDataUrl = String(body.imageDataUrl || "");
   validateImageDataUrl(imageDataUrl);
-  const originalImageDataUrl = body.originalImageDataUrl ? String(body.originalImageDataUrl) : "";
+  const originalImageDataUrl = body.originalImageDataUrl
+    ? String(body.originalImageDataUrl)
+    : "";
   if (originalImageDataUrl) validateImageDataUrl(originalImageDataUrl);
 }
 
 function validateImageDataUrl(dataUrl) {
-  const match = dataUrl.match(/^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=]+)$/);
+  const match = dataUrl.match(
+    /^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=]+)$/,
+  );
   if (!match) {
     const error = new Error("Upload a PNG, JPG, JPEG, or WEBP image.");
     error.statusCode = 400;
@@ -363,7 +462,9 @@ function validateImageDataUrl(dataUrl) {
   const base64 = match[2];
   const bytes = Math.floor((base64.length * 3) / 4);
   if (bytes > MAX_IMAGE_BYTES) {
-    const error = new Error("Image is too large after processing. Use a clearer crop under 10 MB.");
+    const error = new Error(
+      "Image is too large after processing. Use a clearer crop under 10 MB.",
+    );
     error.statusCode = 413;
     throw error;
   }
@@ -422,7 +523,9 @@ async function resolveStaticFile(pathname) {
     if (stat.isDirectory()) {
       const indexPath = path.join(filePath, "index.html");
       const indexStat = await fsp.stat(indexPath).catch(() => null);
-      if (indexStat && indexStat.isFile()) return { filePath: indexPath, stat: indexStat };
+      if (indexStat && indexStat.isFile()) {
+        return { filePath: indexPath, stat: indexStat };
+      }
       return { missing: true };
     }
     return { filePath, stat };
@@ -442,14 +545,20 @@ async function serveDataFile(req, res, fileName) {
 }
 
 async function listSampleImages() {
-  const entries = await fsp.readdir(SAMPLES_DIR, { withFileTypes: true }).catch(() => []);
+  const entries = await fsp
+    .readdir(SAMPLES_DIR, { withFileTypes: true })
+    .catch(() => []);
   return entries
     .filter((entry) => {
       if (!entry.isFile()) return false;
-      return SAMPLE_IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase());
+      return SAMPLE_IMAGE_EXTENSIONS.has(
+        path.extname(entry.name).toLowerCase(),
+      );
     })
     .map((entry) => entry.name)
-    .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
+    .sort((left, right) =>
+      left.localeCompare(right, undefined, { numeric: true }),
+    );
 }
 
 async function handleListSamples(res) {
@@ -458,14 +567,16 @@ async function handleListSamples(res) {
     samples: names.map((name) => ({
       name,
       url: `/samples/${encodeURIComponent(name)}`,
-      label: formatSampleLabel(name)
-    }))
+      label: formatSampleLabel(name),
+    })),
   });
 }
 
 function formatSampleLabel(fileName) {
   const base = path.basename(fileName, path.extname(fileName));
-  return base.replace(/[-_]+/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+  return base
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 async function serveSampleFile(req, res, fileName) {
@@ -519,7 +630,10 @@ async function serveStatic(req, res, pathname) {
 }
 
 function contentTypeFor(filePath) {
-  return mimeTypes[path.extname(filePath).toLowerCase()] || "application/octet-stream";
+  return (
+    mimeTypes[path.extname(filePath).toLowerCase()] ||
+    "application/octet-stream"
+  );
 }
 
 function cacheControlFor(filePath) {
@@ -564,7 +678,7 @@ function sendFile(req, res, filePath, stat, cacheControl) {
     res.writeHead(304, {
       ETag: etag,
       "Last-Modified": lastModified,
-      "Cache-Control": cacheControl
+      "Cache-Control": cacheControl,
     });
     res.end();
     return;
@@ -575,7 +689,7 @@ function sendFile(req, res, filePath, stat, cacheControl) {
     "Content-Length": stat.size,
     "Cache-Control": cacheControl,
     ETag: etag,
-    "Last-Modified": lastModified
+    "Last-Modified": lastModified,
   });
 
   if (req.method === "HEAD") {
@@ -589,7 +703,7 @@ function sendFile(req, res, filePath, stat, cacheControl) {
 function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": "no-store"
+    "Cache-Control": "no-store",
   });
   res.end(JSON.stringify(payload));
 }
@@ -623,5 +737,5 @@ module.exports = {
   entityTagFor,
   resolveStaticFile,
   listSampleImages,
-  formatSampleLabel
+  formatSampleLabel,
 };

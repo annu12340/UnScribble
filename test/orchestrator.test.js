@@ -15,7 +15,7 @@ describe("orchestrator mock workflow", () => {
     const body = {
       imageDataUrl: "data:image/png;base64,iVBORw0KGgo=",
       enhancementMode: "original",
-      fileName: "test.png"
+      fileName: "test.png",
     };
 
     const requestId = "test-request-123";
@@ -26,7 +26,7 @@ describe("orchestrator mock workflow", () => {
         events.push({ event, data });
         if (event === "agent.complete") steps.push(data.id);
       },
-      { requestId }
+      { requestId },
     );
 
     assert.ok(result.summary);
@@ -45,8 +45,20 @@ describe("orchestrator mock workflow", () => {
     const { mergeMedicationRuns } = require("../agents/orchestrator");
 
     const merged = mergeMedicationRuns(
-      [{ line_number: 1, medication_name: "typo", medication_name_confidence: 0.5 }],
-      [{ line_number: 1, medication_name: "paracetamol", medication_name_confidence: 0.92 }]
+      [
+        {
+          line_number: 1,
+          medication_name: "typo",
+          medication_name_confidence: 0.5,
+        },
+      ],
+      [
+        {
+          line_number: 1,
+          medication_name: "paracetamol",
+          medication_name_confidence: 0.92,
+        },
+      ],
     );
     assert.equal(merged[0].medication_name, "paracetamol");
   });

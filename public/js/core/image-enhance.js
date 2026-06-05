@@ -59,7 +59,9 @@ export function applyCLAHE(imageData) {
   const { data, width, height } = imageData;
   const gray = new Uint8Array(width * height);
   for (let i = 0, j = 0; i < data.length; i += 4, j++) {
-    gray[j] = Math.round(data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+    gray[j] = Math.round(
+      data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114,
+    );
   }
 
   const tilesX = 8;

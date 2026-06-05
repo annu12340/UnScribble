@@ -11,8 +11,11 @@ const DRUG_TARGETS = {
   atorvastatin: { protein: "HMG-CoA reductase", sequence: "MGSSHHHHHH..." },
   metformin: { protein: "AMPK", sequence: "MADEEKLPPG..." },
   omeprazole: { protein: "H+/K+ ATPase", sequence: "MGDKKKKKKK..." },
-  amoxicillin: { protein: "Penicillin-binding protein", sequence: "MKLKHLVPAS..." },
-  ibuprofen: { protein: "COX-2", sequence: "MADEEKLPPG..." }
+  amoxicillin: {
+    protein: "Penicillin-binding protein",
+    sequence: "MKLKHLVPAS...",
+  },
+  ibuprofen: { protein: "COX-2", sequence: "MADEEKLPPG..." },
 };
 
 /**
@@ -33,12 +36,14 @@ async function predictProteinMechanism(medicationName) {
   }
 
   if (!target) {
-    log.info("protein-mechanism", "no target protein found", { medication: medicationName });
+    log.info("protein-mechanism", "no target protein found", {
+      medication: medicationName,
+    });
     return {
       medication: medicationName,
       hasProteinData: false,
       bodyEffects,
-      message: "Protein target data not available for this medication"
+      message: "Protein target data not available for this medication",
     };
   }
 
@@ -47,7 +52,10 @@ async function predictProteinMechanism(medicationName) {
     const proteinStructure = await predictProteinStructure(target.sequence);
 
     // Get mechanism explanation
-    const mechanism = await explainMechanism(matchedKey || medicationName, target.protein);
+    const mechanism = await explainMechanism(
+      matchedKey || medicationName,
+      target.protein,
+    );
 
     return {
       medication: medicationName,
@@ -56,18 +64,18 @@ async function predictProteinMechanism(medicationName) {
       proteinStructure: proteinStructure,
       mechanism: mechanism,
       bodyEffects,
-      visualizationReady: true
+      visualizationReady: true,
     };
   } catch (error) {
     log.error("protein-mechanism", "prediction failed", {
       medication: medicationName,
-      error: error.message
+      error: error.message,
     });
     return {
       medication: medicationName,
       hasProteinData: false,
       bodyEffects,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -80,7 +88,7 @@ async function predictProteinStructure(sequence) {
   // For now, returning mock structure
 
   log.info("protein-mechanism", "calling ESMFold", {
-    sequenceLength: sequence.length
+    sequenceLength: sequence.length,
   });
 
   // In production, this would be:
@@ -96,7 +104,7 @@ async function predictProteinStructure(sequence) {
   return {
     pdbData: "MOCK_PDB_DATA", // Would contain actual PDB format structure
     confidence: 0.92,
-    format: "pdb"
+    format: "pdb",
   };
 }
 
@@ -106,7 +114,9 @@ async function predictProteinStructure(sequence) {
 async function explainMechanism(medication, targetProtein) {
   // Use mock data if no API key or in mock mode
   if (config.mock || !config.apiKey) {
-    log.info("protein-mechanism", "using mock mechanism explanation", { medication });
+    log.info("protein-mechanism", "using mock mechanism explanation", {
+      medication,
+    });
     return getMockMechanism(medication, targetProtein);
   }
 
@@ -114,7 +124,7 @@ async function explainMechanism(medication, targetProtein) {
 
   const content = visionContent(
     `Explain the mechanism of action for ${medication} targeting ${targetProtein}.`,
-    null
+    null,
   );
 
   const schema = {
@@ -122,19 +132,19 @@ async function explainMechanism(medication, targetProtein) {
     properties: {
       mechanism: {
         type: "string",
-        description: "Simple explanation of drug mechanism"
+        description: "Simple explanation of drug mechanism",
       },
       bindingSite: {
         type: "string",
-        description: "Where the drug binds on the protein"
+        description: "Where the drug binds on the protein",
       },
       effect: {
         type: "string",
-        description: "What happens when drug binds"
-      }
+        description: "What happens when drug binds",
+      },
     },
     required: ["mechanism", "bindingSite", "effect"],
-    additionalProperties: false
+    additionalProperties: false,
   };
 
   const { result } = await callResponses({
@@ -142,7 +152,7 @@ async function explainMechanism(medication, targetProtein) {
     content,
     schemaName: "mechanism_explanation",
     schema,
-    maxTokens: 1000
+    maxTokens: 1000,
   });
 
   return result;
@@ -156,42 +166,45 @@ function getMockMechanism(medication, targetProtein) {
     lisinopril: {
       mechanism:
         "Lisinopril blocks the ACE enzyme, which normally converts angiotensin I to angiotensin II. By preventing this conversion, blood vessels relax and widen, reducing blood pressure and making it easier for the heart to pump blood.",
-      bindingSite: "Active site of the ACE enzyme, specifically the zinc-binding pocket",
-      effect: "Blood vessels dilate, blood pressure decreases, and cardiac workload is reduced"
+      bindingSite:
+        "Active site of the ACE enzyme, specifically the zinc-binding pocket",
+      effect:
+        "Blood vessels dilate, blood pressure decreases, and cardiac workload is reduced",
     },
     atorvastatin: {
       mechanism:
         "Atorvastatin inhibits HMG-CoA reductase, the enzyme responsible for cholesterol production in the liver. By blocking this enzyme, the liver produces less cholesterol and removes more LDL cholesterol from the blood.",
       bindingSite: "Active site of HMG-CoA reductase enzyme",
       effect:
-        "Cholesterol production decreases, LDL levels drop, and cardiovascular risk is reduced"
+        "Cholesterol production decreases, LDL levels drop, and cardiovascular risk is reduced",
     },
     metformin: {
       mechanism:
         "Metformin activates AMPK enzyme, which regulates cellular energy. This reduces glucose production in the liver and increases insulin sensitivity in muscles, helping cells absorb glucose from the bloodstream more effectively.",
       bindingSite: "Allosteric binding site on AMPK enzyme",
       effect:
-        "Blood glucose levels decrease, insulin sensitivity improves, and cellular energy metabolism is optimized"
+        "Blood glucose levels decrease, insulin sensitivity improves, and cellular energy metabolism is optimized",
     },
     omeprazole: {
       mechanism:
         "Omeprazole irreversibly blocks the H+/K+ ATPase pump in stomach cells. This pump is responsible for secreting acid into the stomach. By blocking it, acid production is significantly reduced.",
       bindingSite: "Cysteine residues on the H+/K+ ATPase pump",
       effect:
-        "Stomach acid production decreases, allowing ulcers to heal and reducing heartburn symptoms"
+        "Stomach acid production decreases, allowing ulcers to heal and reducing heartburn symptoms",
     },
     amoxicillin: {
       mechanism:
         "Amoxicillin binds to penicillin-binding proteins in bacterial cell walls, blocking cross-linking of peptidoglycan. The cell wall weakens and the bacterium lyses.",
       bindingSite: "Penicillin-binding protein active site",
-      effect: "Bacterial cell wall synthesis is inhibited, stopping infection spread"
+      effect:
+        "Bacterial cell wall synthesis is inhibited, stopping infection spread",
     },
     ibuprofen: {
       mechanism:
         "Ibuprofen inhibits cyclooxygenase (COX) enzymes, reducing production of prostaglandins that cause pain, fever, and inflammation.",
       bindingSite: "COX enzyme active site",
-      effect: "Pain and inflammation decrease as prostaglandin levels fall"
-    }
+      effect: "Pain and inflammation decrease as prostaglandin levels fall",
+    },
   };
 
   const key = medication.toLowerCase();
@@ -199,11 +212,11 @@ function getMockMechanism(medication, targetProtein) {
     mechanisms[key] || {
       mechanism: `${medication} interacts with ${targetProtein} to produce its therapeutic effect. The drug binds to specific sites on the protein, modulating its activity.`,
       bindingSite: `Active or allosteric site on ${targetProtein}`,
-      effect: "Therapeutic effect through protein modulation"
+      effect: "Therapeutic effect through protein modulation",
     }
   );
 }
 
 module.exports = {
-  predictProteinMechanism
+  predictProteinMechanism,
 };

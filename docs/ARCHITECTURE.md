@@ -158,7 +158,7 @@ data/
 
 ## 4. Decode Workflow Pipeline
 
-The orchestrator runs agents in **stages**. Parallel stages use `Promise.all`. Critical agents (`raw_transcription`, `medications`) fail the entire workflow on error; others degrade with empty sections.
+The orchestrator runs agents in **stages**. Parallel stages use `Promise.all`. In the main decode path, an agent failure emits `agent.error` / `workflow.error` and fails the request; the optional medication self-consistency re-run is the exception, where failure keeps the first medication pass.
 
 ```mermaid
 flowchart TD
@@ -315,7 +315,7 @@ flowchart LR
     NIMClient --> API["NVIDIA /v1/responses"]
 ```
 
-Each agent exports `{ id, label, critical?, deterministic?, run(ctx) }`.
+Each agent exports `{ id, label, critical?, deterministic?, run(ctx) }`. The `critical` flag is included in error metadata and UI labeling; it is not a general fallback mechanism in the current main workflow.
 
 | Agent               | Type          | Critical | Input                           |
 | ------------------- | ------------- | -------- | ------------------------------- |
@@ -366,7 +366,6 @@ classDiagram
         +NormalizedFrequency normalized_frequency
         +number confidence
         +string[] alternatives
-        +bool low_confidence
         +bool requires_verification
         +string[] safety_flags
     }
@@ -397,7 +396,7 @@ flowchart TB
     subgraph Extraction["Extraction safeguards"]
         RT["Raw transcription preserved"]
         SC["Self-consistency re-run"]
-        LASA["LASA pair blocking in prompts"]
+        LASA["LASA pair context in prompts"]
         RH["region_hint biasing"]
     end
 
@@ -405,7 +404,7 @@ flowchart TB
         LC["Low medication_name_confidence"]
         MD["Missing strength/dose/frequency"]
         UT["Uncertain tokens"]
-        HR["High-risk abbreviations STAT/SOS/QID/..."]
+        HR["High-risk abbreviations STAT/SOS/U/IU/..."]
         TR["Unresolved [?] in transcription"]
     end
 
@@ -472,18 +471,18 @@ flowchart TB
 
 `medication-charts.js` is a **barrel** that re-exports the `charts/` modules and exposes `renderMedicationCharts(med, schedule, instances)`, which delegates to overview and insight renderers. The modules are split by concern so the pure data builders stay testable independent of the DOM and Chart.js.
 
-| Module                  | Responsibility                                                                       |
-| ----------------------- | ------------------------------------------------------------------------------------ |
-| `chart-constants.js`    | Color palette, default Chart.js options, and the `OVERVIEW_/INSIGHT_/ALL_CHART_IDS`  |
-| `chart-data.js`         | **Pure** row builders — PK/steady-state curves, dose times, interaction nodes (no DOM)|
-| `chart-dom.js`          | Canvas/container lookup, loading/empty states, chart teardown                        |
-| `chart-factory.js`      | Builds Chart.js instances (line/value charts) from data + options                    |
-| `chart-overview.js`     | Renders the overview tier (schedule clock)                                           |
-| `chart-insights.js`     | Renders the insight tier (PK curve, dose-effect, interaction diagram, world globe)   |
-| `chart-animate.js`      | `IntersectionObserver`-driven reveal animation on scroll                             |
-| `schedule-clock.js`     | Bespoke **SVG** analog clock plotting daily dose times against live time             |
-| `interaction-diagram.js`| Bespoke **SVG** radial severity hub for drug interactions (no native network chart)  |
-| `world-globe.js`        | Bespoke **SVG** orthographic globe of where a drug is banned / Rx-only               |
+| Module                   | Responsibility                                                                         |
+| ------------------------ | -------------------------------------------------------------------------------------- |
+| `chart-constants.js`     | Color palette, default Chart.js options, and the `OVERVIEW_/INSIGHT_/ALL_CHART_IDS`    |
+| `chart-data.js`          | **Pure** row builders — PK/steady-state curves, dose times, interaction nodes (no DOM) |
+| `chart-dom.js`           | Canvas/container lookup, loading/empty states, chart teardown                          |
+| `chart-factory.js`       | Builds Chart.js instances (line/value charts) from data + options                      |
+| `chart-overview.js`      | Renders the overview tier (schedule clock)                                             |
+| `chart-insights.js`      | Renders the insight tier (PK curve, dose-effect, interaction diagram, world globe)     |
+| `chart-animate.js`       | `IntersectionObserver`-driven reveal animation on scroll                               |
+| `schedule-clock.js`      | Bespoke **SVG** analog clock plotting daily dose times against live time               |
+| `interaction-diagram.js` | Bespoke **SVG** radial severity hub for drug interactions (no native network chart)    |
+| `world-globe.js`         | Bespoke **SVG** orthographic globe of where a drug is banned / Rx-only                 |
 
 `tier-calculations.js` holds pure helpers (e.g. duration-string parsing) for the 3-tier detail layout. The three SVG visualizations are hand-rolled rather than Chart.js because Chart.js has no native clock, network, or globe chart type.
 

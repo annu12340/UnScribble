@@ -33,7 +33,7 @@ function buildRequestBody({
   schemaName,
   schema,
   maxTokens = 4000,
-  temperatureNudge
+  temperatureNudge,
 }) {
   const requestBody = {
     model: config.model,
@@ -46,9 +46,9 @@ function buildRequestBody({
         type: "json_schema",
         name: schemaName,
         strict: true,
-        schema
-      }
-    }
+        schema,
+      },
+    },
   };
   if (temperatureNudge) {
     requestBody.temperature = 0.4;
@@ -64,7 +64,7 @@ async function callResponses({
   schemaName,
   schema,
   maxTokens,
-  temperatureNudge
+  temperatureNudge,
 }) {
   if (!config.apiKey) {
     const error = new Error("NVIDIA_API_KEY is not configured");
@@ -81,7 +81,7 @@ async function callResponses({
       schema,
       maxTokens: effectiveMax,
       temperatureNudge,
-      attempt
+      attempt,
     });
 
     if (parsed.ok) {
@@ -96,12 +96,15 @@ async function callResponses({
       throw error;
     }
 
-    effectiveMax = Math.min(16000, Math.max(effectiveMax * 2, effectiveMax + 2000));
+    effectiveMax = Math.min(
+      16000,
+      Math.max(effectiveMax * 2, effectiveMax + 2000),
+    );
     log.warn("nim", "retrying after empty/incomplete structured output", {
       schema: schemaName,
       attempt: attempt + 1,
       maxTokens: effectiveMax,
-      reason: parsed.incompleteReason
+      reason: parsed.incompleteReason,
     });
   }
 
@@ -117,7 +120,7 @@ async function callResponsesOnce({
   schema,
   maxTokens,
   temperatureNudge,
-  attempt
+  attempt,
 }) {
   const requestBody = buildRequestBody({
     instructions,
@@ -125,13 +128,13 @@ async function callResponsesOnce({
     schemaName,
     schema,
     maxTokens,
-    temperatureNudge
+    temperatureNudge,
   });
   const started = Date.now();
   const controller = new AbortController();
   const timeoutMs = Math.max(
     1000,
-    Number(config.nimRequestTimeoutMs || config.agentTimeoutMs || 90000)
+    Number(config.nimRequestTimeoutMs || config.agentTimeoutMs || 90000),
   );
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   log.info("nim", "request", {
@@ -139,7 +142,7 @@ async function callResponsesOnce({
     model: config.model,
     maxTokens,
     attempt,
-    images: content.filter((part) => part.type === "input_image").length
+    images: content.filter((part) => part.type === "input_image").length,
   });
   let apiResponse;
   try {
@@ -147,10 +150,10 @@ async function callResponsesOnce({
       method: "POST",
       headers: {
         Authorization: `Bearer ${config.apiKey}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(requestBody),
-      signal: controller.signal
+      signal: controller.signal,
     });
   } catch (error) {
     clearTimeout(timeout);
@@ -159,27 +162,27 @@ async function callResponsesOnce({
       log.error("nim", "request timed out", {
         schema: schemaName,
         durationMs,
-        timeoutMs
+        timeoutMs,
       });
       return {
         ok: false,
         retryable: false,
         statusCode: 504,
         errorMessage: "NVIDIA NIM request timed out",
-        detail: `No response after ${timeoutMs}ms`
+        detail: `No response after ${timeoutMs}ms`,
       };
     }
     log.error("nim", "request failed before response", {
       schema: schemaName,
       durationMs,
-      message: error.message
+      message: error.message,
     });
     return {
       ok: false,
       retryable: false,
       statusCode: 502,
       errorMessage: "NVIDIA NIM request failed",
-      detail: error.message
+      detail: error.message,
     };
   }
 
@@ -192,14 +195,14 @@ async function callResponsesOnce({
       log.error("nim", "response body timed out", {
         schema: schemaName,
         durationMs,
-        timeoutMs
+        timeoutMs,
       });
       return {
         ok: false,
         retryable: false,
         statusCode: 504,
         errorMessage: "NVIDIA NIM response timed out",
-        detail: `No complete response after ${timeoutMs}ms`
+        detail: `No complete response after ${timeoutMs}ms`,
       };
     }
     return {
@@ -207,7 +210,7 @@ async function callResponsesOnce({
       retryable: false,
       statusCode: 502,
       errorMessage: "NVIDIA NIM response failed",
-      detail: error.message
+      detail: error.message,
     };
   } finally {
     clearTimeout(timeout);
@@ -219,7 +222,8 @@ async function callResponsesOnce({
     apiPayload = { raw: responseText };
   }
 
-  const requestId = apiResponse.headers.get("x-request-id") || apiPayload.id || "";
+  const requestId =
+    apiResponse.headers.get("x-request-id") || apiPayload.id || "";
   const durationMs = Date.now() - started;
 
   if (!apiResponse.ok) {
@@ -228,19 +232,20 @@ async function callResponsesOnce({
       status: apiResponse.status,
       requestId,
       durationMs,
-      detail: apiPayload.error?.message || responseText.slice(0, 200)
+      detail: apiPayload.error?.message || responseText.slice(0, 200),
     });
     return {
       ok: false,
       retryable: false,
       statusCode: apiResponse.status,
       errorMessage: "NVIDIA NIM request failed",
-      detail: apiPayload.error?.message || responseText
+      detail: apiPayload.error?.message || responseText,
     };
   }
 
   const incompleteReason = apiPayload.incomplete_details?.reason || null;
-  const isIncomplete = apiPayload.status === "incomplete" || Boolean(incompleteReason);
+  const isIncomplete =
+    apiPayload.status === "incomplete" || Boolean(incompleteReason);
   const outputText = extractOutputText(apiPayload);
 
   if (!outputText.trim()) {
@@ -252,19 +257,24 @@ async function callResponsesOnce({
         ? `Model response incomplete (${incompleteReason || "unknown"}): no JSON output returned`
         : "Model returned no JSON message content",
       detail: incompleteReason || "empty output",
-      incompleteReason
+      incompleteReason,
     };
   }
 
   try {
-    log.info("nim", "response ok", { schema: schemaName, requestId, durationMs, attempt });
+    log.info("nim", "response ok", {
+      schema: schemaName,
+      requestId,
+      durationMs,
+      attempt,
+    });
     return { ok: true, result: JSON.parse(outputText), requestId };
   } catch (parseError) {
     log.error("nim", "json parse failed", {
       schema: schemaName,
       requestId,
       durationMs,
-      snippet: outputText.slice(0, 200)
+      snippet: outputText.slice(0, 200),
     });
     return {
       ok: false,
@@ -273,7 +283,7 @@ async function callResponsesOnce({
       errorMessage: "Model returned unparseable JSON",
       detail: parseError.message,
       rawText: outputText,
-      incompleteReason
+      incompleteReason,
     };
   }
 }
@@ -294,5 +304,5 @@ function visionContent(text, imageDataUrl, extraImages = [], options = {}) {
 
 module.exports = {
   callResponses,
-  visionContent
+  visionContent,
 };
